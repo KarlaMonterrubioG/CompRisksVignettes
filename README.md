@@ -5,6 +5,7 @@ It includes R vignettes to illustrate the usage of the following methods:
 
 * Cause-specific formulation
   - Cause-specific Cox PH
+  - Lasso CPH
   - Cox boosting
 * CIF formulation
   - Fine-Gray
