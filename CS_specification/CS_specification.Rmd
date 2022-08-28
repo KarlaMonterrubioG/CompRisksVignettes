@@ -83,7 +83,7 @@ dataset in 80% for train and 20% for test.
 
 ```{r, eval = FALSE}
 require(splitstackshape)
-split_data <- stratified(hd, c('status'), 0.8, bothSets = TRUE)
+split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
 hd_train   <- split_data$SAMP1
 hd_test    <- split_data$SAMP2
 ```
@@ -138,10 +138,11 @@ csh_survival <- coxph(Surv(time, status == 1) ~ age +
                         trtgiven +
                         medwidsi +
                         extranod +
-                        clinstg, 
+                        clinstg,
                        data = hd_train,
                        x = TRUE,         # nedded for predictions
-                       ties = "efron" )  # this is the default, one can also use Breslow          
+                       # this is the default, one can also use Breslow
+                       ties = "efron")
 summary(csh_survival)
 ```
 
@@ -182,18 +183,18 @@ require(rms)
 
 units(hd$time) <- "years"
 dd <- datadist(hd)
-options(datadist="dd")
+options(datadistc = "dd")
 
-csh_rms <- cph(Surv(time, status==1) ~ age +
+csh_rms <- cph(Surv(time, status == 1) ~ age +
                  sex +
                  trtgiven +
                  medwidsi +
                  extranod +
-                 clinstg, 
-                data = hd_train, 
-                x = TRUE, 
-                y = TRUE, 
-                surv = TRUE, 
+                 clinstg,
+                data = hd_train,
+                x = TRUE,
+                y = TRUE,
+                surv = TRUE,
                 time.inc = 30.5,
                 method = "efron")  #default is efron, one can also use breslow
 
@@ -245,7 +246,7 @@ package.
 
 ```{r, message = FALSE}
 require(riskRegression)
-require(prodlim) # for Hist() 
+require(prodlim) # for Hist()
 csh_riskRegression <- CSC(Hist(time, status) ~ age +
                             sex +
                             trtgiven +
@@ -271,8 +272,8 @@ csh_riskRegression.cph <- CSC(Hist(time, status) ~ age +
                                 trtgiven +
                                 medwidsi +
                                 extranod + clinstg,
-                              data = hd_train, 
-                              surv.type = "hazard", 
+                              data = hd_train,
+                              surv.type = "hazard",
                               fitter = "cph")
 print(csh_riskRegression.cph)
 ```
@@ -312,7 +313,7 @@ risk.coxphPL <- predictRisk(csh_riskRegression,
                             product.limit = TRUE)
 risk.coxphPL[1:5]
 
-risk.cphPL  <- predictRisk(csh_riskRegression.cph ,
+risk.cphPL  <- predictRisk(csh_riskRegression.cph,
                            times = 30.5,
                            newdata = hd_test,
                            cause = 1,
@@ -326,9 +327,9 @@ Note that the product limit estimator is also employed when using
 ```{r}
 require(pec)
 as.vector(predictEventProb(csh_riskRegression.cph,
-                           newdata = hd_test[1:5,],
+                           newdata = hd_test[1:5, ],
                            cause = 1,
-                           time=30.5))
+                           time = 30.5))
 ```
 
 Finally, note also that `riskRegression` permits to fit different regressio
@@ -365,13 +366,13 @@ imputation for missing values.
 
 ```{r}
 require(glmnet)
-x = makeX(hd_train[,1:6])
+x <- makeX(hd_train[, 1:6])
 
-lasso.fit <- glmnet(x = x, 
-                    y = Surv(hd_train$time, hd_train$status == 1), 
+lasso.fit <- glmnet(x = x,
+                    y = Surv(hd_train$time, hd_train$status == 1),
                     family = "cox",
-                    alpha = 1) # alpha=0 for ridge and  0<alpha<1 for elastic net
-
+                    # alpha=0 for ridge and  0<alpha<1 for elastic net
+                    alpha = 1)
 ```
 
 The output of the model shows degrees of freedom, deviance and $\lambda$ for the
@@ -393,8 +394,8 @@ The estimated coefficients for specific $\lambda$ values can be obtained using
 `coef()`.
 
 ```{r}
-coef(lasso.fit, s = 0.06)  # s:=\lambda
-coef(lasso.fit, s = 0.03)  
+coef(lasso.fit, s = 0.06) # s:=\lambda
+coef(lasso.fit, s = 0.03)
 ```
 
 **can we do predictions with lasso? Some people only use it for variable selection and the use standard cox approach for coefficients. Other option is what we did for mboost**
@@ -411,8 +412,8 @@ index; however, one can also employ a deviance loss measure.
 
 ```{r}
 set.seed(1)
-lassoCV.fit <- cv.glmnet(x = x , 
-                         y = Surv(hd_train$time,hd_train$status == 1), 
+lassoCV.fit <- cv.glmnet(x = x,
+                         y = Surv(hd_train$time, hd_train$status == 1),
                          family = "cox",
                          alpha = 1,              # this determines lasso fit
                          nfolds = 10,
@@ -452,8 +453,8 @@ Finally, `glmnet` objects can be used together with `survfit()` from the
 
 ```{r, fig.width = 6, fig.height = 4}
 plot(survival::survfit(lassoCV.fit,
-                       x = x ,
-                       y = Surv(hd_train$time,hd_train$status==1),
+                       x = x,
+                       y = Surv(hd_train$time, hd_train$status == 1),
                        s = c(lassoCV.fit$lambda.1se)))
 ```
  
@@ -484,8 +485,8 @@ csh_mboost <- glmboost(Surv(time, status == 1) ~ age +
                          medwidsi +
                          extranod +
                          clinstg,
-                       data = hd, 
-                       family = CoxPH(), 
+                       data = hd,
+                       family = CoxPH(),
                        control = boost_control(mstop = 900,
                                                nu = 0.3,
                                                trace = FALSE),
@@ -494,7 +495,7 @@ csh_mboost <- glmboost(Surv(time, status == 1) ~ age +
 print(csh_mboost)
 
 knitr::kable(round(exp(coef(csh_mboost, off2int = TRUE)), 4),
-             col.names = c('HR'))
+             col.names = c("HR"))
 ```
 
 A plot of the coefficients across boosting iterations is shown:
@@ -522,7 +523,7 @@ cox.boost <- survival::coxph(Surv(time, status == 1) ~ age +
                                medwidsi +
                                extranod +
                                clinstg,
-                             data = hd_train, 
+                             data = hd_train,
                              init = coefficients(csh_mboost),
                              iter.max = 0,
                              x = TRUE,
@@ -536,10 +537,10 @@ probabilities **This is naive approach and will overestimate survival**
 
 ```{r}
 require(pec)
-predict.boost <- pec::predictSurvProb(cox.boost, 
-                                      newdata = hd_test, 
+predict.boost <- pec::predictSurvProb(cox.boost,
+                                      newdata = hd_test,
                                       times = 30.5)
-predict.boost[1:5] 
+predict.boost[1:5]
 
 ####### The code below gives the same result:
 # S0 <- exp(-basehaz(cox.boost)$hazard)                    # baseline survival at the means
@@ -551,21 +552,21 @@ predict.boost[1:5]
 ```{r}
 # there is somethinng wrong here - I am trying to see here how we obtain same survival prob. when we choose to centre data
 
-## when centred 
-boost.centred <- glmboost(Surv(time, status==1) ~ age +
+## when centred
+boost.centred <- glmboost(Surv(time, status == 1) ~ age +
                             sex + trtgiven +
                             medwidsi +
                             extranod +
                             clinstg,
                           data = hd_train, 
-                          family = CoxPH(), 
+                          family = CoxPH(),
                           control = boost_control(mstop = 900,
                                                   nu = 0.3,
                                                   trace = FALSE),
                           center = TRUE)
 
-cox.boost.centred <- coxph(Surv(hd_train$time, hd_train$status==1) ~ . ,
-                           data = as.data.frame(cbind(rep(1,nrow(hd_train)),
+cox.boost.centred <- coxph(Surv(hd_train$time, hd_train$status == 1) ~ .,
+                           data = as.data.frame(cbind(rep(1, nrow(hd_train)),
                                                       hd_train)),
                            init = coefficients(boost.centred),
                            iter.max = 0,
@@ -575,8 +576,8 @@ cox.boost.centred <- coxph(Surv(hd_train$time, hd_train$status==1) ~ . ,
  # baseline survival at the means
 S0  <- exp(-basehaz(cox.boost.centred, centered = FALSE)$hazard)
 # baseline survival at time of interest
-S0t <- S0[which(sort(unique(hd_train$time)) == 30.5)]            
-lp = c(model.matrix(cox.boost.centred) %*% (coefficients(cox.boost.centred)))
+S0t <- S0[which(sort(unique(hd_train$time)) == 30.5)]
+lp <- c(model.matrix(cox.boost.centred) %*% (coefficients(cox.boost.centred)))
 S0t ^ exp(lp)[1:5]
 
 # uses breslow estimator and mean covariates, only permits specific times
