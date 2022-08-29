@@ -1,7 +1,16 @@
 ---
 title: "Approaches based on a proportional cause-specific hazard specification"
 author: "Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos"
-output: rmarkdown::html_vignette
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    code_folding: show
+    toc: yes
+    css: style.css
+    theme: simplex
+    highlight: textmate
+    toc_float:
+      collapsed: no
 link-citations: yes
 citation_package: natbib
 vignette: >
@@ -14,17 +23,21 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  cache = TRUE
 )
 ```
 
 
 # Data
 
-In order to demonstrate the methods we employ publicly available data. 
+In order to demonstrate methods using a proportional cause-specific hazard
+specification, we employ publicly available data. 
 
-The dataset used here corresponds to the Hodgkin’s disease (HD) study described in Pintilie, 2006. The dataset comprises 865 patients diagnosed with early stage (I or II) HD, and which were treated either with radiation (RT) or with radiation and
-chemotherapy (CMT).
+The dataset used here corresponds to the Hodgkin’s disease (HD) study described
+in Pintilie, 2006. The dataset comprises 865 patients diagnosed with early stage
+(I or II) HD, and which were treated either with radiation (RT) or with
+radiation and chemotherapy (CMT).
 
 The recorded data includes:
 
@@ -35,17 +48,21 @@ The recorded data includes:
 * extranod: Extranodal disease, Y=Extranodal disease, N= Nodal disease
 * clinstg: Clinical stage, 1=Stage I, 2=Stage II
 * time: time to failure (years) calculated from the date of diagnosis
-* satus: 0=censoring, 1=relapse and 2=death.
+* status: 0=censoring, 1=relapse and 2=death.
 
 We now load and display the structure of the HD dataset:
-```{r, message=FALSE, warning=FALSE}
+
+```{r, message = FALSE, warning = FALSE}
 require(readr)
-hd <- data.frame(read_csv("~/Documents/Postdoc/Vignettes/Data/HD/hd.csv", 
-               col_types = cols(X1 = col_skip())))
+hd <- data.frame(read_csv("../Data/HD/hd.csv",
+                          col_types = cols(X1 = col_skip())))
 str(hd)
 ```
 
-To proceede with the analysis, it is important to change the data type of sex, trtgiven, medwidsi, and extranod from character to factor. Similarly, we convert clinstg from numeric to factor.
+To procede with the analysis, it is important to change the data type of sex,
+trtgiven, medwidsi, and extranod from `character` to `factor`. Similarly, we
+convert clinstg from numeric to factor.
+
 ```{r}
   hd$sex      <- as.factor(hd$sex)
   hd$trtgiven <- as.factor(hd$trtgiven)
@@ -56,23 +73,27 @@ To proceede with the analysis, it is important to change the data type of sex, t
 
 Now, we explore the number of events for each event type:
 ```{r}
-table(hd$status)
+pander::pander(table(hd$status))
 ```
-Thus, we have 439 censored patients, 291 with relapse and 135 who died. From now on, we assume that the event of interest is relapse, i.e. status=1.
 
-In order to create a test set, we use stratified sampling to partition our dataset in 80% for train and 20% for test.
-```{r, eval=FALSE}
+Thus, we have 439 censored patients, 291 with relapse and 135 who died. From now
+on, we assume that the event of interest is relapse, i.e. status=1.
+
+In order to create a test set, we use stratified sampling to partition our
+dataset in 80% for train and 20% for test.
+
+```{r, eval = FALSE}
 require(splitstackshape)
-split_data <- stratified(hd, c('status'), 0.8, bothSets = TRUE)
+split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
 hd_train   <- split_data$SAMP1
 hd_test    <- split_data$SAMP2
 ```
 
 
 
-```{r, echo=FALSE}
-hd_train <- read_csv("~/Documents/Postdoc/Vignettes/Data/HD/hd_train.csv", show_col_types = FALSE)[,-1]
-hd_test <- read_csv("~/Documents/Postdoc/Vignettes/Data/HD/hd_test.csv", show_col_types = FALSE)[,-1]
+```{r, echo = FALSE}
+hd_train <- read_csv("../Data/HD/hd_train.csv", show_col_types = FALSE)[, -1]
+hd_test <- read_csv("../Data/HD/hd_test.csv", show_col_types = FALSE)[, -1]
 
 hd_train$sex      <- as.factor(hd_train$sex)
 hd_train$trtgiven <- as.factor(hd_train$trtgiven)
@@ -90,271 +111,437 @@ hd_test$clinstg  <- as.factor(hd_test$clinstg)
 
 Now, we explore the number of observations per status in both train and test set:
 ```{r}
-table(hd_train$status)
-table(hd_test$status)
+pander::pander(table(hd_train$status))
+pander::pander(table(hd_test$status))
 ```
 
 
-# Cause-specific Cox PH
-There are several R packages that one can employ to fit a cause-specific hazard regression model. In this section, we explore how we can perform this task with different R packages. We discuss its similarities and differences, highlighting important aspects to consider in each case.
+# Cause-specific Cox Proportional-Hazards
 
-## survival package
-The model can be fit with the coxph( ) function in the survival package. In order to do so, one should first create a survival time object with the Surv( ) funtion. This object, will be the response variable in our regression model.
-Note that, in the code below, we have set status==1 in the second argument of Surv( ) to indicate that we are interested in event type 1. This setting will treat the other status values as censored.
-```{r, message=FALSE}
+There are several R packages that one can employ to fit a cause-specific
+hazard regression model. In this section, we explore how we can perform this
+task with different R packages. We discuss its similarities and differences:
+highlighting important aspects to consider in each case.
+
+## The `survival` package
+
+The model can be fit with the `coxph()` function in the `survival` package. In
+order to do so, one should first create a survival time object with the `Surv()`
+function. This object will be the response variable in our regression model.
+Note that, in the code below, we have set status==1 in the second argument of
+`Surv()` to indicate that we are interested in event type 1. This setting will
+treat the other status values as censored.
+
+```{r, message = FALSE}
 require(survival)
-csh_survival <- coxph( Surv(time, status == 1) ~ age + sex + trtgiven + medwidsi + extranod + clinstg, 
+csh_survival <- coxph(Surv(time, status == 1) ~ age +
+                        sex +
+                        trtgiven +
+                        medwidsi +
+                        extranod +
+                        clinstg,
                        data = hd_train,
                        x = TRUE,         # nedded for predictions
-                       ties = "efron" )  # this is the default, one can also use Breslow          
+                       # this is the default, one can also use Breslow
+                       ties = "efron")
 summary(csh_survival)
 ```
 
-The above output summaries the fitted model. First, it shows that out of the 692 patients, 233 experienced the event of interest (relapse). Second, it shows the coefficients and hazard ratios (exp(coef)) for each covariate, along with a significance test. The results suggest that age, treatment, and stage are significantly associated with the hazard of relapse. For instance, receiving only radiation treatment increases the cause-specific hazard of relapse by 125% when compared to receiving chemotherapy and radiation. It is important to emphasise that one should be cautious when interpreting these covariate effects as this modelling strategy only permits to do inference of the effects on the hazard but not on the prognosis or survival (see more details in Austin, 2016). **correct references**.
-Finally, the output also reports model fitness statistics. The concordance index, which summaries the in-sample discriminative ability of the model (a value close to 1 is preferred), and  three tests to check if (overall) the model is significant.
+The above output summarises the fitted model. First, it shows that out of the
+692 patients, 233 experienced the event of interest (relapse). Second, it shows
+the coefficients and hazard ratios (`exp(coef)`) for each covariate, along with
+a significance test. The results suggest that age, treatment, and stage are
+significantly associated with the hazard of relapse. For instance, receiving
+only radiation treatment increases the cause-specific hazard of relapse by 125%
+when compared to receiving chemotherapy and radiation. It is important to
+emphasise that one should be cautious when interpreting these covariate effects
+as this modelling strategy only permits to do inference of the effects on the
+hazard but not on the prognosis or survival (see more details in Austin, 2016).
+**correct references**.
+Finally, the output also reports model fitness statistics. The concordance
+index, which summaries the in-sample discriminative ability of the model (a
+value close to 1 is preferred), and  three tests to check if (overall) the model
+is significant.
  
- 
-Note that naively estimating survival probabilities from this model, will result in overestimation of the survival function, as competing risks are not taken into account. See riskRegression section for a valid approach.
+Note that naively estimating survival probabilities from this model, will result
+in overestimation of the survival function, as competing risks are not taken
+into account. See the [riskRegression section](#the-riskregression-package) for
+a valid approach.
 
-## rms package
-Another package that permits to fit the model is rms. This package provides useful functions for model validation, and plotting which are well document in Harrel 2017.
+## The `rms` package
 
-Before fitting the model is important to compute summary statistics of the regressors that will be employed, such statistics will be used for instance when plotting or doing predictions. These summary statistics are computed using datadist( ) function.
+Another package that permits to fit the model is `rms`. This package provides
+useful functions for model validation, and plotting which are well documented in
+Harrel 2017.
 
-```{r, message=FALSE}
+Before fitting the model, it is important to compute summary statistics of the
+regressors that will be employed. Such statistics will be used when plotting or
+doing predictions. These summary statistics are computed using `datadist()`
+function.
+
+```{r, message = FALSE}
 require(rms)
 
 units(hd$time) <- "years"
 dd <- datadist(hd)
-options(datadist="dd")
+options(datadistc = "dd")
 
-csh_rms <- cph(Surv(time, status==1) ~ age + sex + trtgiven + medwidsi + extranod + clinstg, 
-                data = hd_train, 
-                x = TRUE, 
-                y = TRUE, 
-                surv = TRUE, 
+csh_rms <- cph(Surv(time, status == 1) ~ age +
+                 sex +
+                 trtgiven +
+                 medwidsi +
+                 extranod +
+                 clinstg,
+                data = hd_train,
+                x = TRUE,
+                y = TRUE,
+                surv = TRUE,
                 time.inc = 30.5,
                 method = "efron")  #default is efron, one can also use breslow
 
 print(csh_rms)
-
 ```
-In this case, the print function gives a slightly different output. The output includes several discrimination indices. Specifically, the concordance index can be recovered using the Dxy index.
 
-summary.rms() is of more utility to compute hazard ratios. For continuous covariates, the HR are computed with respect to the lower and upper quartiles. For instance, from the output below we can infer that a 20-years (going from 23 to 43) increase in age, increases the cause-specific hazard of relapse by 40%. This is in contrast to the coefficients obtained by print( ), which in this case corresponds to $\exp(0.0169)= 1.0170$ and whose interpretation refers to the effect on the hazard by 1-year increase. 
+In this case, the print function gives a slightly different output. The output
+includes several discrimination indices. Specifically, the concordance index can
+be recovered using the `Dxy` index.
 
-```{r }
+`summary.rms()` is of more utility to compute hazard ratios. For continuous
+covariates, the HR are computed with respect to the lower and upper quartiles.
+For instance, from the output below we can infer that a 20-year increase in age
+(going from 23 to 43), increases the cause-specific hazard of relapse by 40%.
+This is in contrast to the coefficients obtained by `print()`, which in this
+case corresponds to $\exp(0.0169)= 1.0170$ and whose interpretation refers to
+the effect on the hazard by 1-year increase. 
+
+```{r}
 summary(csh_rms)
 ```
-Furthermore, one can manually define ranges in which we want to compute HR; for instance going from 30-35 years, i.e. a 5-year increase will result in a 18.4% increase in the cause-specific hazard as shown below. Similarly, for discrete covariates, one can define the reference level with respect to which the HR are computed; for example, below we have changed the reference level for sex.
-```{r }
-summary(csh_rms, age=c(30,40), sex="F")
+
+Furthermore, one can manually define ranges in which we want to compute HR; for
+instance going from 30-35 years, i.e. a 5-year increase will result in a 18.4%
+increase in the cause-specific hazard as shown below. Similarly, for discrete
+covariates, one can define the reference level with respect to which the HR are
+computed; for example, below we have changed the reference level for sex.
+
+```{r}
+summary(csh_rms, age = c(30, 40), sex = "F")
 ```
 
  
-Note that naively estimating survival probabilities from this model, will result in overestimation of the survival function, as competing risks are not taken into account. See the next section for a valid approach.
+Note that naively estimating survival probabilities from this model, will result
+in overestimation of the survival function, as competing risks are not taken
+into account. See the next section for a valid approach.
 
-## riskRegression package
+## The `riskRegression` package
 
-One can also use the CSC( ) function from riskRegression to fit cause-specific hazard regression models. This package acts as an interface to obtain either a coxph or a cph object through the fitter argument.
-In addition, this function, simultaneously fits models for both competing events when the surv.type argument is set equal to hazard. Below, we employ the same regression model for both event types, but it is possible to fit different models for each cause (see example below).
-Note that in this case, the response variable in the regression model is obtained with the Hist( ) function available in the prodlim R package.
+One can also use the `CSC()` function from riskRegression to fit cause-specific
+hazard regression models. This package acts as an interface to obtain either a
+`coxph` or a `cph` object through the `fitter` argument. In addition, this
+function simultaneously fits models for both competing events when
+`surv.type = "hazard"`. Below, we employ the same regression model for both
+event types, but it is possible to fit different models for each cause (see
+example below). Note that in this case, the response variable in the regression
+model is obtained with the `Hist()` function available in the `prodlim` R
+package.
 
-```{r, message=FALSE}
+```{r, message = FALSE}
 require(riskRegression)
-require(prodlim) # for Hist() 
-csh_riskRegression <- CSC( Hist(time, status) ~ age + sex + trtgiven + medwidsi + extranod + clinstg, 
-                      data = hd_train, 
-                      surv.type = "hazard",
-                      cause = 1)
+require(prodlim) # for Hist()
+csh_riskRegression <- CSC(Hist(time, status) ~ age +
+                            sex +
+                            trtgiven +
+                            medwidsi +
+                            extranod +
+                            clinstg,
+                          data = hd_train,
+                          surv.type = "hazard",
+                          cause = 1)
 print(csh_riskRegression)
 ```
-Now the output shows model summaries for both causes. If we analyse Cause: 1, the results should be identical to those obtained with coxph( ) in the survival package, and are interpreted in the same way. 
 
+Now the output shows model summaries for both causes. If we analyse Cause: 1,
+the results should be identical to those obtained with `coxph()` in the survival
+package, and are interpreted in the same way. 
 
-Results obtained by using a cph fitter are the same as above and are shown below:
+Results obtained by using a `cph` fitter are the same as above and are shown
+below:
+
 ```{r}
-csh_riskRegression.cph <- CSC( Hist(time, status) ~ age + sex + trtgiven + medwidsi + extranod + clinstg, 
-                               data = hd_train, 
-                               surv.type = "hazard", 
-                               fitter = "cph")
+csh_riskRegression.cph <- CSC(Hist(time, status) ~ age +
+                                sex +
+                                trtgiven +
+                                medwidsi +
+                                extranod + clinstg,
+                              data = hd_train,
+                              surv.type = "hazard",
+                              fitter = "cph")
 print(csh_riskRegression.cph)
 ```
 
-Assume that we are interested in making risk predictions at time=30.5 for a new set of patients (hd_test). riskRegression package permits to obtain absolute risk predictions at specific time points.
-Here, we set product.limit = FALSE, to use the exponential approximation $S(t)=exp(-H(t)_1 - H(t)_2)$, where $H(t)_j$ denotes the cumulative hazard for cause $j$ at time $t$.
+Assume that we are interested in making risk predictions at time = 30.5 for a
+new set of patients (hd_test). The `riskRegression` package permits obtaining
+absolute risk predictions at specific time points. Here, we set
+`product.limit = FALSE`, to use the exponential approximation
+$S(t)=exp(-H(t)_1 - H(t)_2)$, where $H(t)_j$ denotes the cumulative hazard for
+cause $j$ at time $t$.
+
 ```{r}
-risk.coxph <- predictRisk(csh_riskRegression, times=30.5, newdata = hd_test, cause=1, 
-                product.limit = FALSE)
+risk.coxph <- predictRisk(csh_riskRegression,
+                          times = 30.5,
+                          newdata = hd_test, cause = 1,
+                          product.limit = FALSE)
 risk.coxph[1:5]
 
 
-risk.cph <- predictRisk(csh_riskRegression.cph , times=30.5, newdata = hd_test, cause=1, 
-                product.limit = FALSE)
+risk.cph <- predictRisk(csh_riskRegression.cph,
+                        times = 30.5,
+                        newdata = hd_test,
+                        cause = 1,
+                        product.limit = FALSE)
 risk.cph[1:5]
-
 ```
-If instead we use the product limit estimator, we ensure $S(t| X) + \text{CIF(t | X)}_1 + \text{CIF(t|X)}_2 = 1$ and the output is slightly different:
+
+If instead we use the product limit estimator, we ensure
+$S(t| X) + \text{CIF(t | X)}_1 + \text{CIF(t|X)}_2 = 1$ and the output is
+slightly different:
+
 ```{r}
-risk.coxphPL <- predictRisk(csh_riskRegression, times=30.5, newdata = hd_test, cause=1, 
-                product.limit = TRUE)
+risk.coxphPL <- predictRisk(csh_riskRegression,
+                            times = 30.5,
+                            newdata = hd_test,
+                            cause = 1,
+                            product.limit = TRUE)
 risk.coxphPL[1:5]
 
-risk.cphPL  <- predictRisk(csh_riskRegression.cph , times=30.5, newdata = hd_test, cause=1, 
-                product.limit = TRUE)
+risk.cphPL  <- predictRisk(csh_riskRegression.cph,
+                           times = 30.5,
+                           newdata = hd_test,
+                           cause = 1,
+                           product.limit = TRUE)
 risk.coxphPL[1:5]
 ```
 
-Note that the product limit estimator is also employed when using predictEventProb( ) available in pec package. 
+Note that the product limit estimator is also employed when using
+`predictEventProb()` available in `pec` package. 
+
 ```{r}
 require(pec)
-c(predictEventProb(csh_riskRegression.cph, newdata = hd_test[1:5,], cause = 1, time=30.5))
+as.vector(predictEventProb(csh_riskRegression.cph,
+                           newdata = hd_test[1:5, ],
+                           cause = 1,
+                           time = 30.5))
 ```
 
-Finally, note also that riskRegression permits to fit different regression models for each cause using coxph:
-```{r, message=FALSE}
-#Different regression models for each cause. For cause 1 we use all regressors, for cause 2 we employ only age, and sex.
-csh_riskRegression2 <- CSC(list(Hist(time, status) ~ age + sex + trtgiven + medwidsi + extranod + clinstg, 
-                                 Hist(time, status) ~ age + sex),
+Finally, note also that `riskRegression` permits to fit different regressio
+models for each cause using Cox proportional-hazards:
+
+```{r, message = FALSE}
+# Different regression models for each cause. For cause 1 we use all regressors,
+# for cause 2 we employ only age, and sex.
+csh_riskRegression2 <- CSC(list(Hist(time, status) ~ age +
+                                  sex +
+                                  trtgiven +
+                                  medwidsi +
+                                  extranod +
+                                  clinstg,
+                                Hist(time, status) ~ age + sex),
                            data = hd_train)
 print(csh_riskRegression2)
 ```
 
-
-
-
 # Sparse regression
 
-## Lasso - glmnet package
+## Lasso - The `glmnet` package
+
 **For this we might need another dataset (bigger)?**
 
-The glmnet() function permits to fit different Cox sparse regression models through the argument family="cox". It is possible to use lasso, ridge and elastic net regularization. Here, we focus on describing lasso. 
+The `glmnet()` function permits to fit different Cox sparse regression models
+through the argument `family="cox"`. It is possible to use lasso, ridge and
+elastic net regularization. Here, we focus on describing lasso. 
 
-First, we employ makeX() to construct the design matrix with no intercept. Second, the response variable is defined using a Surv object. Finally, the argument alpha=1 sets the lasso penalty.
-Note that makeX() permits mean imputation for missing values.
+First, we employ `makeX()` to construct the design matrix with no intercept.
+Second, the response variable is defined using a `Surv` object. Finally, the
+argument `alpha = 1` sets the lasso penalty. Note that `makeX()` permits mean
+imputation for missing values.
+
 ```{r}
 require(glmnet)
-x = makeX(hd_train[,1:6])
+x <- makeX(hd_train[, 1:6])
 
-lasso.fit <- glmnet(x = x, 
-                    y = Surv(hd_train$time, hd_train$status == 1), 
+lasso.fit <- glmnet(x = x,
+                    y = Surv(hd_train$time, hd_train$status == 1),
                     family = "cox",
-                    alpha = 1)             # alpha=0 for ridge and  0<alpha<1 for elastic net
-
+                    # alpha=0 for ridge and  0<alpha<1 for elastic net
+                    alpha = 1)
 ```
 
-The output of the model shows degrees of freedom, deviance and $\lambda$ for the iterations.
+The output of the model shows degrees of freedom, deviance and $\lambda$ for the
+iterations.
+
 ```{r}
 print(lasso.fit)
 ```
 
-In the plot below, each line corresponds to one of the covariates. The top x-axis indicates the number of non-zero coefficients for different values of $\lambda$ (bottom x-axis).
-```{r, fig.width=6, fig.height=4}
-plot(lasso.fit, label=TRUE)
+In the plot below, each line corresponds to one of the covariates. The top
+x-axis indicates the number of non-zero coefficients for different values of
+$\lambda$ (bottom x-axis).
+
+```{r, fig.width = 6, fig.height = 4}
+plot(lasso.fit, label = TRUE)
 ```
 
-The estimated coefficients for specific $\lambda$ values can be obtained using coef( ).
+The estimated coefficients for specific $\lambda$ values can be obtained using
+`coef()`.
+
 ```{r}
-coef(lasso.fit, s = 0.06)  # s:=\lambda
-coef(lasso.fit, s = 0.03)  
+coef(lasso.fit, s = 0.06) # s:=\lambda
+coef(lasso.fit, s = 0.03)
 ```
 
 **can we do predictions with lasso? Some people only use it for variable selection and the use standard cox approach for coefficients. Other option is what we did for mboost**
+
 ```{r}
-newx <- makeX(hd_test[,c(2:7)])
+newx <- makeX(hd_test[, c(2:7)])
 #this doesnt work!
 #predict.glmnet(lasso.fit,  s = c(0.02, 0.06), newx = newx,type ="link")
 ```
 
-One can also employ k-fold cross-validation to select the optimal value of $\lambda$. Below, we show how to do that using 10 folds and Harrel's concordance index; however, one can also employ a deviance loss measure.
+One can also employ k-fold cross-validation to select the optimal value of
+$\lambda$. Below, we show how to do that using 10 folds and Harrel's concordance
+index; however, one can also employ a deviance loss measure.
+
 ```{r}
 set.seed(1)
-lassoCV.fit <- cv.glmnet(x = x , 
-                         y = Surv(hd_train$time,hd_train$status==1), 
+lassoCV.fit <- cv.glmnet(x = x,
+                         y = Surv(hd_train$time, hd_train$status == 1),
                          family = "cox",
-                         alpha=1,              # this determines lasso fit
-                         nfolds=10,
+                         alpha = 1,              # this determines lasso fit
+                         nfolds = 10,
                          type.measure = "C")   # uses Harrel's C-index
 ```
 
-In order to find the optimal value of $\lambda$ we use the cross validated C-index
-```{r, fig.width=6, fig.height=4}
+In order to find the optimal value of $\lambda$ we use the cross validated
+C-index
+
+```{r, fig.width = 6, fig.height = 4}
 plot(lassoCV.fit)
 ```
 
-The specific $\lambda$ values marked with the left and right vertical lines in the plot shown above, can be obtained with the following commands.
+The specific $\lambda$ values marked with the left and right vertical lines in
+the plot shown above, can be obtained with the following commands.
 
 ```{r}
 lassoCV.fit$lambda.min; lassoCV.fit$lambda.1se
 ```
-The first value corresponds to the $\lambda$ value where the error reaches its minimum. The second value corresponds to 1 standard deviation of the minimum error. In this case, including only 2 covariates is within 1 sd of the minimum.
 
-The estimated coefficients for $\lambda=$ `r lassoCV.fit$lambda.1se` at are shown below, where we see that lasso selects age and tchemotherapy and radiation treatment.
+The first value corresponds to the $\lambda$ value where the error reaches its
+minimum. The second value corresponds to 1 standard deviation of the minimum
+error. In this case, including only 2 covariates is within 1 sd of the minimum.
+
+The estimated coefficients for $\lambda=$ `r lassoCV.fit$lambda.1se` at are
+shown below, where we see that lasso selects age and tchemotherapy and radiation
+treatment.
+
 ```{r}
 coef(lassoCV.fit, s = lassoCV.fit$lambda.1se)
 ```
 
-Finally, glmnet objects can be used together with survfit() in survival package to obtain survival curves
+Finally, `glmnet` objects can be used together with `survfit()` from the
+`survival` package to obtain survival curves
+
 **check because there should be one line per subject?**
-```{r, fig.width=6, fig.height=4}
-plot(survival::survfit(lassoCV.fit, 
-                  x = x , 
-                  y = Surv(hd_train$time,hd_train$status==1),
-                  s = c(lassoCV.fit$lambda.1se)))
+
+```{r, fig.width = 6, fig.height = 4}
+plot(survival::survfit(lassoCV.fit,
+                       x = x,
+                       y = Surv(hd_train$time, hd_train$status == 1),
+                       s = c(lassoCV.fit$lambda.1se)))
 ```
  
 
 
 
-## Cox boost - mboost package
+## Cox boost - The `mboost` package
  
-A cause-specific CPH model that employs model-based boosting is showcased here by using the glmboost( ) function. As with other approaches, one should first create the response variable using Surv( ). Because mboost is an R package that can fit models beyond survival analysis, one should indicate CoxPH( ) in the family argument. The parameters of the boosting algorithm are set by the control argument. In the example below we have indicate 900 boosting iterations with the step-length (referred as $\lambda$ in the manuscript) set at 0.2. In addition, we indicate that continuous variables have not been previously centered.
+A cause-specific CPH model that employs model-based boosting is showcased here
+by using the `glmboost()` function. As with other approaches, one should first
+create the response variable using `Surv()`. Because `mboost` is an R package
+that can fit models beyond survival analysis, one should specify
+`family = CoxPH()`. The parameters of the boosting algorithm are set by the
+`control` argument. In the example below we have indicate 900 boosting
+iterations with the step-length (referred as $\lambda$ in the manuscript) set at
+0.2. In addition, we indicate that continuous variables have not been previously
+centered.
 
+The output of the model indicates the estimated regression coefficients from
+which the estimated HR can be computed
 
-The output of the model indicates the estimated regression coefficients from which the estimated HR can be computed
-```{r mboost, message=FALSE}
+```{r mboost, message = FALSE}
 require(mboost)
 
-csh_mboost <- glmboost(Surv(time, status==1) ~ age + sex + trtgiven + medwidsi + extranod + clinstg,  
-                        data = hd, 
-                        family = CoxPH(), 
-                        control = boost_control(mstop = 900, nu=0.3, trace = FALSE),
-                        center = FALSE)
+csh_mboost <- glmboost(Surv(time, status == 1) ~ age +
+                         sex +
+                         trtgiven +
+                         medwidsi +
+                         extranod +
+                         clinstg,
+                       data = hd,
+                       family = CoxPH(),
+                       control = boost_control(mstop = 900,
+                                               nu = 0.3,
+                                               trace = FALSE),
+                       center = FALSE)
 
 print(csh_mboost)
 
-knitr::kable(round(exp(coef(csh_mboost, off2int = TRUE)),4), col.names = c('HR'))
+knitr::kable(round(exp(coef(csh_mboost, off2int = TRUE)), 4),
+             col.names = c("HR"))
 ```
 
 A plot of the coefficients across boosting iterations is shown:
-```{r, fig.width=6, fig.height=4}
+
+```{r, fig.width = 6, fig.height = 4}
 plot(csh_mboost, main = "Coefficient paths", ylim = range(coef(csh_mboost)))
 ```
 
-To do variable selection one can use the varimp( ) function. In the plot below we observe that age, treatment given, clinical stage and size of mediastinum involvement appear relevant.
-```{r, fig.width=6, fig.height=4}
+To do variable selection one can use the `varimp()` function. In the plot below
+we observe that age, treatment given, clinical stage and size of mediastinum
+involvement appear to be relevant.
+
+```{r, fig.width = 6, fig.height = 4}
 plot(varimp(csh_mboost))
 ```
 
-In order to get predictions, we use the coefficients obtained with the glmboost( ) routine to derive a coxph object. We see that the resulting coefficients are the same as above:
-```{r}
+In order to get predictions, we use the coefficients obtained with the
+`glmboost()` routine to derive a `coxph` object. We see that the resulting
+coefficients are the same as above
 
-cox.boost <- survival::coxph(Surv(time, status == 1) ~ age + sex + trtgiven + medwidsi + extranod + clinstg, 
-                             data = hd_train, 
+```{r}
+cox.boost <- survival::coxph(Surv(time, status == 1) ~ age +
+                               sex +
+                               trtgiven +
+                               medwidsi +
+                               extranod +
+                               clinstg,
+                             data = hd_train,
                              init = coefficients(csh_mboost),
-                             iter.max = 0, x = TRUE, y = TRUE)
+                             iter.max = 0,
+                             x = TRUE,
+                             y = TRUE)
 
 summary(cox.boost)
-
 ```
 
-Now, we can use the predictSurvProb( ) function in pec package to obtain survival probabilities **This is naive approach and will overestimate survival**
+Now, we can use `predictSurvProb()` from the `pec` package to obtain survival
+probabilities **This is naive approach and will overestimate survival**
+
 ```{r}
 require(pec)
-predict.boost <- pec::predictSurvProb(cox.boost, 
-                                      newdata = hd_test, 
+predict.boost <- pec::predictSurvProb(cox.boost,
+                                      newdata = hd_test,
                                       times = 30.5)
-predict.boost[1:5] 
+predict.boost[1:5]
 
 ####### The code below gives the same result:
 # S0 <- exp(-basehaz(cox.boost)$hazard)                    # baseline survival at the means
@@ -366,26 +553,34 @@ predict.boost[1:5]
 ```{r}
 # there is somethinng wrong here - I am trying to see here how we obtain same survival prob. when we choose to centre data
 
-## when centred 
-boost.centred <- glmboost(Surv(time, status==1) ~ age + sex + trtgiven + medwidsi + extranod + clinstg,  
+## when centred
+boost.centred <- glmboost(Surv(time, status == 1) ~ age +
+                            sex + trtgiven +
+                            medwidsi +
+                            extranod +
+                            clinstg,
                           data = hd_train, 
-                          family = CoxPH(), 
-                          control=boost_control(mstop = 900, nu=0.3, trace=FALSE),
+                          family = CoxPH(),
+                          control = boost_control(mstop = 900,
+                                                  nu = 0.3,
+                                                  trace = FALSE),
                           center = TRUE)
 
-cox.boost.centred <- coxph(Surv(hd_train$time, hd_train$status==1) ~ . ,  
-                            data = as.data.frame(cbind(rep(1,nrow(hd_train)),hd_train)), 
-                            init = coefficients(boost.centred),
-                            iter.max = 0, 
-                            x=TRUE, y=TRUE)
+cox.boost.centred <- coxph(Surv(hd_train$time, hd_train$status == 1) ~ .,
+                           data = as.data.frame(cbind(rep(1, nrow(hd_train)),
+                                                      hd_train)),
+                           init = coefficients(boost.centred),
+                           iter.max = 0,
+                           x = TRUE,
+                           y = TRUE)
 
+ # baseline survival at the means
+S0  <- exp(-basehaz(cox.boost.centred, centered = FALSE)$hazard)
+# baseline survival at time of interest
+S0t <- S0[which(sort(unique(hd_train$time)) == 30.5)]
+lp <- c(model.matrix(cox.boost.centred) %*% (coefficients(cox.boost.centred)))
+S0t ^ exp(lp)[1:5]
 
-S0  <- exp(-basehaz(cox.boost.centred, centered = FALSE)$hazard) # baseline survival at the means
-S0t <- S0[which(sort(unique(hd_train$time)) == 30.5)]            # baseline survival at time of interest
-lp = c(model.matrix(cox.boost.centred)%*%(coefficients(cox.boost.centred)))
-S0t^exp(lp)[1:5]
-
-  
 # uses breslow estimator and mean covariates, only permits specific times
 # predict.boost <- survFit(csh_mboost, newdata = hd_test)
 # dim(predict.boost$surv)
@@ -394,14 +589,15 @@ S0t^exp(lp)[1:5]
 ```
 
 
-mboost permits to do cross-validation for hyper-parameter selection. Here, we show how to do that using 25 bootstrap samples. Estimation is done sequantially
+`mboost` permits cross-validation for hyper-parameter selection. Here, we show
+how to do this using 25 bootstrap samples. Estimation is done sequantially
+
 ```{r}
 set.seed(1)
 cv.boost <- cvrisk(csh_mboost, papply = lapply)
 print(cv.boost)
 plot(cv.boost)
 mstop(cv.boost)  # can serve to obtain optimal stopping parameter
-
 ```
 
 
@@ -413,9 +609,8 @@ mstop(cv.boost)  # can serve to obtain optimal stopping parameter
 * Austin, P.C., Lee, D.S. and Fine, J.P., 2016. Introduction to the analysis of survival data in the presence of competing risks. Circulation, 133(6), pp.601-609.
 * Harrell, F.E., 2017. Regression modeling strategies. Bios, 330(2018), p.14.
 
-
-
 # Session Info
+
 ```{r}
 sessionInfo()
 ```

@@ -1,0 +1,116 @@
+/* CSS Stylesheet*/
+p {
+    color: black;
+    font-size: 14px;
+  }
+
+a {
+    font-size: 14px;
+}
+
+h1 {
+  color: #35457d;
+}
+
+h2 {
+  color: #35457d;
+}
+
+h3 {
+  color: #35457d;
+}
+
+h4 {
+  color: #35457d;
+}
+
+h5 {
+  color: #35457d;
+}
+
+code.hljs {
+  font-family: 'Noto Sans Mono', monospace;
+  font-size: 12px;
+}
+
+a:link {
+  color: #35457d;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+.tocify{
+  color: black
+}
+
+.tocify ul .active {
+    background-color: #35457d;
+}
+
+.list-group-item.active, .list-group-item.active:hover, .list-group-item.active:focus{
+  background-color: #35457d;
+  border-color: #35457d;
+}
+
+.btn {
+    color: white;
+    background: #35457d;
+    border-color: #35457d;
+}
+
+.btn:focus {
+    color: white;
+    background: #35457d;
+    border-color: #35457d;
+}
+
+.btn:hover {
+    color: white;
+    background: #35457d;
+    border-color: #35457d;
+}
+
+.btn:open {
+    color: white;
+    background: #35457d;
+    border-color: #35457d;
+}
+
+
+#rmd-show-all-code:active {
+    color: white;
+    background: #35457d;
+    border-color: #35457d;
+}
+
+#rmd-show-all-code:hover {
+    color: white;
+    background: #35457d;
+    border-color: #35457d;
+}
+
+
+#rmd-hide-all-code:active {
+    color: white;
+    background: #35457d;
+    border-color: #35457d;
+}
+
+#rmd-hide-all-code:hover {
+    color: white;
+    background: #35457d;
+    border-color: #35457d;
+}
+
+pre {
+  margin: 0 0 25px /* add vertical space after result from R*/
+}
+
+img{
+  padding-right: 20px;
+}
+
+.center {
+  margin: auto;
+  width: 80%;
+}
