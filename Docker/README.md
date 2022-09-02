@@ -7,7 +7,7 @@ This directory contains files useful for building or using Docker images.
 ```
 Docker
 ├── README.md
-├── compile.R
+├── render.R
 └── examples.sh
 ```
 
