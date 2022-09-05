@@ -1,6 +1,12 @@
 # Use the latest version of R with support for Linux binaries
 FROM rocker/r-ver:4.2.1
 
+LABEL "org.opencontainers.image.source"="https://github.com/karlamonterrubiog/competing_risks" \
+    "org.opencontainers.image.authors"="Nathan Constantine-Cooke <nathan.constantine-cooke@ed.ac.uk>" \
+    "org.opencontainers.image.base.name"="rocker/r-ver:4.2.1" \
+    "org.opencontainers.image.description"="Docker image for the competing_risks repository" \
+    "org.opencontainers.image.vendor"="University of Edinburgh" 
+
 RUN apt-get update -qq && apt-get -y --no-install-recommends install \
   # Install XML2
   libxml2-dev  \ 
@@ -85,5 +91,5 @@ RUN mkdir Source
 WORKDIR /
 COPY Docker /
 RUN mkdir Data
-LABEL org.opencontainers.image.source https://github.com/karlamonterrubiog/competing_risks
+
 CMD Rscript render.R
