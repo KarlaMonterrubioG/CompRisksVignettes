@@ -28,7 +28,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-
 # Data
 
 In order to demonstrate methods using a proportional cause-specific hazard
@@ -72,6 +71,7 @@ convert clinstg from numeric to factor.
 ```
 
 Now, we explore the number of events for each event type:
+
 ```{r}
 pander::pander(table(hd$status))
 ```
@@ -89,8 +89,6 @@ hd_train   <- split_data$SAMP1
 hd_test    <- split_data$SAMP2
 ```
 
-
-
 ```{r, echo = FALSE}
 hd_train <- read_csv("../Data/HD/hd_train.csv", show_col_types = FALSE)[, -1]
 hd_test <- read_csv("../Data/HD/hd_test.csv", show_col_types = FALSE)[, -1]
@@ -106,10 +104,11 @@ hd_test$trtgiven <- as.factor(hd_test$trtgiven)
 hd_test$medwidsi <- as.factor(hd_test$medwidsi)
 hd_test$extranod <- as.factor(hd_test$extranod)
 hd_test$clinstg  <- as.factor(hd_test$clinstg)
-
 ```
 
-Now, we explore the number of observations per status in both train and test set:
+Now, we explore the number of observations per status in both train and test
+set:
+
 ```{r}
 pander::pander(table(hd_train$status))
 pander::pander(table(hd_test$status))
@@ -228,19 +227,18 @@ computed; for example, below we have changed the reference level for sex.
 summary(csh_rms, age = c(30, 40), sex = "F")
 ```
 
- 
 Note that naively estimating survival probabilities from this model, will result
 in overestimation of the survival function, as competing risks are not taken
 into account. See the next section for a valid approach.
 
 ## The `riskRegression` package
 
-One can also use the `CSC()` function from riskRegression to fit cause-specific
-hazard regression models. This package acts as an interface to obtain either a
-`coxph` or a `cph` object through the `fitter` argument. In addition, this
-function simultaneously fits models for both competing events when
-`surv.type = "hazard"`. Below, we employ the same regression model for both
-event types, but it is possible to fit different models for each cause (see
+One can also use the `CSC()` function from `riskRegression` to fit
+cause-specific hazard regression models. This package acts as an interface to
+obtain either a `coxph` or a `cph` object through the `fitter` argument.
+In addition, this function simultaneously fits models for both competing events
+when `surv.type = "hazard"`. Below, we employ the same regression model for
+both event types, but it is possible to fit different models for each cause (see
 example below). Note that in this case, the response variable in the regression
 model is obtained with the `Hist()` function available in the `prodlim` R
 package.
