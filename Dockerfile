@@ -56,6 +56,7 @@ RUN install2.r --error \
     --repos https://ropensci.r-universe.dev --repos getOption \
     --skipinstalled \
     igraph
+
 RUN install2.r --error \
     --deps TRUE \
     --ncpus -1 \
@@ -71,7 +72,14 @@ RUN install2.r --error \
     riskRegression \ 
     pec \
     glmnet \ 
-    survival 
+    survival \
+    cmprsk \
+    pseudo \
+    geepack \
+    timereg \
+    # for installing packages from github
+    remotes \
+    coda
 
 RUN install2.r --error \
     --deps FALSE \
@@ -91,5 +99,7 @@ RUN mkdir Source
 WORKDIR /
 COPY Docker /
 RUN mkdir Data
+
+RUN Rscript -e "remotes::install_github('cran/binaryLogic'); remotes::install_github('cran/DPWeibull')"
 
 CMD Rscript render.R
