@@ -486,6 +486,10 @@ Indication of a competing risk setting must be passed by setting
 3000 as part of the burn-in period, and to reduce autocorrelation, a thinning of
 10 was used (default).
 
+**NCC Make comment about DPWeibull not being avialble on CRAN? The package is not on CRAN because a dependency, binaryLogic, was removed from CRAN as the maintainer's email address is no longer accessible**
+
+```{r, warning=FALSE}
+
 ```{r, message=FALSE}
 library(DPWeibull)
 library(prodlim) # for Hist() function 

@@ -65,10 +65,14 @@ docker image rm ghcr.io/karlamonterrubiog/competing_risks
 If you wish to avoid using Docker, you can instead run the below R code from the
 top-level directory of this repository which should install all required
 packages and render out the R markdown files. However, please note this approach
-will only work for as long as all dependencies are available on CRAN.
+will only work for as long as all dependencies (except `binaryLogic` and
+`DPWeibull`) are available on CRAN.
 
 ``` R
 if (!require("renv")) install.packages("renv")
+if (!require("remotes")) install.packages("remotes")
 install.packages(unique(renv::dependencies()[["Package"]]))
+remotes::install_github('cran/binaryLogic')
+remotes::install_github('cran/DPWeibull')
 source("Docker/render.R")
 ```
