@@ -509,9 +509,8 @@ cox.boost <- survival::coxph(Surv(time, status == 1) ~ age +
 summary(cox.boost)
 ```
 
-
 `mboost` permits cross-validation for hyper-parameter selection. Here, we show
-how to do this using 25 bootstrap samples (default). Estimation is done sequentially
+how to do this using 25 bootstrap samples (default). Estimation is done sequentially:
 
 ```{r,  echo=T, results='hide'}
 set.seed(1)
@@ -522,6 +521,7 @@ cv.boost <- cvrisk(csh_mboost, papply = lapply)
 plot(cv.boost)
 mstop(cv.boost)  # can serve to obtain optimal stopping parameter
 ```
+The above output shows that 543 boosting iterations is enough.
 
 
 # References
