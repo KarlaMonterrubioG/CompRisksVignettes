@@ -14,3 +14,5 @@ docker container run \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
   ghcr.io/karlamonterrubiog/competing_risks
+
+open Output/CS_specification.html
