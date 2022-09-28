@@ -12,7 +12,7 @@ output:
     toc_float:
       collapsed: no
 link-citations: yes
-citation_package: natbib
+bibliography: references.bib
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
@@ -60,7 +60,7 @@ str(hd)
 
 To procede with the analysis, it is important to change the data type of sex,
 trtgiven, medwidsi, and extranod from `character` to `factor`. Similarly, we
-convert clinstg from numeric to factor.
+convert clinstg from `numeric` to `factor`.
 
 ```{r}
   hd$sex      <- as.factor(hd$sex)
@@ -80,7 +80,7 @@ Thus, we have 439 censored patients, 291 with relapse and 135 who died. From now
 on, we assume that the event of interest is relapse, i.e. status=1.
 
 In order to create a test set, we use stratified sampling to partition our
-dataset in 80% for train and 20% for test.
+data in 80% for train and 20% for test.
 
 ```{r, eval = FALSE}
 require(splitstackshape)
@@ -129,7 +129,7 @@ order to do so, one should first create a survival time object with the `Surv()`
 function. This object will be the response variable in our regression model.
 Note that, in the code below, we have set status==1 in the second argument of
 `Surv()` to indicate that we are interested in event type 1. This setting will
-treat the other status values as censored.
+treat the other status values as censored observations.
 
 ```{r, message = FALSE}
 require(survival)
@@ -149,20 +149,19 @@ summary(csh_survival)
 The above output summarises the fitted model. First, it shows that out of the
 692 patients, 233 experienced the event of interest (relapse). Second, it shows
 the coefficients and hazard ratios (`exp(coef)`) for each covariate, along with
-a significance test. The results suggest that age, treatment, and stage are
-significantly associated with the hazard of relapse. For instance, receiving
-only radiation treatment increases the cause-specific hazard of relapse by 125%
-when compared to receiving chemotherapy and radiation. It is important to
-emphasise that one should be cautious when interpreting these covariate effects
-as this modelling strategy only permits to do inference of the effects on the
-hazard but not on the prognosis or survival (see more details in Austin, 2016).
-**correct references**.
+a significance test. The results suggest that age, treatment, and clinical stage 
+are significantly associated with the hazard of relapse. For instance, being in 
+clinical stage 2 increases the cause-specific hazard (rate) of relapse by 38.4%
+when compared to a patient in stage 1. It is important to emphasise that one 
+should be cautious when interpreting these covariate effects as this modelling 
+strategy only permits to do inference of the effects on the
+hazard but not on the prognosis or survival (see more details in @Austin2016).
 Finally, the output also reports model fitness statistics. The concordance
 index, which summaries the in-sample discriminative ability of the model (a
 value close to 1 is preferred), and  three tests to check if (overall) the model
 is significant.
  
-Note that naively estimating survival probabilities from this model, will result
+Note that naively estimating survival/risk probabilities from this model, will result
 in overestimation of the survival function, as competing risks are not taken
 into account. See the [riskRegression section](#the-riskregression-package) for
 a valid approach.
@@ -171,7 +170,7 @@ a valid approach.
 
 Another package that permits to fit the model is `rms`. This package provides
 useful functions for model validation, and plotting which are well documented in
-Harrel 2017.
+@harrel2017.
 
 Before fitting the model, it is important to compute summary statistics of the
 regressors that will be employed. Such statistics will be used when plotting or
@@ -186,24 +185,23 @@ dd <- datadist(hd)
 options(datadistc = "dd")
 
 csh_rms <- cph(Surv(time, status == 1) ~ age +
-                 sex +
-                 trtgiven +
-                 medwidsi +
-                 extranod +
-                 clinstg,
+                                        sex +
+                                        trtgiven +
+                                        medwidsi +
+                                        extranod +
+                                        clinstg,
                 data = hd_train,
                 x = TRUE,
                 y = TRUE,
                 surv = TRUE,
-                time.inc = 30.5,
-                method = "efron")  #default is efron, one can also use breslow
+                method = "efron")  # default is efron, one can also use breslow
 
 print(csh_rms)
 ```
 
-In this case, the print function gives a slightly different output. The output
-includes several discrimination indices. Specifically, the concordance index can
-be recovered using the `Dxy` index.
+In this case, printing the fitted model, gives a slightly different output. 
+First, the output includes several discrimination indices. Note that, 
+the concordance index can be recovered using the `Dxy` index.
 
 `summary.rms()` is of more utility to compute hazard ratios. For continuous
 covariates, the HR are computed with respect to the lower and upper quartiles.
@@ -218,7 +216,7 @@ summary(csh_rms)
 ```
 
 Furthermore, one can manually define ranges in which we want to compute HR; for
-instance going from 30-35 years, i.e. a 5-year increase will result in a 18.4%
+instance going from 30-40 years, i.e. a 10-year increase will result in a 18.4%
 increase in the cause-specific hazard as shown below. Similarly, for discrete
 covariates, one can define the reference level with respect to which the HR are
 computed; for example, below we have changed the reference level for sex.
@@ -247,11 +245,11 @@ package.
 require(riskRegression)
 require(prodlim) # for Hist()
 csh_riskRegression <- CSC(Hist(time, status) ~ age +
-                            sex +
-                            trtgiven +
-                            medwidsi +
-                            extranod +
-                            clinstg,
+                                               sex +
+                                               trtgiven +
+                                               medwidsi +
+                                               extranod +
+                                               clinstg,
                           data = hd_train,
                           surv.type = "hazard",
                           cause = 1)
@@ -267,10 +265,10 @@ below:
 
 ```{r}
 csh_riskRegression.cph <- CSC(Hist(time, status) ~ age +
-                                sex +
-                                trtgiven +
-                                medwidsi +
-                                extranod + clinstg,
+                                                   sex +
+                                                   trtgiven +
+                                                   medwidsi +
+                                                   extranod + clinstg,
                               data = hd_train,
                               surv.type = "hazard",
                               fitter = "cph")
@@ -284,6 +282,8 @@ absolute risk predictions at specific time points. Here, we set
 $S(t)=exp(-H(t)_1 - H(t)_2)$, where $H(t)_j$ denotes the cumulative hazard for
 cause $j$ at time $t$.
 
+Below, we show the predicted risk for the first 5 patients in the test dataset.
+We see how both fitters (`coxph` or `cph`) give the same result:
 ```{r}
 risk.coxph <- predictRisk(csh_riskRegression,
                           times = 30.5,
@@ -301,7 +301,7 @@ risk.cph[1:5]
 ```
 
 If instead we use the product limit estimator, we ensure
-$S(t| X) + \text{CIF(t | X)}_1 + \text{CIF(t|X)}_2 = 1$ and the output is
+$\text{CIF}_1(t | X) + \text{CIF}_2(t|X) = 1$ and the output is
 slightly different:
 
 ```{r}
@@ -331,18 +331,14 @@ as.vector(predictEventProb(csh_riskRegression.cph,
                            time = 30.5))
 ```
 
-Finally, note also that `riskRegression` permits to fit different regressio
-models for each cause using Cox proportional-hazards:
+Finally, note also that `riskRegression` permits to fit different regression
+models for each cause using Cox proportional-hazards. In the example below, 
+we use all covariates for cause 1, and we employ only age, and sex for cause 2.
 
 ```{r, message = FALSE}
-# Different regression models for each cause. For cause 1 we use all regressors,
-# for cause 2 we employ only age, and sex.
-csh_riskRegression2 <- CSC(list(Hist(time, status) ~ age +
-                                  sex +
-                                  trtgiven +
-                                  medwidsi +
-                                  extranod +
-                                  clinstg,
+# Different regression models for each cause.
+csh_riskRegression2 <- CSC(list(Hist(time, status) ~ age + sex + trtgiven +
+                                            medwidsi + extranod + clinstg,
                                 Hist(time, status) ~ age + sex),
                            data = hd_train)
 print(csh_riskRegression2)
@@ -352,20 +348,17 @@ print(csh_riskRegression2)
 
 ## Lasso - The `glmnet` package
 
-**For this we might need another dataset (bigger)?**
-
 The `glmnet()` function permits to fit different Cox sparse regression models
 through the argument `family="cox"`. It is possible to use lasso, ridge and
 elastic net regularization. Here, we focus on describing lasso. 
 
 First, we employ `makeX()` to construct the design matrix with no intercept.
 Second, the response variable is defined using a `Surv` object. Finally, the
-argument `alpha = 1` sets the lasso penalty. Note that `makeX()` permits mean
-imputation for missing values.
+argument `alpha = 1` sets the lasso penalty. 
 
 ```{r}
 require(glmnet)
-x <- makeX(hd_train[, 1:6])
+x <- makeX(hd_train[, 1:6]) #Note that makeX() permits mean imputation for missing values
 
 lasso.fit <- glmnet(x = x,
                     y = Surv(hd_train$time, hd_train$status == 1),
@@ -374,7 +367,7 @@ lasso.fit <- glmnet(x = x,
                     alpha = 1)
 ```
 
-The output of the model shows degrees of freedom, deviance and $\lambda$ for the
+The output of the fitted model shows degrees of freedom, deviance and $\lambda$ for the
 iterations.
 
 ```{r}
@@ -385,7 +378,7 @@ In the plot below, each line corresponds to one of the covariates. The top
 x-axis indicates the number of non-zero coefficients for different values of
 $\lambda$ (bottom x-axis).
 
-```{r, fig.width = 6, fig.height = 4}
+```{r, fig.width = 8, fig.height = 6}
 plot(lasso.fit, label = TRUE)
 ```
 
@@ -394,16 +387,8 @@ The estimated coefficients for specific $\lambda$ values can be obtained using
 
 ```{r}
 coef(lasso.fit, s = 0.06) # s:=\lambda
-coef(lasso.fit, s = 0.03)
 ```
 
-**can we do predictions with lasso? Some people only use it for variable selection and the use standard cox approach for coefficients. Other option is what we did for mboost**
-
-```{r}
-newx <- makeX(hd_test[, c(2:7)])
-#this doesnt work!
-#predict.glmnet(lasso.fit,  s = c(0.02, 0.06), newx = newx,type ="link")
-```
 
 One can also employ k-fold cross-validation to select the optimal value of
 $\lambda$. Below, we show how to do that using 10 folds and Harrel's concordance
@@ -416,11 +401,9 @@ lassoCV.fit <- cv.glmnet(x = x,
                          family = "cox",
                          alpha = 1,              # this determines lasso fit
                          nfolds = 10,
-                         type.measure = "C")   # uses Harrel's C-index
+                         type.measure = "C")     # uses Harrel's C-index
 ```
 
-In order to find the optimal value of $\lambda$ we use the cross validated
-C-index
 
 ```{r, fig.width = 6, fig.height = 4}
 plot(lassoCV.fit)
@@ -437,9 +420,8 @@ The first value corresponds to the $\lambda$ value where the error reaches its
 minimum. The second value corresponds to 1 standard deviation of the minimum
 error. In this case, including only 2 covariates is within 1 sd of the minimum.
 
-The estimated coefficients for $\lambda=$ `r lassoCV.fit$lambda.1se` at are
-shown below, where we see that lasso selects age and tchemotherapy and radiation
-treatment.
+The estimated coefficients for $\lambda=$ `r lassoCV.fit$lambda.1se` are
+shown below, where we see that lasso selects age and chemotherapy treatment.
 
 ```{r}
 coef(lassoCV.fit, s = lassoCV.fit$lambda.1se)
@@ -448,8 +430,6 @@ coef(lassoCV.fit, s = lassoCV.fit$lambda.1se)
 Finally, `glmnet` objects can be used together with `survfit()` from the
 `survival` package to obtain survival curves
 
-**check because there should be one line per subject?**
-
 ```{r, fig.width = 6, fig.height = 4}
 plot(survival::survfit(lassoCV.fit,
                        x = x,
@@ -457,8 +437,6 @@ plot(survival::survfit(lassoCV.fit,
                        s = c(lassoCV.fit$lambda.1se)))
 ```
  
-
-
 
 ## Cox boost - The `mboost` package
  
@@ -499,7 +477,7 @@ knitr::kable(round(exp(coef(csh_mboost, off2int = TRUE)), 4),
 
 A plot of the coefficients across boosting iterations is shown:
 
-```{r, fig.width = 6, fig.height = 4}
+```{r, fig.width = 8, fig.height = 6}
 plot(csh_mboost, main = "Coefficient paths", ylim = range(coef(csh_mboost)))
 ```
 
@@ -531,81 +509,23 @@ cox.boost <- survival::coxph(Surv(time, status == 1) ~ age +
 summary(cox.boost)
 ```
 
-Now, we can use `predictSurvProb()` from the `pec` package to obtain survival
-probabilities **This is naive approach and will overestimate survival**
-
-```{r}
-require(pec)
-predict.boost <- pec::predictSurvProb(cox.boost,
-                                      newdata = hd_test,
-                                      times = 30.5)
-predict.boost[1:5]
-
-####### The code below gives the same result:
-# S0 <- exp(-basehaz(cox.boost)$hazard)                    # baseline survival at the means
-# S0t <- S0[which(sort(unique(hd_train$time)) == 30.5)]    # baseline survival at time of interest
-# lp <- predict(cox.boost, hd_test, type="lp")             # linear predictor at the mean
-# S0t^exp(lp)[1:5]
-```
-
-```{r}
-# there is somethinng wrong here - I am trying to see here how we obtain same survival prob. when we choose to centre data
-
-## when centred
-boost.centred <- glmboost(Surv(time, status == 1) ~ age +
-                            sex + trtgiven +
-                            medwidsi +
-                            extranod +
-                            clinstg,
-                          data = hd_train, 
-                          family = CoxPH(),
-                          control = boost_control(mstop = 900,
-                                                  nu = 0.3,
-                                                  trace = FALSE),
-                          center = TRUE)
-
-cox.boost.centred <- coxph(Surv(hd_train$time, hd_train$status == 1) ~ .,
-                           data = as.data.frame(cbind(rep(1, nrow(hd_train)),
-                                                      hd_train)),
-                           init = coefficients(boost.centred),
-                           iter.max = 0,
-                           x = TRUE,
-                           y = TRUE)
-
- # baseline survival at the means
-S0  <- exp(-basehaz(cox.boost.centred, centered = FALSE)$hazard)
-# baseline survival at time of interest
-S0t <- S0[which(sort(unique(hd_train$time)) == 30.5)]
-lp <- c(model.matrix(cox.boost.centred) %*% (coefficients(cox.boost.centred)))
-S0t ^ exp(lp)[1:5]
-
-# uses breslow estimator and mean covariates, only permits specific times
-# predict.boost <- survFit(csh_mboost, newdata = hd_test)
-# dim(predict.boost$surv)
-# unique(predict.boost$time)
-# which(predict.boost$time ==30.5)
-```
-
 
 `mboost` permits cross-validation for hyper-parameter selection. Here, we show
-how to do this using 25 bootstrap samples. Estimation is done sequantially
+how to do this using 25 bootstrap samples (default). Estimation is done sequentially
 
-```{r}
+```{r,  echo=T, results='hide'}
 set.seed(1)
 cv.boost <- cvrisk(csh_mboost, papply = lapply)
-print(cv.boost)
+```
+
+```{r}
 plot(cv.boost)
 mstop(cv.boost)  # can serve to obtain optimal stopping parameter
 ```
 
 
-**shall we add here lunn-mcneil**
-
 # References
-
-* Pintilie, M., 2006. Competing risks: a practical perspective. John Wiley & Sons.
-* Austin, P.C., Lee, D.S. and Fine, J.P., 2016. Introduction to the analysis of survival data in the presence of competing risks. Circulation, 133(6), pp.601-609.
-* Harrell, F.E., 2017. Regression modeling strategies. Bios, 330(2018), p.14.
+<div id="refs"></div>
 
 # Session Info
 
