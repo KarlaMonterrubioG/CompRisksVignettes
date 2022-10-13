@@ -5,22 +5,22 @@ LABEL "org.opencontainers.image.source"="https://github.com/karlamonterrubiog/co
     "org.opencontainers.image.authors"="Nathan Constantine-Cooke <nathan.constantine-cooke@ed.ac.uk>" \
     "org.opencontainers.image.base.name"="rocker/r-ver:4.2.1" \
     "org.opencontainers.image.description"="Docker image for the competing_risks repository" \
-    "org.opencontainers.image.vendor"="University of Edinburgh" 
+    "org.opencontainers.image.vendor"="University of Edinburgh"
 
 RUN apt-get update -qq && apt-get -y --no-install-recommends install \
   # Install XML2
-  libxml2-dev  \ 
+  libxml2-dev  \
   # Install the Cairo graphics library
   libcairo2-dev \
   libsqlite-dev \
-  libmariadb-dev \ 
+  libmariadb-dev \
   libpq-dev \
   libssh2-1-dev \
   unixodbc-dev \
   libsasl2-dev \
   libgsl0-dev \
   # Needed for curl
-  libcurl4-openssl-dev \ 
+  libcurl4-openssl-dev \
   # Open SSL
   libssl-dev \
   # Image Magick
@@ -32,6 +32,7 @@ RUN apt-get update -qq && apt-get -y --no-install-recommends install \
   libfribidi-dev \
   # Needed for Rmarkdown
   pandoc \
+  pandoc-citeproc \
   # Remove unneeded files to decrease image size
   && rm -rf /var/lib/apt/lists/*
 
@@ -43,9 +44,9 @@ RUN install2.r --error \
     BiocManager littler
 
 # Packages from Bioconductor (will compile from source)
-RUN /usr/local/lib/R/site-library/littler/examples/installBioc.r S4Vectors 
+RUN /usr/local/lib/R/site-library/littler/examples/installBioc.r S4Vectors
 RUN /usr/local/lib/R/site-library/littler/examples/installBioc.r biomaRt
-RUN /usr/local/lib/R/site-library/littler/examples/installBioc.r  KEGGgraph 
+RUN /usr/local/lib/R/site-library/littler/examples/installBioc.r  KEGGgraph
 RUN /usr/local/lib/R/site-library/littler/examples/installBioc.r BiocVersion
 
 # Install R packages from CRAN (will download binaries)
@@ -62,6 +63,15 @@ RUN install2.r --error \
     --ncpus -1 \
     --repos https://ropensci.r-universe.dev --repos getOption \
     --skipinstalled \
+    remotes
+
+RUN Rscript -e "remotes::install_github('cran/ipw')"
+
+RUN install2.r --error \
+    --deps TRUE \
+    --ncpus -1 \
+    --repos https://ropensci.r-universe.dev --repos getOption \
+    --skipinstalled \
     rmarkdown \
     knitr \
     readr \
@@ -69,17 +79,19 @@ RUN install2.r --error \
     survival \
     rms \
     prodlim \
-    riskRegression \ 
+    riskRegression \
     pec \
-    glmnet \ 
+    glmnet \
     survival \
     cmprsk \
     pseudo \
     geepack \
     timereg \
     # for installing packages from github
-    remotes \
-    coda
+    coda \
+    BART \
+    nnet
+
 
 RUN install2.r --error \
     --deps FALSE \
@@ -91,11 +103,11 @@ RUN install2.r --error \
     mboost
 
 RUN rm -rf /tmp/downloaded_packages \
-    && strip /usr/local/lib/R/site-library/*/libs/*.so   
+    && strip /usr/local/lib/R/site-library/*/libs/*.so
 
 RUN mkdir Output
 RUN mkdir Source
-         
+
 WORKDIR /
 COPY Docker /
 RUN mkdir Data
