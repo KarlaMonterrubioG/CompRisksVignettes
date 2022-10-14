@@ -39,7 +39,11 @@ $ git clone https://github.com/KarlaMonterrubioG/Competing_risks.git
 $ cd Competing_risks
 ```
 
-You can then run 
+> **Note**: You may need to allocated more RAM to Docker if 8GB of RAM or less 
+is allocated. If you are using Docker Desktop, you can allocate more RAM in the
+settings panel (Settings > Resources > Advanced)
+
+To render the HTML reports, you can run 
 
 ``` bash
 $ docker container run \

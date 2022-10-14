@@ -34,9 +34,9 @@ knitr::opts_chunk$set(
 In order to demonstrate the methods, we employ publicly available data. 
 
 The dataset used here corresponds to the Hodgkin’s disease (HD) study described
-in Pintilie, 2006. The dataset comprises 865 patients diagnosed with early stage
-(I or II) HD, and which were treated either with radiation (RT) or with
-radiation and chemotherapy (CMT).
+in @pintilie2006competing. The dataset comprises 865 patients diagnosed with
+early stage (I or II) HD, and which were treated either with radiation (RT) or
+with radiation and chemotherapy (CMT).
 
 The recorded data includes:
 
@@ -116,11 +116,18 @@ table(hd_test$status)
 ```
 
 # BART
-In this section we show how to employ a Bayesian additive regression trees model for CR. A complete vignette is available at
+In this section we show how to employ a Bayesian additive regression trees model
+for CR. A complete vignette is available at
 
 ## Model formulation 1
-This approach models the time to the first event and then the conditional probability of the event being of type $k=1$ given that it occurred.
-In order to fit the model, we first construct a model matrix, for both, train and test data. Then, the model is fitted with the function `crisk2.bart`. Note that the required binary event indicators $y_{ijk}$ can be constructed beforehand with `surv.pre.bart` and passed to the function using the `y.train` argument. Instead, here we pass arguments `times` and `delta` which will construct event indicators internally. 
+This approach models the time to the first event and then the conditional
+probability of the event being of type $k=1$ given that it occurred. In order to
+fit the model, we first construct a model matrix, for both, train and test data.
+Then, the model is fitted with the function `crisk2.bart`. Note that the
+required binary event indicators $y_{ijk}$ can be constructed beforehand with
+`surv.pre.bart` and passed to the function using the `y.train` argument.
+Instead, here we pass arguments `times` and `delta` which will construct event
+indicators internally. 
 
 
 ```{r, results='hide'}
@@ -129,68 +136,91 @@ library(survival)
 library(BART)
 library(stats)
 
-xtrain = model.matrix(~. , hd_train[,c(1:6)])[,-1]
-xtest = model.matrix(~. , hd_test[,c(1:6)])[,-1]
+xtrain <- model.matrix(~., hd_train[, c(1:6)])[, -1]
+xtest <- model.matrix(~., hd_test[, c(1:6)])[, -1]
 
 
-bart1 <- crisk2.bart(x.train = xtrain, 
+bart1 <- crisk2.bart(x.train = xtrain,
                      times = hd_train$time, # needed if ytrain is not provided
                      delta = hd_train$status, # needed if ytrain is not provided
-                     x.test = xtest, 
-                     sparse = FALSE,    #set equal TRUE for variable selection 
-                     type = 'pbart',
-                     ntree = 30, numcut = 100, 
-                     ndpost = 1000, nskip = 250, keepevery = 10L, printevery = 100L, 
-                     seed = 99)  
+                     x.test = xtest,
+                     sparse = FALSE,    #set equal TRUE for variable selection
+                     type = "pbart",
+                     ntree = 30, numcut = 100,
+                     ndpost = 1000,
+                     nskip = 250,
+                     keepevery = 10L,
+                     printevery = 100L,
+                     seed = 99)
 ```
 The output contains 
 The function `mc.crisk2.bart` permits parallel computation of the model.
 
+Below, we re-organised the predicted CIF for cause 1 for the test dataset. The
+constructed matrix contains one row per subject and the columns correspond to
+the unique time points at which it is evaluated.
 
-
-Below, we re-organised the predicted CIF for cause 1 for the test dataset. The constructed matrix contains one row per subject and the columns correspond to the unique time points at which it is evaluated.
 ```{r}
-cif.pred <- matrix(bart1$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )
+cif.pred <- matrix(bart1$cif.test.mean, nrow = nrow(xtest), byrow = TRUE)
 ```
+
 We show CIF curves for patient 1 (red) and 3 (blue) in the test set:
+
 ```{r, fig.dim=c(6,4)}
 par(mar = c(4, 4, 2, 0.1))
 
 plot(bart1$times,
-     cif.pred[1,],
+     cif.pred[1, ],
      type = "l",
      col = "red",
      ylim = c(0, 0.5),
      xlab = "Time (years)",
      ylab = "Cumulative incidence")
-lines(bart1$times,  cif.pred[3,], col="blue")
+lines(bart1$times,  cif.pred[3, ], col = "blue")
 ```
-Similarly, we can also obtain survival estimates. Below, we show estimates at $t=30.5$ for the first 5 subjects in the test set:
+Similarly, we can also obtain survival estimates. Below, we show estimates at
+$t=30.5$ for the first 5 subjects in the test set:
+
 ```{r}
-surv.pred <- matrix(bart1$surv.test.mean, nrow=nrow(xtest), byrow = TRUE )
-surv.pred[1:5,which(bart1$times == 30.5)]
+surv.pred <- matrix(bart1$surv.test.mean, nrow = nrow(xtest), byrow = TRUE)
+surv.pred[1:5, which(bart1$times == 30.5)]
 ```
 
 ## Model formulation 2
-The second formulation employs one model for the conditional probability of experiencing event type $k=1$ at a specific time $t_j$ given that the subject is still at risk and a second model for the conditional probability of a type $k=2$ event at time $t_j$ given that the subject is still at risk and that it has not experience a type $k=1$ event.
+
+The second formulation employs one model for the conditional probability of
+experiencing event type $k=1$ at a specific time $t_j$ given that the subject is
+still at risk and a second model for the conditional probability of a type
+$k=2$ event at time $t_j$ given that the subject is still at risk and that it
+has not experience a type $k=1$ event.
 
 As in the previous formulation, we first construct a model matrix and permit the function `crisk.bart` to do an internal call to construct the required event indicators:
-```{r, results='hide'}
-xtrain = model.matrix(~. , hd_train[,c(1:6)])[,-1]
-xtest = model.matrix(~. , hd_test[,c(1:6)])[,-1]
 
-bart2 <- crisk.bart(x.train = xtrain, times = hd_train$time, delta=hd_train$status,
-           x.test = xtest, 
-           sparse=FALSE, 
-           type='pbart',
-           ntree = 30, numcut = 100, 
-           ndpost = 1000, nskip = 250, keepevery = 10L, printevery = 100L, 
-           seed=99)
+```{r, results='hide'}
+xtrain <- model.matrix(~., hd_train[, c(1:6)])[, -1]
+xtest <- model.matrix(~., hd_test[, c(1:6)])[, -1]
+
+bart2 <- crisk.bart(x.train = xtrain,
+                    times = hd_train$time,
+                    delta = hd_train$status,
+                    x.test = xtest,
+                    sparse = FALSE,
+                    type = "pbart",
+                    ntree = 30,
+                    numcut = 100,
+                    ndpost = 1000,
+                    nskip = 250,
+                    keepevery = 10L,
+                    printevery = 100L,
+                    seed = 99)
 # Parallel computation of the model is available using mc.crisk.bart
 ```
+
 The output is similar to that shown in the previous section.
 
+# References
 
+<div id="refs"></div>
 
 # Session Info
 ```{r}
