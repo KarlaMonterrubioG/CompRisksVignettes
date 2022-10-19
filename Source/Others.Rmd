@@ -1,0 +1,207 @@
+---
+title: "Other methods"
+author: "Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    code_folding: show
+    toc: yes
+    css: style.css
+    theme: simplex
+    highlight: textmate
+    toc_float:
+      collapsed: no
+link-citations: yes
+bibliography: references.bib
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+
+# Dataset
+
+In order to demonstrate the methods, we employ publicly available data. 
+
+The dataset used here corresponds to the Hodgkin’s disease (HD) study described
+in @pintilie2006competing. The dataset comprises 865 patients diagnosed with early stage
+(I or II) HD, and which were treated either with radiation (RT) or with
+radiation and chemotherapy (CMT).
+
+The recorded data includes:
+
+* age: Age (years)
+* sex: Sex, F=female and M=Male.
+* trtgiven: Treatment given, RT=Radiation, CMT=Chemotherapy and radiation
+* medwidsi: Size of mediastinum involvement, N=No, S=Small, L=Large
+* extranod: Extranodal disease, Y=Extranodal disease, N= Nodal disease
+* clinstg: Clinical stage, 1=Stage I, 2=Stage II
+* time: time to failure (years) calculated from the date of diagnosis
+* status: 0=censoring, 1=relapse and 2=death.
+
+We now load and display the structure of the HD dataset:
+
+```{r, message=FALSE, warning=FALSE}
+library(readr)
+hd <- data.frame(read_csv("../Data/HD/hd.csv",
+                          col_types = cols(X1 = col_skip())))
+str(hd)
+```
+
+To proceed with the analysis, it is important to change the data type of sex,
+trtgiven, medwidsi, and extranod from character to factor. Similarly, we convert
+clinstg from numeric to factor.
+
+```{r}
+hd$sex      <- as.factor(hd$sex)
+hd$trtgiven <- as.factor(hd$trtgiven)
+hd$medwidsi <- as.factor(hd$medwidsi)
+hd$extranod <- as.factor(hd$extranod)
+hd$clinstg  <- as.factor(hd$clinstg)
+```
+
+Now, we explore the number of events for each event type:
+
+```{r}
+table(hd$status)
+```
+
+Thus, we have 439 censored patients, 291 with relapse, and 135 who died. From
+now on, we assume that the event of interest is relapse, i.e. status=1.
+
+In order to create a test set, we use stratified sampling to partition our
+dataset into 80% for train and 20% for test.
+
+```{r, eval=FALSE}
+library(splitstackshape)
+split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
+hd_train   <- split_data$SAMP1
+hd_test    <- split_data$SAMP2
+```
+
+
+```{r, echo=FALSE}
+hd_train <- read_csv("../Data/HD/hd_train.csv", show_col_types = FALSE)[, -1]
+hd_test <- read_csv("../Data/HD/hd_test.csv", show_col_types = FALSE)[, -1]
+
+hd_train$sex      <- as.factor(hd_train$sex)
+hd_train$trtgiven <- as.factor(hd_train$trtgiven)
+hd_train$medwidsi <- as.factor(hd_train$medwidsi)
+hd_train$extranod <- as.factor(hd_train$extranod)
+hd_train$clinstg  <- as.factor(hd_train$clinstg)
+
+hd_test$sex      <- as.factor(hd_test$sex)
+hd_test$trtgiven <- as.factor(hd_test$trtgiven)
+hd_test$medwidsi <- as.factor(hd_test$medwidsi)
+hd_test$extranod <- as.factor(hd_test$extranod)
+hd_test$clinstg  <- as.factor(hd_test$clinstg)
+```
+
+Now, we explore the number of observations per status in both train and test
+set:
+
+```{r}
+table(hd_train$status)
+table(hd_test$status)
+```
+
+
+
+# Vertical modelling
+
+```{r}
+library(splines)
+library(survival)
+```
+
+# Random survival forests
+
+The authors provide an online vignette for RSF [here](https://www.randomforestsrc.org/articles/competing.html) (@HemantCompeting).
+
+The argument `splitrule` is key when determining the type of analysis we are interested on. When the objective is to do a cause-specific hazard analysis we must set `splitrule="logrank"` and the argument `cause` should indicate the event type of interest. In contrast, if one is interested on long term predictions, `splitrule="logrankCR"` is more appropiate, as it considers the CIF.
+
+Below, we fit both models:
+
+## Generalized log-rank splitting rule (logrank)
+
+In order to assess variable importance, we set argument `importance=TRUE`
+by.root which bootstraps the data by sampling
+with or without replacement (without replacement is the default;
+```{r}
+library(randomForestSRC)
+
+rsf.lr <- rfsrc(Surv(time, status) ~ ., 
+                data = hd_train,
+                ntree = 100,
+                splitrule = "logrank", 
+                cause = c(1,0),         # to indicate that first event is of interest
+                bootstrap = "by.root",
+                importance = TRUE,
+                save.memory= TRUE,     # useful for big datasets
+                seed = 100
+                )
+plot.competing.risk(rsf.lr)
+
+```
+
+Note that if missing values are present, it is possible to imputem them by setting the argument `na.action=na.impute`.
+
+```{r}
+csh.oob <- chf.oob 
+cif.oob <- rsf.lr$cif.oob
+```
+
+Predictions
+```{r}
+test.lr <- predict(rsf.lr, newdata = dh_test,
+                   importance = TRUE, csv = TRUE)
+```
+
+## Modified Gray’s test splitting rule (logrankCR)
+
+```{r}
+
+rsf.lrCR <- rfsrc(Surv(time, status) ~ ., 
+                data = hd_train,
+                ntree = 100,
+                splitrule = "logrankCR", 
+                cause = c(1,0),         # to indicate that first event is of interest
+                importance = TRUE,
+                save.memory= TRUE,     # useful for big datasets
+                seed = 100
+                )
+plot.competing.risk(rsf.lrCR)
+
+```
+
+Note that if missing values are present, it is possible to imputem them by setting the argument `na.action=na.impute`.
+
+```{r}
+csh.oob <- rsf.lrCR$chf.oob 
+cif.oob <- rsf.lrCR$cif.oob
+```
+
+Predictions
+```{r}
+test.lrCR <- predict(rsf.lrCR, newdata = dh_test,
+                   importance = TRUE, csv = TRUE)
+```
+
+
+# References
+<div id="refs"></div>
+
+# Session Info
+```{r}
+sessionInfo()
+```
