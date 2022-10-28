@@ -84,26 +84,10 @@ data in 80% for train and 20% for test.
 
 ```{r, eval = FALSE}
 require(splitstackshape)
+set.seed(2022)
 split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
 hd_train   <- split_data$SAMP1
 hd_test    <- split_data$SAMP2
-```
-
-```{r, echo = FALSE}
-hd_train <- read_csv("../Data/HD/hd_train.csv", show_col_types = FALSE)[, -1]
-hd_test <- read_csv("../Data/HD/hd_test.csv", show_col_types = FALSE)[, -1]
-
-hd_train$sex      <- as.factor(hd_train$sex)
-hd_train$trtgiven <- as.factor(hd_train$trtgiven)
-hd_train$medwidsi <- as.factor(hd_train$medwidsi)
-hd_train$extranod <- as.factor(hd_train$extranod)
-hd_train$clinstg  <- as.factor(hd_train$clinstg)
-
-hd_test$sex      <- as.factor(hd_test$sex)
-hd_test$trtgiven <- as.factor(hd_test$trtgiven)
-hd_test$medwidsi <- as.factor(hd_test$medwidsi)
-hd_test$extranod <- as.factor(hd_test$extranod)
-hd_test$clinstg  <- as.factor(hd_test$clinstg)
 ```
 
 Now, we explore the number of observations per status in both train and test
@@ -118,7 +102,9 @@ pander::pander(table(hd_test$status))
 # Cause-specific Cox Proportional-Hazards
 
 There are several R packages that one can employ to fit a cause-specific
-hazard regression model. In this section, we explore how we can perform this
+hazard regression model. For this purpose, separate Cox proportional hazards
+models are fitted for each event type, treating other events as censored 
+observations. In this section, we explore how we can perform this
 task with different R packages. We discuss its similarities and differences:
 highlighting important aspects to consider in each case.
 
@@ -127,9 +113,11 @@ highlighting important aspects to consider in each case.
 The model can be fit with the `coxph()` function in the `survival` package. In
 order to do so, one should first create a survival time object with the `Surv()`
 function. This object will be the response variable in our regression model.
-Note that, in the code below, we have set status==1 in the second argument of
-`Surv()` to indicate that we are interested in event type 1. This setting will
-treat the other status values as censored observations.
+For illustration purposes, we only fit the cause-specific model associated to
+events of type 1. To do this, in the code below, we have set `status==1` in the 
+second argument of `Surv()` to indicate that we are interested in event type 1. 
+This setting will treat the other status values as censored observations. The 
+cause-specific model for the second event type can be fitted using `status==2`.
 
 ```{r, message = FALSE}
 require(survival)
@@ -173,9 +161,13 @@ useful functions for model validation, and plotting which are well documented in
 @harrel2017.
 
 Before fitting the model, it is important to compute summary statistics of the
-regressors that will be employed. Such statistics will be used when plotting or
+covariates that will be employed. Such statistics will be used when plotting or
 doing predictions. These summary statistics are computed using `datadist()`
 function.
+
+As in the previous section, we only fit the cause specific model for the first
+event type. The code for the model associated to the second event type is 
+analogous, using `status == 2` in the `Surv()` call. 
 
 ```{r, message = FALSE}
 require(rms)
@@ -201,7 +193,8 @@ print(csh_rms)
 
 In this case, printing the fitted model, gives a slightly different output. 
 First, the output includes several discrimination indices. Note that, 
-the concordance index can be recovered using the `Dxy` index.
+the concordance index can be recovered using the `Dxy` index. Moreover, note 
+that these metrics ignore the presence of competing event types. 
 
 `summary.rms()` is of more utility to compute hazard ratios. For continuous
 covariates, the HR are computed with respect to the lower and upper quartiles.
@@ -235,11 +228,11 @@ One can also use the `CSC()` function from `riskRegression` to fit
 cause-specific hazard regression models. This package acts as an interface to
 obtain either a `coxph` or a `cph` object through the `fitter` argument.
 In addition, this function simultaneously fits models for both competing events
-when `surv.type = "hazard"`. Below, we employ the same regression model for
-both event types, but it is possible to fit different models for each cause (see
-example below). Note that in this case, the response variable in the regression
-model is obtained with the `Hist()` function available in the `prodlim` R
-package.
+when `surv.type = "hazard"`. Below, we employ the same covariates for
+both event types, but it is possible to fit different regression models for each 
+cause (see example below). Note that in this case, the response variable in the 
+regression model is obtained with the `Hist()` function available in the 
+`prodlim` R package.
 
 ```{r, message = FALSE}
 require(riskRegression)
@@ -352,9 +345,13 @@ The `glmnet()` function permits to fit different Cox sparse regression models
 through the argument `family="cox"`. It is possible to use lasso, ridge and
 elastic net regularization. Here, we focus on describing lasso. 
 
+As in previous examples, the code below fits models for the first event type only.
+
 First, we employ `makeX()` to construct the design matrix with no intercept.
 Second, the response variable is defined using a `Surv` object. Finally, the
-argument `alpha = 1` sets the lasso penalty. 
+argument `alpha = 1` indicates that a lasso penalty will be used. Note that, 
+users can set `alpha = 0` to select a ridge penalty. If the value of `alpha` 
+lies between 0 and 1, an elastic net penalty will be used instead. 
 
 ```{r}
 require(glmnet)
@@ -383,7 +380,7 @@ plot(lasso.fit, label = TRUE)
 ```
 
 The estimated coefficients for specific $\lambda$ values can be obtained using
-`coef()`.
+`coef()`. 
 
 ```{r}
 coef(lasso.fit, s = 0.06) # s:=\lambda
@@ -392,7 +389,8 @@ coef(lasso.fit, s = 0.06) # s:=\lambda
 
 One can also employ k-fold cross-validation to select the optimal value of
 $\lambda$. Below, we show how to do that using 10 folds and Harrel's concordance
-index; however, one can also employ a deviance loss measure.
+index; however, one can also employ a deviance loss measure. Note, however,
+that none of these metrics account for competing events. 
 
 ```{r}
 set.seed(1)
@@ -427,16 +425,6 @@ shown below, where we see that lasso selects age and chemotherapy treatment.
 coef(lassoCV.fit, s = lassoCV.fit$lambda.1se)
 ```
 
-Finally, `glmnet` objects can be used together with `survfit()` from the
-`survival` package to obtain survival curves
-
-```{r, fig.width = 6, fig.height = 4}
-plot(survival::survfit(lassoCV.fit,
-                       x = x,
-                       y = Surv(hd_train$time, hd_train$status == 1),
-                       s = c(lassoCV.fit$lambda.1se)))
-```
- 
 
 ## Cox boost - The `mboost` package
  
@@ -448,7 +436,10 @@ that can fit models beyond survival analysis, one should specify
 `control` argument. In the example below we have indicate 900 boosting
 iterations with the step-length (referred as $\lambda$ in the manuscript) set at
 0.2. In addition, we indicate that continuous variables have not been previously
-centered.
+centered. 
+
+As before, for illustration purposes, we only fit the model associated to the 
+first event type.
 
 The output of the model indicates the estimated regression coefficients from
 which the estimated HR can be computed
@@ -487,26 +478,6 @@ involvement appear to be relevant.
 
 ```{r, fig.width = 6, fig.height = 4}
 plot(varimp(csh_mboost))
-```
-
-In order to get predictions, we use the coefficients obtained with the
-`glmboost()` routine to derive a `coxph` object. We see that the resulting
-coefficients are the same as above
-
-```{r}
-cox.boost <- survival::coxph(Surv(time, status == 1) ~ age +
-                               sex +
-                               trtgiven +
-                               medwidsi +
-                               extranod +
-                               clinstg,
-                             data = hd_train,
-                             init = coefficients(csh_mboost),
-                             iter.max = 0,
-                             x = TRUE,
-                             y = TRUE)
-
-summary(cox.boost)
 ```
 
 `mboost` permits cross-validation for hyper-parameter selection. Here, we show
