@@ -84,6 +84,7 @@ data in 80% for train and 20% for test.
 
 ```{r, eval = FALSE}
 require(splitstackshape)
+set.seed(2020)
 split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
 hd_train   <- split_data$SAMP1
 hd_test    <- split_data$SAMP2
