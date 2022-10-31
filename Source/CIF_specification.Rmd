@@ -312,16 +312,7 @@ dim(pseudo)
 ```
 
 `pseudo` contains the pseudo-values of the 692 patients (rows) at the 7 different
-time points (columns) for relapse. Below, we show the estimated CIF for patient
-109 (45 years old, male, under radiation, and stage 1) who had relapse at time
-6.
-
-```{r, fig.dim=c(6,4)}
-plot(cutoffs, pseudo[109, ], type = "b", xlab = "Time", ylab = "Pseudo-value")
-plot(cutoffs, pseudo[1, ], type = "b", xlab = "Time", ylab = "Pseudo-value")
-plot(cutoffs, pseudo[18, ], type = "b", xlab = "Time", ylab = "Pseudo-value")
-plot(cutoffs, pseudo[149, ], type = "b", xlab = "Time", ylab = "Pseudo-value")
-```
+time points (columns) for relapse. 
 
 The following code will merge the pseudo-values with our train dataset.
 
