@@ -233,8 +233,8 @@ print(FG_riskregression)
 ```
 
 Differently to `cmprsk`,`riskRegression` permits to do predictions of the CIF at
-a specific time point (e.g. $t=30.5$) for a new dataset (hd_test). Below, we
-show results for the first 5 subjects in the test set.
+a specific time point (e.g. $t=30.5$) for a new dataset (e.g. `hd_test`). Below, 
+we show results for the first 5 subjects in the test set.
 
 ```{r}
 FG.prediction <- predict(FG_riskregression, newdata = hd_test,  times = 30.5)
@@ -267,7 +267,7 @@ prediction.FG.prop  <- predict(FG.prop, newdata = hd_test[c(1, 3), ])
 prediction.FG.prop
 ```
 
-Below, we plot the CIF for patient 1 (red) and 3 (blue) in the test set.
+Below, we plot the CIF for patient 1 (red) and 2 (blue) in the test set.
 
 ```{r, fig.dim=c(6,4)}
 par(mar = c(4, 4, 2, 0.1))
@@ -279,6 +279,8 @@ plot(prediction.FG.prop$time,
      xlab = "Time (years)",
      ylab = "Cumulative incidence")
 lines(prediction.FG.prop$time, prediction.FG.prop$risk[2, ], col="blue")
+legend("topright", legend = c("Patient 1", "Patient 2"),
+       lty = c(1,1), col = c("red", "blue"))
 ```
 
 
@@ -308,7 +310,7 @@ pseudo <- pseudoci(hd_train$time,
 dim(pseudo)
 ```
 
-pseudo contains the pseudo-values of the 692 patients (rows) at the 7 different
+`pseudo` contains the pseudo-values of the 692 patients (rows) at the 7 different
 time points (columns) for relapse. Below, we show the estimated CIF for patient
 109 (45 years old, male, under radiation, and stage 1) who had relapse at time
 6.

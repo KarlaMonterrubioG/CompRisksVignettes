@@ -269,9 +269,13 @@ print(csh_riskRegression.cph)
 ```
 
 Assume that we are interested in making risk predictions at time = 30.5 for a
-new set of patients (hd_test). The `riskRegression` package permits obtaining
-absolute risk predictions at specific time points. Here, we set
-`product.limit = FALSE`, to use the exponential approximation
+new set of patients (i.e. the test dataset `hd_test`). As an illustration, we 
+focus on predicting whether an event of type 1 will occur by that time (to 
+predict the occurrenceof the second event type, use `cause = 2` in the code 
+below). The `riskRegression` package permits obtaining absolute risk predictions 
+at specific time points. For each patient in this new set, this consists of 
+calculating the probability of observing an event of type 1 by 30.5 years. Here, 
+we set `product.limit = FALSE`, to use the exponential approximation
 $S(t)=exp(-H(t)_1 - H(t)_2)$, where $H(t)_j$ denotes the cumulative hazard for
 cause $j$ at time $t$.
 
