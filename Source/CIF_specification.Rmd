@@ -143,23 +143,25 @@ summary(FG_crr)
 ```
 
 The above output includes the estimated covariate effects ($\exp(\beta)$), as
-well as significance level from which we can infer that age, treatment given,
-and clinical stage are significant. Note however that estimated hazard ratios are 
-non-identical to those inferred in the cause-specific vignette. This is because
-the risks set differ between these two hazard functions.
+well as significance level from which we can infer that the marginal effects for
+age, treatment given, and clinical stage are significant. Note however that 
+estimated hazard ratios are non-identical to those inferred in the 
+cause-specific vignette. This is because the risks set differ between these two 
+hazard functions.
 
 In this setting, we can make inferences on both, the covariate effects on the
 sub-distribution hazard and the directional effects of covariates on the CIF. 
-For instance, the sub-distribution hazard ratio of relapse is 1.363 when a
+For instance, the sub-distribution hazard ratio of relapse is 
+`r round(exp(FG_crr$coef["clinstg2"]),3)` when a
 patient is in clinical stage 2. In addition, because the hazard ratio is greater
 than one, one can also infer that being in clinical stage 2 increases the
-incidence of relapse. Here is important to highlight that we cannot use the
+incidence of relapse. Here, is important to highlight that we cannot use the
 magnitude of the hazard ratios to make inferences on the magnitude of the effect
 on the probability of occurrence.
 
 Because the sub-distribution hazard is directly related to the cumulative
 incidence function, we can make risk predictions. In order to do this, we first
-convert our test data (hd_test) into a design matrix format. Then, the function
+convert our test data (`hd_test`) into a design matrix format. Then, the function
 `predict()` will return the estimated CIF at all unique time events for all
 patients in the test set. This function computes $1-\exp(-H)$, where $H$ is the
 cumulative hazard obtained using the Breslow estimator.
@@ -180,13 +182,12 @@ dim(CIF_hat)
 
 The first column in CIF_hat corresponds to the 68 unique event times and the
 remaining 173 columns are the estimated CIFs for each patient (given their 
-covariate values) at such event times. For instance, the cumulative incidence 
-function of patient 1 (63 years, male, under radiation, no mediastinum 
-involvement, no extranodal disease, and clinical stage 1) and patient 3 (27 
-years, female, under chemotherapy treatment, no mediastinum involvement, no 
-extranodal disease, and clinical stage 2) are shown below in red and blue, 
-respectively. As an illustration, the following code is used to plot the 
-estimated CIF for two patients. 
+covariate values) at such event times. As an illustration, the following 
+code is used to plot the estimated CIF for events type 1 for two patients in the
+training dataset. The first patient is 37 years old, male, under 
+radiation treatment, no mediastinum involvement, no extranodal disease, and 
+clinical stage1.The second patient is 41 years old, male, under radiation, 
+no mediastinum involvement, no extranodal disease, and clinical stage 2. 
 
 ```{r, fig.dim=c(6,4)}
 par(mar = c(4, 4, 2, 0.1))
@@ -203,8 +204,8 @@ legend("topright", legend = c("Patient 1", "Patient 2"),
        lty = c(1,1), col = c("red", "blue"))
 ```
 
-> **_NOTE:_** It is not straightforward to do predictions at a specific time
-point using `cmprsk`. 
+> **_NOTE:_** Using `cmprsk` it is not straightforward to do predictions at a 
+specific time point beyond the unique time-points present in the training data. 
 
 ## `riskRegression`
 
@@ -233,11 +234,11 @@ print(FG_riskregression)
 ```
 
 Differently to `cmprsk`,`riskRegression` permits to do predictions of the CIF at
-a specific time point (e.g. $t=30.5$) for a new dataset (e.g. `hd_test`). Below, 
+a specific time point (e.g. $t=5$ years) for a new dataset (e.g. `hd_test`). Below, 
 we show results for the first 5 subjects in the test set.
 
 ```{r}
-FG.prediction <- predict(FG_riskregression, newdata = hd_test,  times = 30.5)
+FG.prediction <- predict(FG_riskregression, newdata = hd_test,  times = 5)
 FG.prediction[c(1:5)]
 ```
 
@@ -316,7 +317,10 @@ time points (columns) for relapse. Below, we show the estimated CIF for patient
 6.
 
 ```{r, fig.dim=c(6,4)}
-plot(pseudo[109, ], type = "l", xlab = "Time", ylab = "Pseudo-value")
+plot(cutoffs, pseudo[109, ], type = "b", xlab = "Time", ylab = "Pseudo-value")
+plot(cutoffs, pseudo[1, ], type = "b", xlab = "Time", ylab = "Pseudo-value")
+plot(cutoffs, pseudo[18, ], type = "b", xlab = "Time", ylab = "Pseudo-value")
+plot(cutoffs, pseudo[149, ], type = "b", xlab = "Time", ylab = "Pseudo-value")
 ```
 
 The following code will merge the pseudo-values with our train dataset.
