@@ -83,27 +83,10 @@ dataset into 80% for train and 20% for test.
 
 ```{r, eval=FALSE}
 library(splitstackshape)
+set.seed(2022)
 split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
 hd_train   <- split_data$SAMP1
 hd_test    <- split_data$SAMP2
-```
-
-
-```{r, echo=FALSE}
-hd_train <- read_csv("../Data/HD/hd_train.csv", show_col_types = FALSE)[, -1]
-hd_test <- read_csv("../Data/HD/hd_test.csv", show_col_types = FALSE)[, -1]
-
-hd_train$sex      <- as.factor(hd_train$sex)
-hd_train$trtgiven <- as.factor(hd_train$trtgiven)
-hd_train$medwidsi <- as.factor(hd_train$medwidsi)
-hd_train$extranod <- as.factor(hd_train$extranod)
-hd_train$clinstg  <- as.factor(hd_train$clinstg)
-
-hd_test$sex      <- as.factor(hd_test$sex)
-hd_test$trtgiven <- as.factor(hd_test$trtgiven)
-hd_test$medwidsi <- as.factor(hd_test$medwidsi)
-hd_test$extranod <- as.factor(hd_test$extranod)
-hd_test$clinstg  <- as.factor(hd_test$clinstg)
 ```
 
 Now, we explore the number of observations per status in both train and test
