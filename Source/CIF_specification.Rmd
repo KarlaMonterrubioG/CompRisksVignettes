@@ -515,12 +515,11 @@ times.
 
 ```{r fig.dim=c(6,4)}
 par(mar = c(4, 4, 2, 0.1))
-hd_test_subset <- as.data.frame(hd_test[c(1, 3), 1:6])
 
-pred_DDP <- predict(fit_DDP, newdata = hd_test_subset)
+pred_DDP <- predict(fit_DDP, newdata = as.data.frame(hd_test[c(1, 2), 2:7]))
 ```
 
-Note that pred_DDP contains posterior samples for the 2 subjects at 40 observed
+Note that `pred_DDP` contains posterior samples for the 2 subjects at 40 observed
 event times, as well as posterior estimated and credible intervals.
 
 Below, we show the estimated CIF curves for patient 1 (red) and 3 (blue).
@@ -537,12 +536,12 @@ plot(pred_DDP)
 ```
 
 In addition, we can also make predictions at a specific time point, e.g.
-$t=30.5$. Below, we show the estimated risk for the first 5 subjects in the test
+$t=5$. Below, we show the estimated risk for the first 5 subjects in the test
 data set:
 
 ```{r}
-hd_test_subset <- as.data.frame(hd_test[1:5, 1:6])
-pred_DDP.t <- predict(fit_DDP, newdata = hd_test_subset , tpred = 30.5)
+pred_DDP.t <- predict(fit_DDP, 
+                      newdata = as.data.frame(hd_test[1:5, 2:7]), tpred = 5)
 pred_DDP.t$Fpred
 ```
 
