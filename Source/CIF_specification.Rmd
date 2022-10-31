@@ -398,8 +398,8 @@ fit_DB <- comp.risk(Event(time, status) ~
 summary(fit_DB)
 ```
 
-According to the summary output;  age and treatment are significant. Below, we
-show estimated hazard ratios.
+According to the summary output, the covariate effects associated to age, 
+treatment and clinical stage are significant. Below, we show estimated hazard ratios.
 
 ```{r}
 knitr::kable(round(exp(fit_DB$gamma), 4), col.names = c("Exp coef"))
@@ -408,12 +408,12 @@ knitr::kable(round(exp(fit_DB$gamma), 4), col.names = c("Exp coef"))
 
 In order to do predictions of the CIF, we use the `predict()` function. The
 default makes predictions at all observed time points. Below we show estimated
-incidence for subject 1 (red) and 3 (blue) in the tests set:
+incidence for the first (red) and second(blue) patients in the tests set:
 
 ```{r fig.dim=c(6,4)}
 par(mar = c(4, 4, 2, 0.1))
-hd_test <- as.data.frame(hd_test[, 1:6])
-pred_DB <- predict.timereg(fit_DB, newdata = hd_test[c(1, 3), 1:6], se = 0)
+pred_DB <- predict.timereg(fit_DB, 
+                           newdata = as.data.frame(hd_test[1:2,2:7]), se = 0)
 plot(pred_DB,
      multiple = 1,
      col = c("red", "blue"),
@@ -423,21 +423,22 @@ plot(pred_DB,
 ```
 
 In addition, one can also makes predictions at a specific time through the
-argument `times`. Absolute risk predictions at time $t=30.5$ for the first 5
+argument `times`. Absolute risk predictions at time $t=5$ for the first 5
 patients are shown:
 
 ```{r}
-pred_DB.t <- predict.timereg(fit_DB, newdata = hd_test[1:5, 1:6], times = 30.5)
+pred_DB.t <- predict.timereg(fit_DB, newdata = hd_test[1:5, 2:7], times = 5)
 c(pred_DB.t$P1)
 ```
 
-`timereg` permits fitting the model time varying effects. **warning problem**
+`timereg` permits fitting the model time varying effects. For example, the 
+following code includes a time-dependent effect for `trtgiven`.
 
 ```{r}
 fit_DBtime <- comp.risk(Event(time, status) ~
-                          age +
+                          const(age) +
                           const(sex) +
-                          const(trtgiven) + 
+                          trtgiven + 
                           const(medwidsi) +
                           const(extranod) +
                           const(clinstg),
