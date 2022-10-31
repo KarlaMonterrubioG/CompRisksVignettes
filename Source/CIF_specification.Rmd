@@ -332,7 +332,8 @@ merged_dataset$tpseudo <- as.factor(merged_dataset$tpseudo)
 
 We will now fit a generalised linear model using `geese()` function from R
 package `geepack`. We set `mean.link = "cloglog"` to use a complementary
-log-log link in order to recover Fine-Gray approach. 
+log-log link in order to recover Fine-Gray approach (alternative link functions
+can also be used, e.g. @klein2008sas explored a logistic link function). 
 
 ```{r, message=FALSE}
 library(geepack)
@@ -356,16 +357,16 @@ summary(fit_pseudo)
 ```
 
 Covariate effects are shown below and are interpreted as logarithms of
-sub-distribution hazard ratios. We observe that the estimated effects are akin
-to those obtained in the previous section.
+sub-distribution hazard ratios. Because we used a complementary log-log link 
+function, we observe that the estimated effects are akin to those obtained in 
+the previous section. 
 
 ```{r}
 exp(fit_pseudo$beta)
 ```
 
-The estimated coefficients for the selected time points are used to estimate the
-CIF. However, it is not clear from the documentation how one can do predictions
-at a new time point.
+The estimated coefficients for the selected time points can be used to estimate 
+the CIF, but this is only possible at the time-points used in the `cutoffs` grid. 
 
 # Direct binomial
 
