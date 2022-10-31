@@ -179,12 +179,14 @@ dim(CIF_hat)
 ```
 
 The first column in CIF_hat corresponds to the 68 unique event times and the
-remaining 173 columns are the estimated CIFs for each patient at such event
-times. For instance, the cumulative incidence function of patient 1 (63 years,
-male, under radiation, no mediastinum involvement, no extranodal disease, and
-clinical stage 1) and patient 3 (27 years, female, under chemotherapy treatment,
-no mediastinum involvement, no extranodal disease, and clinical stage 2) are
-shown below in red and blue, respectively.
+remaining 173 columns are the estimated CIFs for each patient (given their 
+covariate values) at such event times. For instance, the cumulative incidence 
+function of patient 1 (63 years, male, under radiation, no mediastinum 
+involvement, no extranodal disease, and clinical stage 1) and patient 3 (27 
+years, female, under chemotherapy treatment, no mediastinum involvement, no 
+extranodal disease, and clinical stage 2) are shown below in red and blue, 
+respectively. As an illustration, the following code is used to plot the 
+estimated CIF for two patients. 
 
 ```{r, fig.dim=c(6,4)}
 par(mar = c(4, 4, 2, 0.1))
@@ -197,6 +199,8 @@ plot(CIF_hat[, 1],
      ylab = "Cumulative incidence")
 
 lines(CIF_hat[, 1], CIF_hat[, 4], col="blue")
+legend("topright", legend = c("Patient 1", "Patient 2"),
+       lty = c(1,1), col = c("red", "blue"))
 ```
 
 > **_NOTE:_** It is not straightforward to do predictions at a specific time
