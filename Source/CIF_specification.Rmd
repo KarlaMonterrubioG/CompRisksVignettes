@@ -469,6 +469,7 @@ An indication of a competing risk setting must be passed by setting
 ```{r, warning=FALSE , results='hide'}
 library(DPWeibull)
 library(prodlim) # for Hist() function
+set.seed(1)
 fit_DDP <- dpweib(Hist(time, status) ~
                     age +
                     sex +
