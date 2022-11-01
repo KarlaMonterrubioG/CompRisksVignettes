@@ -268,10 +268,14 @@ csh_riskRegression.cph <- CSC(Hist(time, status) ~ age +
 print(csh_riskRegression.cph)
 ```
 
-Assume that we are interested in making risk predictions at time = 30.5 for a
-new set of patients (hd_test). The `riskRegression` package permits obtaining
-absolute risk predictions at specific time points. Here, we set
-`product.limit = FALSE`, to use the exponential approximation
+Assume that we are interested in making risk predictions at time $t=5$ years for a
+new set of patients (i.e. the test dataset `hd_test`). As an illustration, we 
+focus on predicting whether an event of type 1 will occur by that time (to 
+predict the occurrenceof the second event type, use `cause = 2` in the code 
+below). The `riskRegression` package permits obtaining absolute risk predictions 
+at specific time points. For each patient in this new set, this consists of 
+calculating the probability of observing an event of type 1 by 5 years. Here, 
+we set `product.limit = FALSE`, to use the exponential approximation
 $S(t)=exp(-H(t)_1 - H(t)_2)$, where $H(t)_j$ denotes the cumulative hazard for
 cause $j$ at time $t$.
 
@@ -279,14 +283,14 @@ Below, we show the predicted risk for the first 5 patients in the test dataset.
 We see how both fitters (`coxph` or `cph`) give the same result:
 ```{r}
 risk.coxph <- predictRisk(csh_riskRegression,
-                          times = 30.5,
+                          times = 5,
                           newdata = hd_test, cause = 1,
                           product.limit = FALSE)
 risk.coxph[1:5]
 
 
 risk.cph <- predictRisk(csh_riskRegression.cph,
-                        times = 30.5,
+                        times = 5,
                         newdata = hd_test,
                         cause = 1,
                         product.limit = FALSE)
@@ -299,14 +303,14 @@ slightly different:
 
 ```{r}
 risk.coxphPL <- predictRisk(csh_riskRegression,
-                            times = 30.5,
+                            times = 5,
                             newdata = hd_test,
                             cause = 1,
                             product.limit = TRUE)
 risk.coxphPL[1:5]
 
 risk.cphPL  <- predictRisk(csh_riskRegression.cph,
-                           times = 30.5,
+                           times = 5,
                            newdata = hd_test,
                            cause = 1,
                            product.limit = TRUE)
@@ -321,7 +325,7 @@ require(pec)
 as.vector(predictEventProb(csh_riskRegression.cph,
                            newdata = hd_test[1:5, ],
                            cause = 1,
-                           time = 30.5))
+                           time = 5))
 ```
 
 Finally, note also that `riskRegression` permits to fit different regression

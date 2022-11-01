@@ -83,27 +83,10 @@ dataset into 80% for train and 20% for test.
 
 ```{r, eval=FALSE}
 library(splitstackshape)
+set.seed(2022)
 split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
 hd_train   <- split_data$SAMP1
 hd_test    <- split_data$SAMP2
-```
-
-
-```{r, echo=FALSE}
-hd_train <- read_csv("../Data/HD/hd_train.csv", show_col_types = FALSE)[, -1]
-hd_test <- read_csv("../Data/HD/hd_test.csv", show_col_types = FALSE)[, -1]
-
-hd_train$sex      <- as.factor(hd_train$sex)
-hd_train$trtgiven <- as.factor(hd_train$trtgiven)
-hd_train$medwidsi <- as.factor(hd_train$medwidsi)
-hd_train$extranod <- as.factor(hd_train$extranod)
-hd_train$clinstg  <- as.factor(hd_train$clinstg)
-
-hd_test$sex      <- as.factor(hd_test$sex)
-hd_test$trtgiven <- as.factor(hd_test$trtgiven)
-hd_test$medwidsi <- as.factor(hd_test$medwidsi)
-hd_test$extranod <- as.factor(hd_test$extranod)
-hd_test$clinstg  <- as.factor(hd_test$clinstg)
 ```
 
 Now, we explore the number of observations per status in both train and test
@@ -160,23 +143,25 @@ summary(FG_crr)
 ```
 
 The above output includes the estimated covariate effects ($\exp(\beta)$), as
-well as significance level from which we can infer that age, treatment given,
-and clinical stage are significant. Note however that estimated hazard ratios are 
-non-identical to those inferred in the cause-specific vignette. This is because
-the risks set differ between these two hazard functions.
+well as significance level from which we can infer that the marginal effects for
+age, treatment given, and clinical stage are significant. Note however that 
+estimated hazard ratios are non-identical to those inferred in the 
+cause-specific vignette. This is because the risks set differ between these two 
+hazard functions.
 
 In this setting, we can make inferences on both, the covariate effects on the
 sub-distribution hazard and the directional effects of covariates on the CIF. 
-For instance, the sub-distribution hazard ratio of relapse is 1.363 when a
+For instance, the sub-distribution hazard ratio of relapse is 
+`r round(exp(FG_crr$coef["clinstg2"]),3)` when a
 patient is in clinical stage 2. In addition, because the hazard ratio is greater
 than one, one can also infer that being in clinical stage 2 increases the
-incidence of relapse. Here is important to highlight that we cannot use the
+incidence of relapse. Here, is important to highlight that we cannot use the
 magnitude of the hazard ratios to make inferences on the magnitude of the effect
 on the probability of occurrence.
 
 Because the sub-distribution hazard is directly related to the cumulative
 incidence function, we can make risk predictions. In order to do this, we first
-convert our test data (hd_test) into a design matrix format. Then, the function
+convert our test data (`hd_test`) into a design matrix format. Then, the function
 `predict()` will return the estimated CIF at all unique time events for all
 patients in the test set. This function computes $1-\exp(-H)$, where $H$ is the
 cumulative hazard obtained using the Breslow estimator.
@@ -196,12 +181,13 @@ dim(CIF_hat)
 ```
 
 The first column in CIF_hat corresponds to the 68 unique event times and the
-remaining 173 columns are the estimated CIFs for each patient at such event
-times. For instance, the cumulative incidence function of patient 1 (63 years,
-male, under radiation, no mediastinum involvement, no extranodal disease, and
-clinical stage 1) and patient 3 (27 years, female, under chemotherapy treatment,
-no mediastinum involvement, no extranodal disease, and clinical stage 2) are
-shown below in red and blue, respectively.
+remaining 173 columns are the estimated CIFs for each patient (given their 
+covariate values) at such event times. As an illustration, the following 
+code is used to plot the estimated CIF for events type 1 for two patients in the
+training dataset. The first patient is 37 years old, male, under 
+radiation treatment, no mediastinum involvement, no extranodal disease, and 
+clinical stage1.The second patient is 41 years old, male, under radiation, 
+no mediastinum involvement, no extranodal disease, and clinical stage 2. 
 
 ```{r, fig.dim=c(6,4)}
 par(mar = c(4, 4, 2, 0.1))
@@ -214,10 +200,12 @@ plot(CIF_hat[, 1],
      ylab = "Cumulative incidence")
 
 lines(CIF_hat[, 1], CIF_hat[, 4], col="blue")
+legend("topright", legend = c("Patient 1", "Patient 2"),
+       lty = c(1,1), col = c("red", "blue"))
 ```
 
-> **_NOTE:_** It is not straightforward to do predictions at a specific time
-point using `cmprsk`. 
+> **_NOTE:_** Using `cmprsk` it is not straightforward to do predictions at a 
+specific time point beyond the unique time-points present in the training data. 
 
 ## `riskRegression`
 
@@ -246,11 +234,11 @@ print(FG_riskregression)
 ```
 
 Differently to `cmprsk`,`riskRegression` permits to do predictions of the CIF at
-a specific time point (e.g. $t=30.5$) for a new dataset (hd_test). Below, we
-show results for the first 5 subjects in the test set.
+a specific time point (e.g. $t=5$ years) for a new dataset (e.g. `hd_test`). Below, 
+we show results for the first 5 subjects in the test set.
 
 ```{r}
-FG.prediction <- predict(FG_riskregression, newdata = hd_test,  times = 30.5)
+FG.prediction <- predict(FG_riskregression, newdata = hd_test,  times = 5)
 FG.prediction[c(1:5)]
 ```
 
@@ -280,7 +268,7 @@ prediction.FG.prop  <- predict(FG.prop, newdata = hd_test[c(1, 3), ])
 prediction.FG.prop
 ```
 
-Below, we plot the CIF for patient 1 (red) and 3 (blue) in the test set.
+Below, we plot the CIF for patient 1 (red) and 2 (blue) in the test set.
 
 ```{r, fig.dim=c(6,4)}
 par(mar = c(4, 4, 2, 0.1))
@@ -292,6 +280,8 @@ plot(prediction.FG.prop$time,
      xlab = "Time (years)",
      ylab = "Cumulative incidence")
 lines(prediction.FG.prop$time, prediction.FG.prop$risk[2, ], col="blue")
+legend("topright", legend = c("Patient 1", "Patient 2"),
+       lty = c(1,1), col = c("red", "blue"))
 ```
 
 
@@ -321,14 +311,8 @@ pseudo <- pseudoci(hd_train$time,
 dim(pseudo)
 ```
 
-pseudo contains the pseudo-values of the 692 patients (rows) at the 7 different
-time points (columns) for relapse. Below, we show the estimated CIF for patient
-109 (45 years old, male, under radiation, and stage 1) who had relapse at time
-6.
-
-```{r, fig.dim=c(6,4)}
-plot(pseudo[109, ], type = "l", xlab = "Time", ylab = "Pseudo-value")
-```
+`pseudo` contains the pseudo-values of the 692 patients (rows) at the 7 different
+time points (columns) for relapse. 
 
 The following code will merge the pseudo-values with our train dataset.
 
@@ -348,7 +332,8 @@ merged_dataset$tpseudo <- as.factor(merged_dataset$tpseudo)
 
 We will now fit a generalised linear model using `geese()` function from R
 package `geepack`. We set `mean.link = "cloglog"` to use a complementary
-log-log link in order to recover Fine-Gray approach. 
+log-log link in order to recover Fine-Gray approach (alternative link functions
+can also be used, e.g. @klein2008sas explored a logistic link function). 
 
 ```{r, message=FALSE}
 library(geepack)
@@ -372,16 +357,16 @@ summary(fit_pseudo)
 ```
 
 Covariate effects are shown below and are interpreted as logarithms of
-sub-distribution hazard ratios. We observe that the estimated effects are akin
-to those obtained in the previous section.
+sub-distribution hazard ratios. Because we used a complementary log-log link 
+function, we observe that the estimated effects are akin to those obtained in 
+the previous section. 
 
 ```{r}
 exp(fit_pseudo$beta)
 ```
 
-The estimated coefficients for the selected time points are used to estimate the
-CIF. However, it is not clear from the documentation how one can do predictions
-at a new time point.
+The estimated coefficients for the selected time points can be used to estimate 
+the CIF, but this is only possible at the time-points used in the `cutoffs` grid. 
 
 # Direct binomial
 
@@ -413,8 +398,8 @@ fit_DB <- comp.risk(Event(time, status) ~
 summary(fit_DB)
 ```
 
-According to the summary output;  age and treatment are significant. Below, we
-show estimated hazard ratios.
+According to the summary output, the covariate effects associated to age, 
+treatment and clinical stage are significant. Below, we show estimated hazard ratios.
 
 ```{r}
 knitr::kable(round(exp(fit_DB$gamma), 4), col.names = c("Exp coef"))
@@ -423,12 +408,12 @@ knitr::kable(round(exp(fit_DB$gamma), 4), col.names = c("Exp coef"))
 
 In order to do predictions of the CIF, we use the `predict()` function. The
 default makes predictions at all observed time points. Below we show estimated
-incidence for subject 1 (red) and 3 (blue) in the tests set:
+incidence for the first (red) and second(blue) patients in the tests set:
 
 ```{r fig.dim=c(6,4)}
 par(mar = c(4, 4, 2, 0.1))
-hd_test <- as.data.frame(hd_test[, 1:6])
-pred_DB <- predict.timereg(fit_DB, newdata = hd_test[c(1, 3), 1:6], se = 0)
+pred_DB <- predict.timereg(fit_DB, 
+                           newdata = as.data.frame(hd_test[1:2,2:7]), se = 0)
 plot(pred_DB,
      multiple = 1,
      col = c("red", "blue"),
@@ -438,21 +423,22 @@ plot(pred_DB,
 ```
 
 In addition, one can also makes predictions at a specific time through the
-argument `times`. Absolute risk predictions at time $t=30.5$ for the first 5
+argument `times`. Absolute risk predictions at time $t=5$ for the first 5
 patients are shown:
 
 ```{r}
-pred_DB.t <- predict.timereg(fit_DB, newdata = hd_test[1:5, 1:6], times = 30.5)
+pred_DB.t <- predict.timereg(fit_DB, newdata = hd_test[1:5, 2:7], times = 5)
 c(pred_DB.t$P1)
 ```
 
-`timereg` permits fitting the model time varying effects. **warning problem**
+`timereg` permits fitting the model time varying effects. For example, the 
+following code includes a time-dependent effect for `trtgiven`.
 
 ```{r}
 fit_DBtime <- comp.risk(Event(time, status) ~
-                          age +
+                          const(age) +
                           const(sex) +
-                          const(trtgiven) + 
+                          trtgiven + 
                           const(medwidsi) +
                           const(extranod) +
                           const(clinstg),
@@ -483,6 +469,7 @@ An indication of a competing risk setting must be passed by setting
 ```{r, warning=FALSE , results='hide'}
 library(DPWeibull)
 library(prodlim) # for Hist() function
+set.seed(1)
 fit_DDP <- dpweib(Hist(time, status) ~
                     age +
                     sex +
@@ -529,12 +516,11 @@ times.
 
 ```{r fig.dim=c(6,4)}
 par(mar = c(4, 4, 2, 0.1))
-hd_test_subset <- as.data.frame(hd_test[c(1, 3), 1:6])
 
-pred_DDP <- predict(fit_DDP, newdata = hd_test_subset)
+pred_DDP <- predict(fit_DDP, newdata = as.data.frame(hd_test[c(1, 2), 2:7]))
 ```
 
-Note that pred_DDP contains posterior samples for the 2 subjects at 40 observed
+Note that `pred_DDP` contains posterior samples for the 2 subjects at 40 observed
 event times, as well as posterior estimated and credible intervals.
 
 Below, we show the estimated CIF curves for patient 1 (red) and 3 (blue).
@@ -551,12 +537,12 @@ plot(pred_DDP)
 ```
 
 In addition, we can also make predictions at a specific time point, e.g.
-$t=30.5$. Below, we show the estimated risk for the first 5 subjects in the test
+$t=5$. Below, we show the estimated risk for the first 5 subjects in the test
 data set:
 
 ```{r}
-hd_test_subset <- as.data.frame(hd_test[1:5, 1:6])
-pred_DDP.t <- predict(fit_DDP, newdata = hd_test_subset , tpred = 30.5)
+pred_DDP.t <- predict(fit_DDP, 
+                      newdata = as.data.frame(hd_test[1:5, 2:7]), tpred = 5)
 pred_DDP.t$Fpred
 ```
 
