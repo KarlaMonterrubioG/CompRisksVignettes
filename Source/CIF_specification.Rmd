@@ -81,7 +81,7 @@ now on, we assume that the event of interest is relapse, i.e. status=1.
 In order to create a test set, we use stratified sampling to partition our
 dataset into 80% for train and 20% for test.
 
-```{r, eval=FALSE}
+```{r}
 library(splitstackshape)
 set.seed(2022)
 split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
@@ -92,9 +92,12 @@ hd_test    <- split_data$SAMP2
 Now, we explore the number of observations per status in both train and test
 set:
 
+
 ```{r}
-table(hd_train$status)
-table(hd_test$status)
+pander::pander(table(hd_train$status))
+```
+```{r}
+pander::pander(table(hd_test$status))
 ```
 
 # Fine-Gray 
@@ -180,7 +183,7 @@ CIF_hat <- predict(object = FG_crr, cov1 = predictors_test)
 dim(CIF_hat)
 ```
 
-The first column in CIF_hat corresponds to the 68 unique event times and the
+The first column in CIF_hat corresponds to the 72 unique event times and the
 remaining 173 columns are the estimated CIFs for each patient (given their 
 covariate values) at such event times. As an illustration, the following 
 code is used to plot the estimated CIF for events type 1 for two patients in the
@@ -376,7 +379,7 @@ To fit the model, we should first use the `Event()` function to obtain the
 response variable to be used in the formula argument of the `comp.risk()`
 function. The cause of interest must be explicitly defined through the cause
 argument. The function supports several models. Here we focus on recovering the
-Fine Gray approach.
+Fine-Gray approach.
 
 ```{r, warning=FALSE}
 library(timereg)
@@ -408,7 +411,7 @@ knitr::kable(round(exp(fit_DB$gamma), 4), col.names = c("Exp coef"))
 
 In order to do predictions of the CIF, we use the `predict()` function. The
 default makes predictions at all observed time points. Below we show estimated
-incidence for the first (red) and second(blue) patients in the tests set:
+incidence for the first (red) and second (blue) patients in the tests set:
 
 ```{r fig.dim=c(6,4)}
 par(mar = c(4, 4, 2, 0.1))
@@ -419,7 +422,8 @@ plot(pred_DB,
      col = c("red", "blue"),
      ylim = c(0, 0.57),
      ylab = "Cumulative incidence")
-
+legend("topright", legend = c("Patient 1", "Patient 2"),
+       lty = c(1,1), col = c("red", "blue"))
 ```
 
 In addition, one can also makes predictions at a specific time through the
@@ -493,7 +497,9 @@ summary(fit_DDP)
 One can explore trace plots of the estimated parameters using the `coda`
 library. This will help us to determine if the MCMC parameters employed when
 fitting the model should be modified. For instance, below we show trace plots of
-$\alpha$ and $\lambda$ for patient 1.
+$\alpha$ and $\lambda$ for patient 1, where we observe that the chains for $\alpha$
+are not optimal. Note that in order to make valid inferences one should ensure convergence
+was achieved.
 
 ```{r, message=FALSE, fig.dim=c(5,2)}
 library(coda)
@@ -533,6 +539,10 @@ plot(pred_DDP$tpred,
      xlab = "Time (years)",
      ylab = "Cumulative incidence")
 lines(pred_DDP$tpred, pred_DDP$Fpred[1, ], col="blue")
+legend("topright", legend = c("Patient 1", "Patient 2"),
+       lty = c(1,1), col = c("red", "blue"))
+
+
 plot(pred_DDP)
 ```
 
