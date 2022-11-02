@@ -73,6 +73,7 @@ convert clinstg from `numeric` to `factor`.
 Now, we explore the number of events for each event type:
 
 ```{r}
+require(pander)
 pander::pander(table(hd$status))
 ```
 
@@ -82,12 +83,12 @@ on, we assume that the event of interest is relapse, i.e. status=1.
 In order to create a test set, we use stratified sampling to partition our
 data in 80% for train and 20% for test.
 
-```{r, eval = FALSE}
+```{r}
 require(splitstackshape)
 set.seed(2022)
 split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
-hd_train   <- split_data$SAMP1
-hd_test    <- split_data$SAMP2
+hd_train   <- as.data.frame(split_data$SAMP1)
+hd_test    <- as.data.frame(split_data$SAMP2)
 ```
 
 Now, we explore the number of observations per status in both train and test
@@ -95,6 +96,8 @@ set:
 
 ```{r}
 pander::pander(table(hd_train$status))
+```
+```{r}
 pander::pander(table(hd_test$status))
 ```
 
@@ -128,7 +131,7 @@ csh_survival <- coxph(Surv(time, status == 1) ~ age +
                         extranod +
                         clinstg,
                        data = hd_train,
-                       x = TRUE,         # nedded for predictions
+                       x = TRUE,         # needed for predictions
                        # this is the default, one can also use Breslow
                        ties = "efron")
 summary(csh_survival)
@@ -139,7 +142,7 @@ The above output summarises the fitted model. First, it shows that out of the
 the coefficients and hazard ratios (`exp(coef)`) for each covariate, along with
 a significance test. The results suggest that age, treatment, and clinical stage 
 are significantly associated with the hazard of relapse. For instance, being in 
-clinical stage 2 increases the cause-specific hazard (rate) of relapse by 38.4%
+clinical stage 2 increases the cause-specific hazard (rate) of relapse by 44.9%
 when compared to a patient in stage 1. It is important to emphasise that one 
 should be cautious when interpreting these covariate effects as this modelling 
 strategy only permits to do inference of the effects on the
@@ -158,7 +161,7 @@ a valid approach.
 
 Another package that permits to fit the model is `rms`. This package provides
 useful functions for model validation, and plotting which are well documented in
-@harrel2017.
+@harrell2017.
 
 Before fitting the model, it is important to compute summary statistics of the
 covariates that will be employed. Such statistics will be used when plotting or
@@ -199,9 +202,9 @@ that these metrics ignore the presence of competing event types.
 `summary.rms()` is of more utility to compute hazard ratios. For continuous
 covariates, the HR are computed with respect to the lower and upper quartiles.
 For instance, from the output below we can infer that a 20-year increase in age
-(going from 23 to 43), increases the cause-specific hazard of relapse by 40%.
+(going from 23 to 43), increases the cause-specific hazard of relapse by 37.8%.
 This is in contrast to the coefficients obtained by `print()`, which in this
-case corresponds to $\exp(0.0169)= 1.0170$ and whose interpretation refers to
+case corresponds to $\exp(0.0159)= 1.0160$ and whose interpretation refers to
 the effect on the hazard by 1-year increase. 
 
 ```{r}
@@ -209,7 +212,7 @@ summary(csh_rms)
 ```
 
 Furthermore, one can manually define ranges in which we want to compute HR; for
-instance going from 30-40 years, i.e. a 10-year increase will result in a 18.4%
+instance going from 30-40 years, i.e. a 10-year increase will result in a 17.2%
 increase in the cause-specific hazard as shown below. Similarly, for discrete
 covariates, one can define the reference level with respect to which the HR are
 computed; for example, below we have changed the reference level for sex.
@@ -271,7 +274,7 @@ print(csh_riskRegression.cph)
 Assume that we are interested in making risk predictions at time $t=5$ years for a
 new set of patients (i.e. the test dataset `hd_test`). As an illustration, we 
 focus on predicting whether an event of type 1 will occur by that time (to 
-predict the occurrenceof the second event type, use `cause = 2` in the code 
+predict the occurrence of the second event type, use `cause = 2` in the code 
 below). The `riskRegression` package permits obtaining absolute risk predictions 
 at specific time points. For each patient in this new set, this consists of 
 calculating the probability of observing an event of type 1 by 5 years. Here, 
@@ -423,14 +426,14 @@ minimum. The second value corresponds to 1 standard deviation of the minimum
 error. In this case, including only 2 covariates is within 1 sd of the minimum.
 
 The estimated coefficients for $\lambda=$ `r lassoCV.fit$lambda.1se` are
-shown below, where we see that lasso selects age and chemotherapy treatment.
+shown below, where we see that lasso selects age and treatment.
 
 ```{r}
 coef(lassoCV.fit, s = lassoCV.fit$lambda.1se)
 ```
 
 
-## Cox boost - The `mboost` package
+## Cox model-based boosting - The `mboost` package
  
 A cause-specific CPH model that employs model-based boosting is showcased here
 by using the `glmboost()` function. As with other approaches, one should first
