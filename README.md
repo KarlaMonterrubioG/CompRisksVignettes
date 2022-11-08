@@ -16,6 +16,8 @@ It includes R vignettes to illustrate the usage of the following methods:
   + Dependent Dirichlet processes
 * Discrete time formulation
   + BART
+* Other methods
+  + Random survival forests
 
 ## Usage
 
