@@ -90,7 +90,9 @@ RUN install2.r --error \
     # for installing packages from github
     coda \
     BART \
-    nnet
+    nnet \
+    randomForestSRC \
+    splitstackshape
 
 
 RUN install2.r --error \
