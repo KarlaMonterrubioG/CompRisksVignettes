@@ -509,8 +509,7 @@ involvement appear to be relevant.
 plot(varimp(csh_mboost))
 ```
 
-`mboost` permits cross-validation for hyper-parameter selection. Here, we show
-how to do this using 25 bootstrap samples (default). Estimation is done sequentially:
+`mboost` permits cross-validation for hyper-parameter selection; specifically, the number of boosting iterations. Here, we show how to do this using 25 bootstrap samples (default). Estimation is done sequentially:
 
 ```{r,  echo=T, results='hide'}
 set.seed(1)
@@ -521,7 +520,7 @@ cv.boost <- cvrisk(csh_mboost, papply = lapply)
 plot(cv.boost)
 mstop(cv.boost)  # can serve to obtain optimal stopping parameter
 ```
-The above output shows that 543 boosting iterations is enough.
+The above output shows that 543 boosting iterations is enough. Once the number is obtained one can use `glmboost` with the resulting number of boosting iterations.
 
 
 # References
