@@ -102,8 +102,6 @@ pander::pander(table(hd_train$status))
 pander::pander(table(hd_test$status))
 ```
 
-
-
 # Random survival forests
 
 The authors of random survival forests provide an online vignette
