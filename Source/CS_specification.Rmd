@@ -344,6 +344,28 @@ csh_riskRegression2 <- CSC(list(Hist(time, status) ~ age + sex + trtgiven +
 print(csh_riskRegression2)
 ```
 
+
+## The `CFC` package
+The cause-specific framework for competing risks (CFC) @Mahari2019Bayesian permits to compute adjusted cause-specific CIFs through the `cfc.survreg` function. The package permits to fit both, parametric and nonparametric models (see `survreg.distributions` for available choices).
+
+
+```{r, warning=FALSE}
+require(CFC)
+
+cfc.fit <- cfc.survreg(Surv(time, status) ~ age +
+                        sex +
+                        trtgiven +
+                        medwidsi +
+                        extranod +
+                        clinstg ,
+                        data = hd_train, 
+                        newdata = hd_test,
+                        rel.tol =  1e-3 )
+
+cfc.fit$regs
+```
+
+
 # Sparse regression
 
 ## Lasso - The `glmnet` package

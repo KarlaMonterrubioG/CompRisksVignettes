@@ -101,8 +101,6 @@ pander::pander(table(hd_train$status))
 pander::pander(table(hd_test$status))
 ```
 
-
-
 # Random survival forests
 
 The authors of random survival forests provide an online vignette [here](https://www.randomforestsrc.org/articles/competing.html) (@HemantCompeting). The method can be fitted using the `randomForestSRC` package. Below we showcase how to do that.

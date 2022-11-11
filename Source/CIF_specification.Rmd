@@ -395,9 +395,7 @@ fit_DB <- comp.risk(Event(time, status) ~
                     cause = 1,
                     n.sim = 5000,
                     model = "prop",       # Fine-Gray
-                    resample.iid = 1,
-                    # uses all covariates present for the censoring weights
-                    cens.model = "cox")
+                    resample.iid = 1)
 summary(fit_DB)
 ```
 
@@ -450,9 +448,7 @@ fit_DBtime <- comp.risk(Event(time, status) ~
                         cause = 1,
                         model = "prop", # Fine-Gray
                         resample.iid = 1,
-                        n.sim = 100,
-                        # uses all covariates present for the censoring weights
-                        cens.model = "cox")
+                        n.sim = 100)
 summary(fit_DBtime)
 ```
 
