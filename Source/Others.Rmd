@@ -34,9 +34,9 @@ knitr::opts_chunk$set(
 In order to demonstrate the methods, we employ publicly available data. 
 
 The dataset used here corresponds to the Hodgkin’s disease (HD) study described
-in @pintilie2006competing. The dataset comprises 865 patients diagnosed with early stage
-(I or II) HD, and which were treated either with radiation (RT) or with
-radiation and chemotherapy (CMT).
+in @pintilie2006competing. The dataset comprises 865 patients diagnosed with 
+early stage (I or II) HD, and which were treated either with radiation (RT) or 
+with radiation and chemotherapy (CMT).
 
 The recorded data includes:
 
@@ -103,15 +103,26 @@ pander::pander(table(hd_test$status))
 
 # Random survival forests
 
-The authors of random survival forests provide an online vignette [here](https://www.randomforestsrc.org/articles/competing.html) (@HemantCompeting). The method can be fitted using the `randomForestSRC` package. Below we showcase how to do that.
+The authors of random survival forests provide an online vignette 
+[here](https://www.randomforestsrc.org/articles/competing.html) 
+(@HemantCompeting). The method can be fitted using the `randomForestSRC` package. 
+Below we showcase how to do that.
 
-First, in order to fit the model, both, the train and test sets should be converted to data.frames:
+First, in order to fit the model, both, the train and test sets should be 
+converted to data.frames:
 ```{r}
 hd_train <- as.data.frame(hd_train)
 hd_test <- as.data.frame(hd_test)
 ```
 
-As RSF permits, both, a cause-specific and a CIF formulation. The user should first determine the type of analysis of interest, and pass it on the argument `splitrule` in the fitter function `rfsrc`. When the objective is to do a cause-specific hazard analysis we must set `splitrule="logrank"` and the argument `cause` should indicate the event type of interest. In contrast, if one is interested on long term predictions, `splitrule="logrankCR"` is more appropriate, as it considers the CIF. Furthermore, a composite splitting rule is available and can be used to identify variables that are important for any cause.
+As RSF permits, both, a cause-specific and a CIF formulation. The user should 
+first determine the type of analysis of interest, and pass it on the argument 
+`splitrule` in the fitter function `rfsrc`. When the objective is to do a 
+cause-specific hazard analysis we must set `splitrule="logrank"` and the 
+argument `cause` should indicate the event type of interest. In contrast, if one 
+is interested on long term predictions, `splitrule="logrankCR"` is more 
+appropriate, as it considers the CIF. Furthermore, a composite splitting rule is 
+available and can be used to identify variables that are important for any cause.
 
 Below, we fit both models:
 
