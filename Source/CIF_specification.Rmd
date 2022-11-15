@@ -33,9 +33,9 @@ knitr::opts_chunk$set(
 In order to demonstrate the methods, we employ publicly available data. 
 
 The dataset used here corresponds to the Hodgkin’s disease (HD) study described
-in @pintilie2006competing. The dataset comprises 865 patients diagnosed with early stage
-(I or II) HD, and which were treated either with radiation (RT) or with
-radiation and chemotherapy (CMT).
+in @pintilie2006competing. The dataset comprises 865 patients diagnosed with 
+early stage (I or II) HD, and which were treated either with radiation (RT) or 
+with radiation and chemotherapy (CMT).
 
 The recorded data includes:
 
@@ -128,8 +128,8 @@ predictors <- model.matrix(~ age +
 head(predictors)
 ```
 
-Note that our covariates now corresponds to indicators (1 or 0) of a specific
-level of the original factor variables. In order to employ this new matrix, we
+Note that our covariates now correspond to binary indicators (1 or 0) of a specific
+level of the original factor variables. In order to use this design matrix, we
 will first drop the intercept. Once that has been done, we can employ the
 `crr()` function to fit the model.
 
@@ -490,12 +490,13 @@ fit_DDP <- dpweib(Hist(time, status) ~
 summary(fit_DDP)
 ```
 
-One can explore trace plots of the estimated parameters using the `coda`
-library. This will help us to determine if the MCMC parameters employed when
-fitting the model should be modified. For instance, below we show trace plots of
-$\alpha$ and $\lambda$ for patient 1, where we observe that the chains for $\alpha$
-are not optimal. Note that in order to make valid inferences one should ensure convergence
-was achieved.
+Note that in order to make valid inferences one should ensure that convergence 
+was achieved. One can explore trace plots of the estimated parameters using the 
+`coda` library. This will help us to determine if the MCMC parameters employed 
+when fitting the model should be modified. For instance, below we show trace 
+plots of $\alpha$ and $\lambda$ for patient 1, where we observe that the chains 
+for $\alpha$ do not appear to have converged and therefore a larger number of 
+MCMC iterations should be used.
 
 ```{r, message=FALSE, fig.dim=c(5,2)}
 library(coda)
