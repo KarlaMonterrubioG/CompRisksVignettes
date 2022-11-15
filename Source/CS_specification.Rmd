@@ -78,7 +78,7 @@ pander::pander(table(hd$status))
 ```
 
 Thus, we have 439 censored patients, 291 with relapse and 135 who died. From now
-on, we assume that the event of interest is relapse, i.e. status=1.
+on, we assume that the event of interest is relapse, i.e. `status=1`.
 
 In order to create a test set, we use stratified sampling to partition our
 data in 80% for train and 20% for test.
@@ -138,7 +138,8 @@ summary(csh_survival)
 ```
 
 The above output summarises the fitted model. First, it shows that out of the
-692 patients, 233 experienced the event of interest (relapse). Second, it shows
+`r nrow(hd_train)` patients, `r sum(hd_train$status == 1)` experienced the event 
+of interest (relapse). Second, it shows
 the coefficients and hazard ratios (`exp(coef)`) for each covariate, along with
 a significance test. The results suggest that age, treatment, and clinical stage 
 are significantly associated with the hazard of relapse. For instance, being in 
@@ -346,7 +347,10 @@ print(csh_riskRegression2)
 
 
 ## The `CFC` package
-The cause-specific framework for competing risks (CFC) @Mahari2019Bayesian permits to compute adjusted cause-specific CIFs through the `cfc.survreg` function. The package permits to fit both, parametric and nonparametric models (see `survreg.distributions` for available choices).
+The cause-specific framework for competing risks (CFC) implemented by 
+@Mahari2019Bayesian permits to compute adjusted cause-specific CIFs through the 
+`cfc.survreg` function. The package permits to fit both, parametric and 
+nonparametric models (see `survreg.distributions` for available choices).
 
 
 ```{r, warning=FALSE}
@@ -462,7 +466,7 @@ by using the `glmboost()` function. As with other approaches, one should first
 create the response variable using `Surv()`. Because `mboost` is an R package
 that can fit models beyond survival analysis, one should specify
 `family = CoxPH()`. The parameters of the boosting algorithm are set by the
-`control` argument. In the example below we have indicate 900 boosting
+`control` argument. In the example below we have used 900 boosting
 iterations with the step-length (referred as $\lambda$ in the manuscript) set at
 0.2. In addition, we indicate that continuous variables have not been previously
 centered. 
