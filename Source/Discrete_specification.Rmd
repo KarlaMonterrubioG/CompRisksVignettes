@@ -278,7 +278,8 @@ dart1 <- crisk2.bart(x.train = xtrain,
                      seed = 99)  
 ```
 
-The output of the function is the same as discussed in the previous section. Therefore,  CIFs and survival functions can be estimated as shown before.
+The output of the function is the same as discussed in the previous section. 
+Therefore, the CIFs can be estimated as shown before.
 
 A plot that illustrates which variables to select is shown:
 ```{r, fig.dim=c(6,4)}
@@ -298,18 +299,23 @@ According to the plot above only age and treatment are relevant.
 
 ## Model formulation 2
 
-This approach is discussed in Section 3.2 of @Bart2020 and fits also two separate BART probit models. The first model, corresponds to the conditional probability of a cause $k=1$ event at a given time. The second, models the conditional probability of an event of type $k=2$ at a specific time, given that the individual is still at risk and did not experience a type $k=1$ event.
+This approach is discussed in Section 3.2 of @Bart2020 and fits also two 
+separate BART probit models. The first model, corresponds to the conditional 
+probability of a cause $k=1$ event at a given time. The second, models the 
+conditional probability of an event of type $k=2$ at a specific time, given that 
+the individual is still at risk and did not experience a type $k=1$ event.
 In this case, the model is fit with function `crisk.bart`:
 
 ```{r, results='hide'}
 
-bart2 <- crisk.bart(x.train = xtrain, times = hd_train$time, delta=hd_train$status,
-           x.test = xtest, 
-           sparse=FALSE, 
-           type='pbart',
-           ntree = 30, numcut = 100, 
-           ndpost = 500, nskip = 100, keepevery = 10L, 
-           seed=99)
+bart2 <- crisk.bart(x.train = xtrain, times = hd_train$time, 
+                    delta=hd_train$status,
+                    x.test = xtest, 
+                    sparse=FALSE, 
+                    type='pbart',
+                    ntree = 30, numcut = 100, 
+                    ndpost = 500, nskip = 100, keepevery = 10L, 
+                    seed=99)
 # Parallel computation of the model is available using mc.crisk.bart
 ```
 
@@ -326,7 +332,8 @@ cif2.975 <- apply(bart2$cif.test, 2, quantile, probs = 0.975)
 cif2.975 <- matrix(cif2.975, nrow=nrow(xtest), byrow = TRUE)
 ```
 
-We show CIF curves for patient 1 (red) and 3 (blue) in the test set along with its corresponding credible intervals:
+We show CIF curves for patient 1 (red) and 3 (blue) in the test set along with 
+its corresponding credible intervals:
 ```{r, fig.dim=c(6,4)}
 par(mar = c(4, 4, 2, 0.1))
 
