@@ -73,16 +73,17 @@ hd$clinstg  <- as.factor(hd$clinstg)
 Now, we explore the number of events for each event type:
 
 ```{r}
-table(hd$status)
+require(pander)
+pander::pander(table(hd$status))
 ```
 
-Thus, we have 439 censored patients, 291 with relapse, and 135 who died. From
+Thus, we have `r length(which(hd$status==0))` censored patients, `r length(which(hd$status==1))` with relapse, and `r length(which(hd$status==2))`  who died. From
 now on, we assume that the event of interest is relapse, i.e. status=1.
 
 In order to create a test set, we use stratified sampling to partition our
 dataset into 80% for train and 20% for test.
 
-```{r, eval=FALSE}
+```{r}
 library(splitstackshape)
 set.seed(2022)
 split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
@@ -94,8 +95,11 @@ Now, we explore the number of observations per status in both train and test
 set:
 
 ```{r}
-table(hd_train$status)
-table(hd_test$status)
+pander::pander(table(hd_train$status))
+```
+
+```{r}
+pander::pander(table(hd_test$status))
 ```
 
 # BART
@@ -179,7 +183,7 @@ This provides the posterior mean across MCMC samples. In addition, credible
 intervals can be computed from the samples saved in `cif.test`. 
 First, we re-organised the predicted CIF for cause 1 for the test dataset. The 
 constructed matrix contains one row per subject and the columns correspond to 
-the unique time points at which it is evaluated. Second, we compute $95\%$ 
+the unique time points at which it is evaluated. Second, we compute 95% 
 credible intervals.
 
 ```{r}
@@ -222,8 +226,7 @@ BART.pred <- matrix(bart1$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )
 BART.pred[1:5,which(bart1$times == 5)]
 ```
 
-Once the model was fitted and we have confirmed convergence of the MCMC chains, 
-we can do predictions by making a call to the `predict.crisk2bart()` function. 
+Note also that if the model is fitted with `x.test = xtrain` in order to assess convergence, one can do predictions afterwards by making a call to the `predict.crisk2bart()` function. 
 For instance:
 
 ```{r}
@@ -248,14 +251,14 @@ plot(bart1.chains$times,
      cif.pred[1,],
      type = "l",
      col = "red",
-     ylim = c(0, 1),
+     ylim = c(0, .8),
      xlab = "Time (years)",
      ylab = "Cumulative incidence")
 points(bart1.chains$times,cif.025[1,], col = "red", type ='s', lwd = 1, lty = 2)
 points(bart1.chains$times,cif.975[1,], col = "red", type = 's', lwd = 1, lty = 2)
-lines(bart1.chains$times,  cif.pred[3,], col="blue")
-points(bart1.chains$times,cif.025[3,], col = "blue", type ='s', lwd = 1, lty = 2)
-points(bart1.chains$times,cif.975[3,], col = "blue", type = 's', lwd = 1, lty = 2)
+lines(bart1.chains$times,  cif.pred[2,], col="blue")
+points(bart1.chains$times,cif.025[2,], col = "blue", type ='s', lwd = 1, lty = 2)
+points(bart1.chains$times,cif.975[2,], col = "blue", type = 's', lwd = 1, lty = 2)
 
 ```
 
@@ -304,7 +307,7 @@ separate BART probit models. The first model, corresponds to the conditional
 probability of a cause $k=1$ event at a given time. The second, models the 
 conditional probability of an event of type $k=2$ at a specific time, given that 
 the individual is still at risk and did not experience a type $k=1$ event.
-In this case, the model is fit with function `crisk.bart`:
+In this case, the model is fit with function `crisk.bart()`:
 
 ```{r, results='hide'}
 
@@ -321,6 +324,33 @@ bart2 <- crisk.bart(x.train = xtrain, times = hd_train$time,
 
 The output is the same as in model formulation 1. 
 
+In order to study convergence diagnosis of the MCMC chains we use Geweke diagnostics. As in model formulation 1, we need to fit the model using the 
+train set as test set, by setting the argument `x.test = xtrain`, as shown below:
+
+```{r, results='hide'}
+bart2.chains <- crisk.bart(x.train = xtrain, 
+                     times = hd_train$time,   # needed if ytrain is not provided
+                     delta = hd_train$status, # needed if ytrain is not provided
+                     x.test = xtrain,         
+                     sparse = FALSE,          # set equal TRUE for variable selection 
+                     type = 'pbart',
+                     ntree = 30, numcut = 100, 
+                     ndpost = 500, nskip = 100, keepevery = 10L, 
+                     seed = 99)  
+
+h <- bart2.chains$K
+samples <- bart2.chains$yhat.test[, 1:h]
+z <- gewekediag(samples)$z
+lim <- max(c(4, abs(z)))
+
+# z scores vs. time for patient 1
+plot(bart2.chains$times, z, ylim=c(-lim, lim), type='l',xlab='t', ylab='z')
+lines(bart2.chains$times, rep(1.96, h), type='l', lty=2)
+lines(bart2.chains$times, rep(-1.96, h), type='l', lty=2)
+```
+
+
+As before, we employ `cif.test.mean()` to obtain CIFs for the subjects in the test set along with 95% credible intervals.
 
 ```{r}
 cif2.pred <- matrix(bart2$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )
@@ -332,7 +362,7 @@ cif2.975 <- apply(bart2$cif.test, 2, quantile, probs = 0.975)
 cif2.975 <- matrix(cif2.975, nrow=nrow(xtest), byrow = TRUE)
 ```
 
-We show CIF curves for patient 1 (red) and 3 (blue) in the test set along with 
+We show CIF curves for patient 1 (red) and 2 (blue) in the test set along with 
 its corresponding credible intervals:
 ```{r, fig.dim=c(6,4)}
 par(mar = c(4, 4, 2, 0.1))
@@ -346,46 +376,27 @@ plot(bart2$times,
      ylab = "Cumulative incidence")
 points(bart2$times,cif2.025[1,], col = "red", type ='s', lwd = 1, lty = 2)
 points(bart2$times,cif2.975[1,], col = "red", type = 's', lwd = 1, lty = 2)
-lines(bart2$times,  cif2.pred[3,], col="blue")
-points(bart2$times,cif2.025[3,], col = "blue", type ='s', lwd = 1, lty = 2)
-points(bart2$times,cif2.975[3,], col = "blue", type = 's', lwd = 1, lty = 2)
+lines(bart2$times,  cif2.pred[2,], col="blue")
+points(bart2$times,cif2.025[2,], col = "blue", type ='s', lwd = 1, lty = 2)
+points(bart2$times,cif2.975[2,], col = "blue", type = 's', lwd = 1, lty = 2)
 ```
 
+
+Below, we show predictions for 5 subjects in a new dataset (e.g. `hd_test`) at a specific time point (e.g. $t=5$ years). Note that predictions are only provided for time-points present in the training set.
 
 ```{r}
-surv2.pred <- matrix(bart2$surv.test.mean, nrow=nrow(xtest), byrow = TRUE )
-surv2.pred[1:5,which(bart2$times == 30.5)]
-
-# Compute 95% credible intervals and put in matrix format:
-surv2.025 <- apply(bart2$surv.test, 2, quantile, probs = 0.025) 
-surv2.025 <- matrix(surv2.025, nrow=nrow(xtest), byrow = TRUE)
-surv2.975 <- apply(bart2$surv.test, 2, quantile, probs = 0.975) 
-surv2.975 <- matrix(surv2.975, nrow=nrow(xtest), byrow = TRUE)
-```
-
-A plot for the first subject is shown below:
-```{r,  fig.dim=c(6,4)}
-
-plot(bart2$times,
-     surv2.pred[1,],
-     type = "l",
-     col = "red",
-     ylim = c(0, 1),
-     xlab = "Time (years)",
-     ylab = "Survival")
-points(bart2$times,surv2.025[1,], col = "red", type ='s', lwd = 1, lty = 2)
-points(bart2$times,surv2.975[1,], col = "red", type = 's', lwd = 1, lty = 2)
-
+BART2.pred <- matrix(bart2$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )
+BART2.pred[1:5, which(bart2$times == 5)]
 ```
 
 
 Note that the estimates of the 2 model formulations differ. The next plots compare CIFs for patient 1, under the 2 different models to show such differences:
 ```{r}
 
-plot(bart1$times,bart1$cif.pred[1,],lwd=2,type="l", col=2, ylim=c(0,1), 
+plot(bart1$times,cif.pred[1,],lwd=2,type="l", col=2, ylim=c(0,1), 
      main="Comparison of different formulations for test patient 1",
      xlab="Time", ylab="CIF(t)")
-lines(bart2$cif2.pred[2,], col=3,lwd=3)
+lines(cif2.pred[2,], col=3,lwd=3)
       legend("topright", 
        legend=c("Formulation 1", "Formulation 2"),
        col=c("#009999", "#FFCC00"), lty=c(1,1))
