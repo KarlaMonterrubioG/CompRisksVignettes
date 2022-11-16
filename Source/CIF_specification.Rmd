@@ -71,11 +71,12 @@ hd$clinstg  <- as.factor(hd$clinstg)
 
 Now, we explore the number of events for each event type:
 
-```{r}
-table(hd$status)
+```{r, message=FALSE}
+require(pander)
+pander::pander(table(hd$status))
 ```
 
-Thus, we have 439 censored patients, 291 with relapse, and 135 who died. From
+Thus, we have `r length(which(hd$status==0))` censored patients, `r `length(which(hd$status==1))` with relapse, and `r length(which(hd$status==2))` who died. From
 now on, we assume that the event of interest is relapse, i.e. status=1.
 
 In order to create a test set, we use stratified sampling to partition our
@@ -145,7 +146,7 @@ FG_crr <- crr(ftime = hd_train$time,
 summary(FG_crr)
 ```
 
-The above output includes the estimated covariate effects ($\exp(\beta)$), as
+The above output includes the estimated covariate effects `exp(coef)`, as
 well as significance level from which we can infer that the marginal effects for
 age, treatment given, and clinical stage are significant. Note however that 
 estimated hazard ratios are non-identical to those inferred in the 
@@ -183,13 +184,13 @@ CIF_hat <- predict(object = FG_crr, cov1 = predictors_test)
 dim(CIF_hat)
 ```
 
-The first column in CIF_hat corresponds to the 72 unique event times and the
-remaining 173 columns are the estimated CIFs for each patient (given their 
+The first column in CIF_hat corresponds to the `r nrow(CIF_hat)` unique event times and the
+remaining `r nrow(CIF_hat)-1` columns are the estimated CIFs for each patient (given their 
 covariate values) at such event times. As an illustration, the following 
 code is used to plot the estimated CIF for events type 1 for two patients in the
 training dataset. The first patient is 37 years old, male, under 
 radiation treatment, no mediastinum involvement, no extranodal disease, and 
-clinical stage1.The second patient is 41 years old, male, under radiation, 
+in clinical stage 1. The second patient is 41 years old, male, under radiation, 
 no mediastinum involvement, no extranodal disease, and clinical stage 2. 
 
 ```{r, fig.dim=c(6,4)}
@@ -295,7 +296,7 @@ legend("topright", legend = c("Patient 1", "Patient 2"),
 # Pseudo-values
 
 > **_NOTE:_** the package have been updated with respect to the code shown in
-@klein2008sas. The user is referred to the package documentation for the
+@klein2008. The user is referred to the package documentation for the
 function.**
 
 We define a time point grid of $M=7$ equally spaced points at which we will
@@ -314,7 +315,7 @@ pseudo <- pseudoci(hd_train$time,
 dim(pseudo)
 ```
 
-`pseudo` contains the pseudo-values of the 692 patients (rows) at the 7 different
+`pseudo` contains the pseudo-values of the `r nrow(pseudo)` patients (rows) at the `r ncol(pseudo)` different
 time points (columns) for relapse. 
 
 The following code will merge the pseudo-values with our train dataset.
@@ -336,7 +337,7 @@ merged_dataset$tpseudo <- as.factor(merged_dataset$tpseudo)
 We will now fit a generalised linear model using `geese()` function from R
 package `geepack`. We set `mean.link = "cloglog"` to use a complementary
 log-log link in order to recover Fine-Gray approach (alternative link functions
-can also be used, e.g. @klein2008sas explored a logistic link function). 
+can also be used, e.g. @klein2008 explored a logistic link function). 
 
 ```{r, message=FALSE}
 library(geepack)
@@ -418,7 +419,7 @@ pred_DB <- predict.timereg(fit_DB,
 plot(pred_DB,
      multiple = 1,
      col = c("red", "blue"),
-     ylim = c(0, 0.57),
+     ylim = c(0, 0.6),
      ylab = "Cumulative incidence")
 legend("topright", legend = c("Patient 1", "Patient 2"),
        lty = c(1,1), col = c("red", "blue"))
@@ -505,14 +506,6 @@ traceplot(as.mcmc(fit_DDP$alpharec1[, 1]))
 traceplot(as.mcmc(fit_DDP$lambda0rec1[, 1]))
 ```
 
-```{r}
-(fit_DDP$betarec1[1:3, 1:3])
-dim(fit_DDP$loghr.est)
-fit_DDP$predtime
-(fit_DDP$xmean)
-fit_DDP$covnames
-```
-
 Below, we illustrate how to do predictions with `DPWeibull`. First, we show how
 to estimate the CIF for two subjects in the test set at all observed event
 times.
@@ -523,19 +516,19 @@ par(mar = c(4, 4, 2, 0.1))
 pred_DDP <- predict(fit_DDP, newdata = as.data.frame(hd_test[c(1, 2), 2:7]))
 ```
 
-Note that `pred_DDP` contains posterior samples for the 2 subjects at 40 observed
+Note that `pred_DDP` contains posterior samples for the 2 subjects at `r ncol(pred_DDP$tpred)` observed
 event times, as well as posterior estimated and credible intervals.
 
-Below, we show the estimated CIF curves for patient 1 (red) and 3 (blue).
+Below, we show the estimated CIF curves for patient 1 (red) and 2 (blue).
 
 ```{r fig.dim=c(6,4)}
 plot(pred_DDP$tpred,
-     pred_DDP$Fpred[2, ],
+     pred_DDP$Fpred[1, ],
      type = "l",
      col = "red",
      xlab = "Time (years)",
      ylab = "Cumulative incidence")
-lines(pred_DDP$tpred, pred_DDP$Fpred[1, ], col="blue")
+lines(pred_DDP$tpred, pred_DDP$Fpred[2, ], col="blue")
 legend("topright", legend = c("Patient 1", "Patient 2"),
        lty = c(1,1), col = c("red", "blue"))
 
