@@ -72,11 +72,12 @@ hd$clinstg  <- as.factor(hd$clinstg)
 
 Now, we explore the number of events for each event type:
 
-```{r}
-table(hd$status)
+```{r, message=FALSE}
+require(pander)
+pander::pander(table(hd$status))
 ```
 
-Thus, we have 439 censored patients, 291 with relapse, and 135 who died. From
+Thus, we have `r length(which(hd$status==0))` censored patients, `r length(which(hd$status==1))` with relapse, and `r length(which(hd$status==2))` who died. From
 now on, we assume that the event of interest is relapse, i.e. status=1.
 
 In order to create a test set, we use stratified sampling to partition our
@@ -86,8 +87,8 @@ dataset into 80% for train and 20% for test.
 library(splitstackshape)
 set.seed(2022)
 split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
-hd_train   <- split_data$SAMP1
-hd_test    <- split_data$SAMP2
+hd_train   <- split_data$SAMP1[,-1]
+hd_test    <- split_data$SAMP2[,-1]
 ```
 
 Now, we explore the number of observations per status in both train and test
@@ -173,7 +174,7 @@ plot(get.tree(rsf.lr, 5))
 ```
 
 Furthermore, we can visualize the results of the fitted model with 
-`plot.competing.risk()`. This command shows 3 plots: a CS cumulative hazard, 
+`plot.competing.risk()`. This command shows averaged out-of-bag ensemble for: CS cumulative hazard, 
 the CIF, and the conditional probability, stratified by event type. In the plot 
 below, the event of interest is shown in black.
 
@@ -197,7 +198,7 @@ cumulative hazard function and the CIF. Below, we show out-of-bag-estimates for
 the event of interest (relapse)
 
 ```{r}
-obsv.times <- rsf.lr$time.interest  # unique observed event times
+obsv.times <- rsf.lr$time.interest  # unique event times
 
 #out-of-bag cause-specific cumulative hazard
 csh.oob <- rsf.lr$chf.oob[,,1]  # selects event type 1
@@ -207,7 +208,7 @@ cif.oob <- rsf.lr$cif.oob[,,1]  # selects event type 1
 
 ```
 `csh.oob` and `cif.oob` are arrays that contain in the rows estimates 
-corresponding to the $692$ subjects and in the columns the $136$ unique event times.
+corresponding to the `r nrow(hd_train)` subjects and in the columns the `r length(obsv.times)` unique event times.
 
 
 In order to do variable selection, a variable importance measure for the event 
@@ -233,8 +234,8 @@ pander::pander(var.mindepth$varselect)
 ```
 
 
-In order to obtain predictions in the test set, we employ `predict` function as 
-shown below. A summary of the object is shown with the function `print`
+In order to obtain predictions in the test set, we employ `predict()` function as 
+shown below. A summary of the object is shown with the function `print()`
 
 ```{r}
 test.lr <- predict(rsf.lr, 
@@ -247,26 +248,30 @@ test.lr <- predict(rsf.lr,
 print(test.lr)
 ```
 
-The predicted cause-specific cumulative hazard for patient 1 and 2 in the test 
-set is shown:   
+The predicted CIF for patient 1 (red) and 2 (blue) in the test set is shown:   
 
 ```{r, fig.dim=c(6,4)}
-CSCH <- test.lr$chf[,,1]  # select event of interest k=1
+CIF.hat <- test.lr$cif[,,1]  # select event of interest k=1
 
 par(mar = c(4, 4, 2, 0.1))
 
 plot(test.lr$time.interest,
-     CSCH[1,],
+     CIF.hat[1,],
      type = "l",
      col = "red",
      ylim = c(0, 0.7),
      xlab = "Time (years)",
-     ylab = "CSC hazard")
-lines(test.lr$time.interest,  CSCH[2,], col="blue")
+     ylab = "Cumulative incidence")
+lines(test.lr$time.interest,  CIF.hat[2,], col="blue")
 legend("topright", legend = c("Patient 1", "Patient 2"),
        lty = c(1,1), col = c("red", "blue"))
 ```
 
+The model permits to do predictions at observed unique event times. Below we show the predicted CIF for the first 5 patients in the test set at a specific time point $t=5$: 
+
+```{r}
+test.lr$cif[1:5,obsv.times==5,1]
+```
 
 ## Modified Gray’s test splitting rule (logrankCR)
 
@@ -366,8 +371,10 @@ legend("topright", legend = c("Patient 1", "Patient 2"),
 ```
 
 
-
-
+Predicted CIF at $t=5$ for the first 5 subjects in the test set are shown:
+```{r}
+test.lrCR$cif[1:5,obsv.times==5,1]
+```
 
 
 # References

@@ -11,7 +11,7 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2022-11-15" />
+<meta name="date" content="2022-11-16" />
 
 <title>Approaches based on a proportional cause-specific hazard specification</title>
 
@@ -1714,7 +1714,7 @@ font-size: 0.95em;
 cause-specific hazard specification</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2022-11-15</h4>
+<h4 class="date">2022-11-16</h4>
 
 </div>
 
@@ -1798,8 +1798,8 @@ partition our data in 80% for train and 20% for test.</p>
 <pre class="r"><code>require(splitstackshape)
 set.seed(2022)
 split_data &lt;- stratified(hd, c(&quot;status&quot;), 0.8, bothSets = TRUE)
-hd_train   &lt;- as.data.frame(split_data$SAMP1)
-hd_test    &lt;- as.data.frame(split_data$SAMP2)</code></pre>
+hd_train   &lt;- as.data.frame(split_data$SAMP1[,-1])
+hd_test    &lt;- as.data.frame(split_data$SAMP2[,-1])</code></pre>
 <p>Now, we explore the number of observations per status in both train
 and test set:</p>
 <pre class="r"><code>pander::pander(table(hd_train$status))</code></pre>
