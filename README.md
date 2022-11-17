@@ -25,23 +25,27 @@ It includes R vignettes to illustrate the usage of the following methods:
 
 A Docker image is provided to support our aim of creating reproducible research
 by packaging together the operating system, the system packages, the R binary,
-and the R packages used in our reports.  We provide images for both AMD64
+and the R packages used in our reports. Docker containers can be thought of as
+being similar to virtual machines and an image contains what is inside the
+virtual machine (such as installed software). We provide images for both AMD64
 (Intel and AMD processors) and ARM64 (Apple silicon) architectures. The correct
 image should automatically be downloaded for your platform.   
 
 **Instructions**
 
-If you have not done so already, [install Docker](https://www.docker.com).
+If you have not done so already, [install Docker](https://www.docker.com). If
+you are using a Windows computer, you will most likely need support for Windows
+Subsystem for Linux 2 (WSL2) which requires BIOS-level hardware virtualisation
+support to be enabled in the BIOS settings. 
 
-To use the Docker image, clone this repository and change into the
-directory.
+To use the Docker image, clone this repository and go into the directory.
 
 ``` bash
 $ git clone https://github.com/KarlaMonterrubioG/Competing_risks.git
 $ cd Competing_risks
 ```
 
-> **Note**: You may need to allocated more RAM to Docker if 8GB of RAM or less 
+> **Note**: You may need to allocate more RAM to Docker if 8GB of RAM or less 
 is allocated. If you are using Docker Desktop, you can allocate more RAM in the
 settings panel (Settings > Resources > Advanced)
 
@@ -55,18 +59,16 @@ $ docker container run \
   ghcr.io/karlamonterrubiog/competing_risks
 ```
 
-which will pull the docker image from the GitHub Container Registry and  use the
-R markdown files in the [`Source`](Source) directory to render HTML files to the
-[`Output`](Output) directory.
+which will pull (download) the docker image from the GitHub Container Registry
+and  use the R markdown files in the [`Source`](Source) directory to render HTML
+files to the [`Output`](Output) directory.
 
-The image is quite large (2.46GB), so you may wish to delete the image once you
+The image is quite large (2.63GB), so you may wish to delete the image once you
 are finished:
 
 ``` bash
 docker image rm ghcr.io/karlamonterrubiog/competing_risks
 ```
-
- <!-- To do! Add windows Docker installation instructions -->
 
 ### From RStudio
 
