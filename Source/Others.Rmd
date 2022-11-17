@@ -34,8 +34,8 @@ knitr::opts_chunk$set(
 In order to demonstrate the methods, we employ publicly available data. 
 
 The dataset used here corresponds to the Hodgkin’s disease (HD) study described
-in @pintilie2006competing. The dataset comprises 865 patients diagnosed with
-early stage (I or II) HD, and which were treated either with radiation (RT) or
+in @pintilie2006competing. The dataset comprises 865 patients diagnosed with 
+early stage (I or II) HD, and which were treated either with radiation (RT) or 
 with radiation and chemotherapy (CMT).
 
 The recorded data includes:
@@ -54,8 +54,7 @@ We now load and display the structure of the HD dataset:
 ```{r, message=FALSE, warning=FALSE}
 library(readr)
 hd <- data.frame(read_csv("../Data/HD/hd.csv",
-  col_types = cols(X1 = col_skip())
-))
+                          col_types = cols(X1 = col_skip())))
 str(hd)
 ```
 
@@ -64,20 +63,21 @@ trtgiven, medwidsi, and extranod from character to factor. Similarly, we convert
 clinstg from numeric to factor.
 
 ```{r}
-hd$sex <- as.factor(hd$sex)
+hd$sex      <- as.factor(hd$sex)
 hd$trtgiven <- as.factor(hd$trtgiven)
 hd$medwidsi <- as.factor(hd$medwidsi)
 hd$extranod <- as.factor(hd$extranod)
-hd$clinstg <- as.factor(hd$clinstg)
+hd$clinstg  <- as.factor(hd$clinstg)
 ```
 
 Now, we explore the number of events for each event type:
 
-```{r}
-table(hd$status)
+```{r, message=FALSE}
+require(pander)
+pander::pander(table(hd$status))
 ```
 
-Thus, we have 439 censored patients, 291 with relapse, and 135 who died. From
+Thus, we have `r length(which(hd$status==0))` censored patients, `r length(which(hd$status==1))` with relapse, and `r length(which(hd$status==2))` who died. From
 now on, we assume that the event of interest is relapse, i.e. status=1.
 
 In order to create a test set, we use stratified sampling to partition our
@@ -87,8 +87,8 @@ dataset into 80% for train and 20% for test.
 library(splitstackshape)
 set.seed(2022)
 split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
-hd_train <- split_data$SAMP1
-hd_test <- split_data$SAMP2
+hd_train   <- split_data$SAMP1[,-1]
+hd_test    <- split_data$SAMP2[,-1]
 ```
 
 Now, we explore the number of observations per status in both train and test
@@ -104,12 +104,12 @@ pander::pander(table(hd_test$status))
 
 # Random survival forests
 
-The authors of random survival forests provide an online vignette
-[here](https://www.randomforestsrc.org/articles/competing.html)
-(@HemantCompeting). The method can be fitted using the `randomForestSRC`
-package. Below we showcase how to do that.
+The authors of random survival forests provide an online vignette 
+[here](https://www.randomforestsrc.org/articles/competing.html) 
+(@HemantCompeting). The method can be fitted using the `randomForestSRC` package. 
+Below we showcase how to do that.
 
-First, in order to fit the model, both, the train and test sets should be
+First, in order to fit the model, both, the train and test sets should be 
 converted to data.frames:
 
 ```{r}
@@ -117,270 +117,263 @@ hd_train <- as.data.frame(hd_train)
 hd_test <- as.data.frame(hd_test)
 ```
 
-As RSF permits both a cause-specific and a CIF formulation, the user should
-first determine the type of analysis of interest, and pass it on the argument
-`splitrule` in the fitter function `rfsrc`. When the objective is to do a
-cause-specific hazard analysis, we must set `splitrule = "logrank"` and the
-argument `cause` should indicate the event type of interest. In contrast, if one
-is interested on long term predictions, `splitrule = "logrankCR"` is more
-appropriate, as it considers the CIF. Furthermore, a composite splitting rule is
-available and can be used to identify variables that are important for any
-cause.
+As RSF permits, both, a cause-specific and a CIF formulation. The user should 
+first determine the type of analysis of interest, and pass it on the argument 
+`splitrule` in the fitter function `rfsrc()`. When the objective is to do a 
+cause-specific hazard analysis we must set `splitrule="logrank"` and the 
+argument `cause` should indicate the event type of interest. In contrast, if one 
+is interested on long term predictions, `splitrule="logrankCR"` is more 
+appropriate, as it considers the CIF. Furthermore, a composite splitting rule is 
+available and can be used to identify variables that are important for any cause.
 
 Below, we fit both models:
 
+
 ## Generalized log-rank splitting rule (logrank)
 
-The model can be fit with the `rfsrc()` function in the `randomForestSRC`
-package. In order to do so, one should first create a survival time object with
-the `Surv()` function. This object will be the response variable in our
-regression model. As discussed above, we set `splitrule = "logrank"` and
-`cause = c(1,0)` to obtain a cause-specific analysis for event type $k=1$. In
-order to assess variable importance, we set argument `importance="permute"`.
-Note that this can be computed after the model is fitted using the `vimp`
-function directly. Furthermore, we set `bootstrap = by.rootand samptype = "swr"`
+The model can be fit with the `rfsrc()` function in the `randomForestSRC` 
+package. In order to do so, one should first create a survival time object with 
+the `Surv()` function. This object will be the response variable in our 
+regression model. As discussed above, we set `splitrule="logrank"` and 
+`cause = c(1,0)` to obtain a cause-specific analysis for event type $k=1$. In 
+order to assess variable importance, we set argument `importance="permute"`. 
+Note that this can be computed after the model is fitted using the `vimp()` 
+function directly. Furthermore, we set `bootstrap = by.rootand samptype = "swr"` 
 to do bootstrapping with replacement.
 
 ```{r}
 library(randomForestSRC)
 
-rsf.lr <- rfsrc(
-  Surv(time, status) ~
-    age +
-    sex +
-    trtgiven +
-    medwidsi +
-    extranod +
-    clinstg,
-  data = hd_train,
-  ntree = 100,
-  splitrule = "logrank",
-  cause = c(1, 0), # to indicate that first event is of interest
-  bootstrap = "by.root",
-  samptype = "swr", # sampling with replacement.
-  importance = "random", # other choices available, e.g. permute
-  save.memory = TRUE, # useful for big datasets
-  seed = 100
-)
+rsf.lr <- rfsrc(Surv(time, status) ~ age + sex + trtgiven+ medwidsi+ extranod+clinstg, 
+                data = hd_train,
+                ntree = 100,
+                splitrule = "logrank", 
+                cause = c(1,0),          # to indicate that first event is of interest
+                bootstrap = "by.root",
+                samptype = "swr",        # sampling with replacement.
+                importance = "random",   # other choices available, e.g. permute
+                save.memory= TRUE,       # useful for big datasets
+                seed = 100)
+
 ```
 
-Note that if missing values are present, it is possible to impute them by setting the argument `na.action=na.impute`.
+Note that if missing values are present, it is possible to impute them by 
+setting the argument `na.action=na.impute`.
 
-A summary of the fitted object is obtained with `print`. 
+A summary of the fitted object is obtained with `print()`. 
 
 ```{r}
 print(rsf.lr)
 ```
 
-We can obtain the fitted trees; for instance, a plot of the fifth fitted tree is
-shown:
+We can obtain the fitted trees; for instance, a plot of the fifth fitted tree 
+is shown:
 
 ```{r}
 plot(get.tree(rsf.lr, 5))
 ```
 
-Furthermore, we can visualize the results of the fitted model with
-`plot.competing.risk`. This command shows 3 plots: a CS cumulative hazard, the
-CIF, and the conditional probability, stratified by event type. In the plot
+Furthermore, we can visualize the results of the fitted model with 
+`plot.competing.risk()`. This command shows averaged out-of-bag ensemble for: CS cumulative hazard, 
+the CIF, and the conditional probability, stratified by event type. In the plot 
 below, the event of interest is shown in black.
 
 ```{r, fig.dim=c(8,6)}
 plot.competing.risk(rsf.lr)
 ```
 
-In addition, we can visualize marginal effects according to the expected number
-of years lost due to the event specific cause. Recall, that this measure is a
+In addition, we can visualize marginal effects according to the expected number 
+of years lost due to the event specific cause. Recall, that this measure is a 
 1-dimensional summary of the CIF.
 
 ```{r, fig.dim=c(8,6)}
-plot.variable(rsf.lr,
-  target = 1,
-  surv.type = "years.lost",
-  sorted = TRUE
-)
+plot.variable(rsf.lr, target = 1,
+              surv.type = "years.lost", 
+              sorted = TRUE)
 ```
 
 
-We can obtain both, in-bag and out-of-bag, estimates of the cause-specific
-cumulative hazard function and the CIF. Below, we show out-of-bag-estimates for
+We can obtain both, in-bag and out-of-bag, estimates of the cause-specific 
+cumulative hazard function and the CIF. Below, we show out-of-bag-estimates for 
 the event of interest (relapse)
 
 ```{r}
-obsv.times <- rsf.lr$time.interest # unique observed event times
+obsv.times <- rsf.lr$time.interest  # unique event times
 
-# out-of-bag cause-specific cumulative hazard
-csh.oob <- rsf.lr$chf.oob[, , 1] # selects event type 1
+#out-of-bag cause-specific cumulative hazard
+csh.oob <- rsf.lr$chf.oob[,,1]  # selects event type 1
 
-# out-of-bag CIF
-cif.oob <- rsf.lr$cif.oob[, , 1] # selects event type 1
+#out-of-bag CIF
+cif.oob <- rsf.lr$cif.oob[,,1]  # selects event type 1
+
 ```
+`csh.oob` and `cif.oob` are arrays that contain in the rows estimates 
+corresponding to the `r nrow(hd_train)` subjects and in the columns the `r length(obsv.times)` unique event times.
 
-`csh.oob` and `cif.oob` are arrays that contain in the rows estimates
-corresponding to the $692$ subjects and in the columns the $136$ unique event
-times.
 
-In order to do variable selection, a variable importance measure for the event
-of interest is shown below. The higher the value, the better. Negative values
+In order to do variable selection, a variable importance measure for the event 
+of interest is shown below. The higher the value, the better. Negative values 
 indicate no predictive ability.
 
 ```{r}
-rsf.lr$importance[, 1]
+rsf.lr$importance[,1]
 ```
 
-In addition, one can also use minimal depth variable selection. In this case,
-the smaller the value, the more predictive ability. The second column of the
+In addition, one can also use minimal depth variable selection. In this case, 
+the smaller the value, the more predictive ability. The second column of the 
 table below shows the results:
 
 ```{r}
-var.mindepth <- var.select(rsf.lr,
-  cause = 1,
-  # is possible to select "vh.vimp" for variable importance measure
-  method = "md",
-  # level of conservativeness of the thresholding rule
-  conservative = "medium"
-)
+var.mindepth  <- var.select(rsf.lr, 
+                        cause = 1, 
+                        method = "md", # is possible to select "vh.vimp" for variable importance measure
+                        conservative = "medium" # level of conservativeness of the thresholding rule
+           )  
 
 pander::pander(var.mindepth$varselect)
 ```
 
 
-In order to obtain predictions in the test set, we employ `predict` function as
-shown below. A summary of the object is shown with the function `print`.
+In order to obtain predictions in the test set, we employ `predict()` function as 
+shown below. A summary of the object is shown with the function `print()`
 
 ```{r}
-test.lr <- predict(rsf.lr,
-  newdata = hd_test,
-  # VIM can also be obtained at this stage
-  importance = "random",
-  outcome = "test",
-  csv = TRUE
-)
+test.lr <- predict(rsf.lr, 
+                   newdata = hd_test,
+                   #VIM can also be obtained at this stage
+                   importance = "random",
+                   outcome = "test",
+                   csv = TRUE
+                   )
 print(test.lr)
 ```
 
-The predicted cause-specific cumulative hazard for patient 1 and 2 in the test
-set is shown:   
+The predicted CIF for patient 1 (red) and 2 (blue) in the test set is shown:   
 
 ```{r, fig.dim=c(6,4)}
-CSCH <- test.lr$chf[, , 1] # select event of interest k=1
+CIF.hat <- test.lr$cif[,,1]  # select event of interest k=1
 
 par(mar = c(4, 4, 2, 0.1))
 
 plot(test.lr$time.interest,
-  CSCH[1, ],
-  type = "l",
-  col = "red",
-  ylim = c(0, 0.7),
-  xlab = "Time (years)",
-  ylab = "CSC hazard"
-)
-lines(test.lr$time.interest, CSCH[2, ], col = "blue")
-legend("topright",
-  legend = c("Patient 1", "Patient 2"),
-  lty = c(1, 1), col = c("red", "blue")
-)
+     CIF.hat[1,],
+     type = "l",
+     col = "red",
+     ylim = c(0, 0.7),
+     xlab = "Time (years)",
+     ylab = "Cumulative incidence")
+lines(test.lr$time.interest,  CIF.hat[2,], col="blue")
+legend("topright", legend = c("Patient 1", "Patient 2"),
+       lty = c(1,1), col = c("red", "blue"))
 ```
 
+The model permits to do predictions at observed unique event times. Below we show the predicted CIF for the first 5 patients in the test set at a specific time point $t=5$: 
+
+```{r}
+test.lr$cif[1:5,obsv.times==5,1]
+```
 
 ## Modified Gray’s test splitting rule (logrankCR)
 
 ```{r}
 
-rsf.lrCR <- rfsrc(Surv(time, status) ~ .,
-  data = hd_train,
-  ntree = 100,
-  splitrule = "logrankCR",
-  cause = c(1, 0), # to indicate that first event is of interest
-  bootstrap = "by.root",
-  samptype = "swr", # sampling with replacement.
-  importance = "random", # other choices available, e.g. permute
-  save.memory = TRUE, # useful for big datasets
-  seed = 100
-)
+rsf.lrCR <- rfsrc(Surv(time, status) ~ age + sex + trtgiven+ medwidsi+ extranod+clinstg, 
+                data = hd_train,
+                ntree = 100,
+                splitrule = "logrankCR", 
+                cause = c(1,0),          # to indicate that first event is of interest
+                bootstrap = "by.root",
+                samptype = "swr",        # sampling with replacement.
+                importance = "random",   # other choices available, e.g. permute
+                save.memory= TRUE,       # useful for big datasets
+                seed = 100
+                )
 
 print(rsf.lrCR)
 ```
 
 As before fitted trees can be obtained with `get.tree`.
-
 ```{r}
 plot(get.tree(rsf.lrCR, 5))
 ```
 
-Similarly, one can visualize the results of the fitted model with
-`plot.competing.risk`, which shows 3 plots: a CS cumulative hazard, the CIF, and
-the conditional probability, stratified by event type. In the plot below, the
-event of interest is shown in black.
+Similarly, one can visualize the results of the fitted model with 
+`plot.competing.risk()`, which shows 3 plots: a CS cumulative hazard, the CIF, 
+and the conditional probability, stratified by event type. In the plot below, 
+the event of interest is shown in black.
 
 ```{r, fig.dim=c(8,6)}
 plot.competing.risk(rsf.lrCR)
 ```
 
-In addition, we can visualize marginal effects according to the expected number
+In addition, we can visualize marginal effects according to the expected number 
 of years lost due to the event specific cause.
 
 ```{r, fig.dim=c(8,6)}
-plot.variable(rsf.lrCR,
-  target = 1,
-  surv.type = "years.lost",
-  sorted = TRUE
-)
+plot.variable(rsf.lrCR, target = 1,
+              surv.type = "years.lost", 
+              sorted = TRUE)
 ```
 
-In-bag and out-of-bag estimates of the cause-specific cumulative hazard function
-and the CIF. Below, we show out-of-bag-estimates for the event of interest
-(relapse). `csh.oob` and `cif.oob` are array that contains in the rows estimates
+
+In-bag and out-of-bag estimates of the cause-specific cumulative hazard function 
+and the CIF. Below, we show out-of-bag-estimates for the event of interest 
+(relapse). `csh.oob` and `cif.oob` are array that contains in the rows estimates 
 corresponding to the $692$ subjects and in the columns the $136$ unique times.
 
 ```{r}
-obsv.times <- rsf.lrCR$time.interest # unique observed event times
+obsv.times <- rsf.lrCR$time.interest  # unique observed event times
 
-# out-of-bag cause-specific cumulative hazard
-csh.oob <- rsf.lrCR$chf.oob[, , 1] # selects event type 1
+#out-of-bag cause-specific cumulative hazard
+csh.oob <- rsf.lrCR$chf.oob[,,1]  # selects event type 1
 
-# out-of-bag CIF
-cif.oob <- rsf.lrCR$cif.oob[, , 1] # selects event type 1
+#out-of-bag CIF
+cif.oob <- rsf.lrCR$cif.oob[,,1]  # selects event type 1
+
 ```
 
-In order to do variable selection, as variable importance measure for the event
-of interest is shown below. The higher the value, the better. Negative values
+In order to do variable selection, as variable importance measure for the event 
+of interest is shown below. The higher the value, the better. Negative values 
 indicate no predictive ability.
 
 ```{r}
-rsf.lrCR$importance[, 1]
+rsf.lrCR$importance[,1]
 ```
 
-In order to obtain predictions in the test set, we employ `predict` function as shown below. A summary of the object is shown with the function `print`
+In order to obtain predictions in the test set, we employ `predict()` function 
+as shown below. A summary of the object is shown with the function `print()`
 
 ```{r}
-test.lrCR <- predict(rsf.lrCR,
-  newdata = hd_test,
-  importance = "permute" # VIM can also be obtained at this stage
-)
+test.lrCR <- predict(rsf.lrCR, 
+                   newdata = hd_test,
+                   importance = "permute"  #VIM can also be obtained at this stage
+                   )
 print(test.lrCR)
 ```
 
 The CIF for patient 1 and 2 in the test set is shown:   
 
 ```{r, fig.dim=c(6,4)}
-CIF.hat <- rsf.lrCR$cif[, , 1] # select event of interest k=1
+CIF.hat <- rsf.lrCR$cif[,,1]  # select event of interest k=1
 
 par(mar = c(4, 4, 2, 0.1))
 
 plot(test.lrCR$time.interest,
-  CIF.hat[1, ],
-  type = "l",
-  col = "red",
-  ylim = c(0, 0.7),
-  xlab = "Time (years)",
-  ylab = "Cumulative incidence"
-)
-lines(test.lrCR$time.interest, CIF.hat[2, ], col = "blue")
-legend("topright",
-  legend = c("Patient 1", "Patient 2"),
-  lty = c(1, 1),
-  col = c("red", "blue")
-)
+     CIF.hat[1,],
+     type = "l",
+     col = "red",
+     ylim = c(0, 0.7),
+     xlab = "Time (years)",
+     ylab = "Cumulative incidence")
+lines(test.lrCR$time.interest,  CIF.hat[2,], col="blue")
+legend("topright", legend = c("Patient 1", "Patient 2"),
+       lty = c(1,1), col = c("red", "blue"))
+```
+
+
+Predicted CIF at $t=5$ for the first 5 subjects in the test set are shown:
+```{r}
+test.lrCR$cif[1:5,obsv.times==5,1]
 ```
 
 
