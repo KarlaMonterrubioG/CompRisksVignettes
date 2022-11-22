@@ -1,6 +1,7 @@
 # Competing risks
 
-This repository contains supplementary material for the paper: A review on competing risks methods for survival analysis.
+This repository contains supplementary material for the paper: A review on
+competing risks methods for survival analysis.
 
 It includes R vignettes to illustrate the usage of the following methods:
 
@@ -49,34 +50,59 @@ $ cd Competing_risks
 is allocated. If you are using Docker Desktop, you can allocate more RAM in the
 settings panel (Settings > Resources > Advanced)
 
-To render the HTML reports, you can run 
+To pull (download) the image, run
+
+``` bash
+docker image pull ghcr.io/karlamonterrubiog/competing_risks:latest
+```
+
+To render the html reports, run
 
 ``` bash
 $ docker container run \
-  --mount type=bind,source="$(pwd)"/Output,target=/Output \
+  --mount type=bind,source="$(pwd)"/docs,target=/docs \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
+  ghcr.io/karlamonterrubiog/competing_risks ./render
+```
+
+which will then use the R markdown files in the [`Source`](Source) directory to
+render HTML files to the [`docs`](docs) directory using the Docker image.
+
+If you would prefer to instead open an Rstudio session inside the docker
+container with all packages required available, you can run
+
+``` bash
+$ docker container run \
+  --mount type=bind,source="$(pwd)"/docs,target=/docs \
+  --mount type=bind,source="$(pwd)"/Source,target=/Source \
+  --mount type=bind,source="$(pwd)"/Data,target=/Data \
+  -e PASSWORD=password \
+  -p 8787:8787 \
   ghcr.io/karlamonterrubiog/competing_risks
 ```
 
-which will pull (download) the docker image from the GitHub Container Registry
-and  use the R markdown files in the [`Source`](Source) directory to render HTML
-files to the [`Output`](Output) directory.
+Replacing the lowercase "`password`" with an alternative if desired. You can
+then browse to `localhost:8787` in a web browser to get an Rstudio session. The
+login username should be "rstudio" and the password will be "password" (unless
+you have changed it)
 
-The image is quite large (2.63GB), so you may wish to delete the image once you
+**Cleanup**
+
+The Docker image is large (3.88GB), so you may wish to delete the image once you
 are finished:
 
 ``` bash
 docker image rm ghcr.io/karlamonterrubiog/competing_risks
 ```
 
-### From RStudio
+### Using a local R install
 
-If you wish to avoid using Docker, you can instead run the below R code from the
-top-level directory of this repository which should install all required
-packages and render out the R markdown files. However, please note this approach
-will only work for as long as all dependencies (except `binaryLogic` and
-`DPWeibull`) are available on CRAN.
+If you wish/have to avoid using Docker, you can instead run the below R code
+from the top-level directory of this repository which should install all
+required packages and render out the R markdown files. However, please note this
+approach will only work for as long as all dependencies (except `binaryLogic`
+and `DPWeibull`) are available on CRAN.
 
 ``` R
 if (!require("renv")) install.packages("renv")

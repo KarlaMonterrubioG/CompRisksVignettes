@@ -11,6 +11,10 @@ output:
     highlight: textmate
     toc_float:
       collapsed: no
+    includes:
+      in_header: head.html
+      before_body: navbar.html
+    self_contained: false
   pdf_document:
     toc: yes
 link-citations: yes
