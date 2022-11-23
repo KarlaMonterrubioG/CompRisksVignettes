@@ -1,9 +1,8 @@
-# Use the latest version of R with support for Linux binaries
-FROM rocker/r-ver:4.2.1
+FROM rocker/rstudio:4.2.2
 
 LABEL "org.opencontainers.image.source"="https://github.com/karlamonterrubiog/competing_risks" \
     "org.opencontainers.image.authors"="Nathan Constantine-Cooke <nathan.constantine-cooke@ed.ac.uk>" \
-    "org.opencontainers.image.base.name"="rocker/r-ver:4.2.1" \
+    "org.opencontainers.image.base.name"="rocker/rstudio:4.2.1" \
     "org.opencontainers.image.description"="Docker image for the competing_risks repository" \
     "org.opencontainers.image.vendor"="University of Edinburgh"
 
@@ -33,6 +32,7 @@ RUN apt-get update -qq && apt-get -y --no-install-recommends install \
   # Needed for Rmarkdown
   pandoc \
   pandoc-citeproc \
+  libgit2-dev \
   # Remove unneeded files to decrease image size
   && rm -rf /var/lib/apt/lists/*
 
@@ -66,6 +66,12 @@ RUN install2.r --error \
     remotes
 
 RUN Rscript -e "remotes::install_github('cran/ipw')"
+RUN Rscript -e "remotes::install_github('cran/HI')"
+RUN Rscript -e "remotes::install_github('cran/BSGW')"
+
+#  Dependency for riskRegression. Removed from CRAN then resubmitted means no binary available
+RUN Rscript -e  "install.packages('casebase', type = 'source', repos = 'https://cloud.r-project.org/')"
+
 
 RUN install2.r --error \
     --deps TRUE \
@@ -87,10 +93,12 @@ RUN install2.r --error \
     pseudo \
     geepack \
     timereg \
-    # for installing packages from github
     coda \
     BART \
-    nnet
+    nnet \
+    randomForestSRC \
+    splitstackshape \
+    RcppProgress
 
 
 RUN install2.r --error \
@@ -100,18 +108,22 @@ RUN install2.r --error \
     stabs \
     inum \
     partykit \
-    mboost
+    mboost \
+    CFC
 
 RUN rm -rf /tmp/downloaded_packages \
     && strip /usr/local/lib/R/site-library/*/libs/*.so
 
-RUN mkdir Output
+RUN mkdir docs
 RUN mkdir Source
 
 WORKDIR /
 COPY Docker /
+RUN chmod u+x render
 RUN mkdir Data
 
 RUN Rscript -e "remotes::install_github('cran/binaryLogic'); remotes::install_github('cran/DPWeibull')"
 
-CMD Rscript render.R
+RUN chmod u+x render
+
+#CMD Rscript render.R

@@ -10,9 +10,18 @@ docker buildx build . -t ghcr.io/karlamonterrubiog/competing_risks:latest --plat
 # Use image to render out html files
 # Should pull image from Github Container Registry if not available locally
 docker container run \
-  --mount type=bind,source="$(pwd)"/Output,target=/Output \
+  --mount type=bind,source="$(pwd)"/docs,target=/docs \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
-  ghcr.io/karlamonterrubiog/competing_risks
+  ghcr.io/karlamonterrubiog/competing_risks ./render
 
-open Output/CS_specification.html
+open docs/CS_specification.html
+
+# Run image with Rstudio Server
+docker container run \
+  --mount type=bind,source="$(pwd)"/docs,target=/docs \
+  --mount type=bind,source="$(pwd)"/Source,target=/Source \
+  --mount type=bind,source="$(pwd)"/Data,target=/Data \
+  -e PASSWORD=password \
+  -p 8787:8787 \
+  ghcr.io/karlamonterrubiog/competing_risks

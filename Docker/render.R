@@ -3,5 +3,5 @@ rmds <- list.files("Source", pattern = "*.Rmd")
 for (rmd in rmds) {
   rmarkdown::render(paste0("Source/", rmd),
                     output_format = "html_document",
-                    output_dir = "Output")
+                    output_dir = "docs")
 }

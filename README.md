@@ -1,6 +1,7 @@
 # Competing risks
 
-This repository contains supplementary material for the paper: A review on competing risks methods for survival analysis.
+This repository contains supplementary material for the paper: A review on
+competing risks methods for survival analysis.
 
 It includes R vignettes to illustrate the usage of the following methods:
 
@@ -25,56 +26,83 @@ It includes R vignettes to illustrate the usage of the following methods:
 
 A Docker image is provided to support our aim of creating reproducible research
 by packaging together the operating system, the system packages, the R binary,
-and the R packages used in our reports.  We provide images for both AMD64
+and the R packages used in our reports. Docker containers can be thought of as
+being similar to virtual machines and an image contains what is inside the
+virtual machine (such as installed software). We provide images for both AMD64
 (Intel and AMD processors) and ARM64 (Apple silicon) architectures. The correct
 image should automatically be downloaded for your platform.   
 
 **Instructions**
 
-If you have not done so already, [install Docker](https://www.docker.com).
+If you have not done so already, [install Docker](https://www.docker.com). If
+you are using a Windows computer, you will most likely need support for Windows
+Subsystem for Linux 2 (WSL2) which requires BIOS-level hardware virtualisation
+support to be enabled in the BIOS settings. 
 
-To use the Docker image, clone this repository and change into the
-directory.
+To use the Docker image, clone this repository and go into the directory.
 
 ``` bash
 $ git clone https://github.com/KarlaMonterrubioG/Competing_risks.git
 $ cd Competing_risks
 ```
 
-> **Note**: You may need to allocated more RAM to Docker if 8GB of RAM or less 
+> **Note**: You may need to allocate more RAM to Docker if 8GB of RAM or less 
 is allocated. If you are using Docker Desktop, you can allocate more RAM in the
 settings panel (Settings > Resources > Advanced)
 
-To render the HTML reports, you can run 
+To pull (download) the image, run
+
+``` bash
+docker image pull ghcr.io/karlamonterrubiog/competing_risks:latest
+```
+
+To render the html reports, run
 
 ``` bash
 $ docker container run \
-  --mount type=bind,source="$(pwd)"/Output,target=/Output \
+  --mount type=bind,source="$(pwd)"/docs,target=/docs \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
+  ghcr.io/karlamonterrubiog/competing_risks ./render
+```
+
+which will then use the R markdown files in the [`Source`](Source) directory to
+render HTML files to the [`docs`](docs) directory using the Docker image.
+
+If you would prefer to instead open an Rstudio session inside the docker
+container with all packages required available, you can run
+
+``` bash
+$ docker container run \
+  --mount type=bind,source="$(pwd)"/docs,target=/docs \
+  --mount type=bind,source="$(pwd)"/Source,target=/Source \
+  --mount type=bind,source="$(pwd)"/Data,target=/Data \
+  -e PASSWORD=password \
+  -p 8787:8787 \
   ghcr.io/karlamonterrubiog/competing_risks
 ```
 
-which will pull the docker image from the GitHub Container Registry and  use the
-R markdown files in the [`Source`](Source) directory to render HTML files to the
-[`Output`](Output) directory.
+Replacing the lowercase "`password`" with an alternative if desired. You can
+then browse to `localhost:8787` in a web browser to get an Rstudio session. The
+login username should be "rstudio" and the password will be "password" (unless
+you have changed it)
 
-The image is quite large (2.46GB), so you may wish to delete the image once you
+**Cleanup**
+
+The Docker image is large (3.88GB), so you may wish to delete the image once you
 are finished:
 
 ``` bash
 docker image rm ghcr.io/karlamonterrubiog/competing_risks
 ```
 
- <!-- To do! Add windows Docker installation instructions -->
+### Using a local R install
 
-### From RStudio
-
-If you wish to avoid using Docker, you can instead run the below R code from the
-top-level directory of this repository which should install all required
-packages and render out the R markdown files. However, please note this approach
-will only work for as long as all dependencies (except `binaryLogic` and
-`DPWeibull`) are available on CRAN.
+If you wish/have to avoid using Docker, you can instead run the below R code
+from the top-level directory of this repository which should install all
+required packages and render out the R markdown files. However, please note this
+approach will only work for as long as all dependencies (except `binaryLogic`
+and `DPWeibull`) are available on CRAN.
 
 ``` R
 if (!require("renv")) install.packages("renv")

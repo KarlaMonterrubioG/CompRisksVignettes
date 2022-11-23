@@ -11,19 +11,23 @@ output:
     highlight: textmate
     toc_float:
       collapsed: no
+    includes:
+      in_header: head.html
+      before_body: navbar.html
+    self_contained: false
 link-citations: yes
 bibliography: references.bib
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-
 ---
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+    cache = TRUE
 )
 ```
 

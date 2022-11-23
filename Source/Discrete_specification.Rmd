@@ -9,6 +9,10 @@ output:
     css: style.css
     theme: simplex
     highlight: textmate
+    includes:
+      in_header: head.html
+      before_body: navbar.html
+    self_contained: false
     toc_float:
       collapsed: no
 link-citations: yes
@@ -23,7 +27,8 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  cache = TRUE
 )
 ```
 
