@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
+
+<meta name="date" content="2022-11-30" />
+
+<title>Approaches based on CIF specification</title>
+
+<script src="CIF_specification_files/header-attrs-2.18/header-attrs.js"></script>
+<script src="CIF_specification_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="CIF_specification_files/bootstrap-3.3.5/css/simplex.min.css" rel="stylesheet" />
+<script src="CIF_specification_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="CIF_specification_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="CIF_specification_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="CIF_specification_files/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="CIF_specification_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="CIF_specification_files/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="CIF_specification_files/navigation-1.1/tabsets.js"></script>
+<script src="CIF_specification_files/navigation-1.1/codefolding.js"></script>
+<link href="CIF_specification_files/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="CIF_specification_files/highlightjs-9.12.0/highlight.js"></script>
+<script src="https://kit.fontawesome.com/1339b11c04.js" crossorigin="anonymous"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div id = "nav">
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="CIF_specification.html">Cumulative Incidence</a></li>
+    <li><a href="CS_specification.html">Cause Specific</a></li>
+    <li><a href="Discrete_specification.html">Discrete</a></li>
+    <li><a href="Others.html">Other</a></li>
+    <li style="float:right"><a href="https://github.com/KarlaMonterrubioG/Competing_risks"><i style="font-size: 20px; padding-top: 0px; padding-bottom: 0px;" class="fa-brands fa-github"></i></a></li>
+  </ul>
+</div>
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Approaches based on CIF specification</h1>
+<h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
+and Catalina Vallejos</h4>
+<h4 class="date">2022-11-30</h4>
+
+</div>
+
+
+<div id="dataset" class="section level1">
+<h1>Dataset</h1>
+<p>In order to demonstrate the methods, we employ publicly available
+data.</p>
+<p>The dataset used here corresponds to the Hodgkin’s disease (HD) study
+described in <span class="citation">Pintilie (<a
+href="#ref-pintilie2006competing" role="doc-biblioref">2006</a>)</span>.
+The dataset comprises 865 patients diagnosed with early stage (I or II)
+HD, and which were treated either with radiation (RT) or with radiation
+and chemotherapy (CMT).</p>
+<p>The recorded data includes:</p>
+<ul>
+<li>age: Age (years)</li>
+<li>sex: Sex, F=female and M=Male.</li>
+<li>trtgiven: Treatment given, RT=Radiation, CMT=Chemotherapy and
+radiation</li>
+<li>medwidsi: Size of mediastinum involvement, N=No, S=Small,
+L=Large</li>
+<li>extranod: Extranodal disease, Y=Extranodal disease, N= Nodal
+disease</li>
+<li>clinstg: Clinical stage, 1=Stage I, 2=Stage II</li>
+<li>time: time to failure (years) calculated from the date of
+diagnosis</li>
+<li>status: 0=censoring, 1=relapse and 2=death.</li>
+</ul>
+<p>We now load and display the structure of the HD dataset:</p>
+<pre class="r"><code>library(readr)
+hd &lt;- data.frame(read_csv(&quot;../Data/HD/hd.csv&quot;,
+                          col_types = cols(X1 = col_skip())))
+str(hd)
+#&gt; &#39;data.frame&#39;:    865 obs. of  9 variables:
+#&gt;  $ ...1    : num  1 2 3 4 5 6 7 8 9 10 ...
+#&gt;  $ age     : num  64 63 17 63 21 37 41 35 27 32 ...
+#&gt;  $ sex     : chr  &quot;F&quot; &quot;M&quot; &quot;M&quot; &quot;M&quot; ...
+#&gt;  $ trtgiven: chr  &quot;RT&quot; &quot;RT&quot; &quot;RT&quot; &quot;RT&quot; ...
+#&gt;  $ medwidsi: chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+#&gt;  $ extranod: chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+#&gt;  $ clinstg : num  1 1 2 2 2 1 2 2 2 2 ...
+#&gt;  $ time    : num  3.1 15.9 0.9 13.1 35.9 1.1 2.5 0.003 4.1 28.1 ...
+#&gt;  $ status  : num  2 2 1 2 0 1 1 1 1 0 ...</code></pre>
+<p>To proceed with the analysis, it is important to change the data type
+of sex, trtgiven, medwidsi, and extranod from character to factor.
+Similarly, we convert clinstg from numeric to factor.</p>
+<pre class="r"><code>hd$sex      &lt;- as.factor(hd$sex)
+hd$trtgiven &lt;- as.factor(hd$trtgiven)
+hd$medwidsi &lt;- as.factor(hd$medwidsi)
+hd$extranod &lt;- as.factor(hd$extranod)
+hd$clinstg  &lt;- as.factor(hd$clinstg)</code></pre>
+<p>Now, we explore the number of events for each event type:</p>
+<pre class="r"><code>require(pander)
+pander::pander(table(hd$status))</code></pre>
+<table style="width:25%;">
+<colgroup>
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">0</th>
+<th align="center">1</th>
+<th align="center">2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">439</td>
+<td align="center">291</td>
+<td align="center">135</td>
+</tr>
+</tbody>
+</table>
+<p>Thus, we have 439 censored patients,
+<code>r</code>length(which(hd$status==1))` with relapse, and 135 who
+died. From now on, we assume that the event of interest is relapse,
+i.e. status=1.</p>
+<p>In order to create a test set, we use stratified sampling to
+partition our dataset into 80% for train and 20% for test.</p>
+<pre class="r"><code>library(splitstackshape)
+set.seed(2022)
+split_data &lt;- stratified(hd, c(&quot;status&quot;), 0.8, bothSets = TRUE)
+hd_train   &lt;- split_data$SAMP1
+hd_test    &lt;- split_data$SAMP2</code></pre>
+<p>Now, we explore the number of observations per status in both train
+and test set:</p>
+<pre class="r"><code>pander::pander(table(hd_train$status))</code></pre>
+<table style="width:25%;">
+<colgroup>
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">0</th>
+<th align="center">1</th>
+<th align="center">2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">351</td>
+<td align="center">233</td>
+<td align="center">108</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>pander::pander(table(hd_test$status))</code></pre>
+<table style="width:21%;">
+<colgroup>
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">0</th>
+<th align="center">1</th>
+<th align="center">2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">88</td>
+<td align="center">58</td>
+<td align="center">27</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="fine-gray" class="section level1">
+<h1>Fine-Gray</h1>
+<p>In contrast to models that use a cause-specific CPH specification,
+this approach permits inferences for the covariate effects on both the
+hazard function and the survival function due to the fact that competing
+events are treated differently.</p>
+<p>As with cause-specific CPH models, there are several R packages to
+fit a sub-distribution hazards model. Here we explore
+<code>cmprsk</code> and <code>riskRegression</code>.</p>
+<div id="cmprsk" class="section level2">
+<h2><code>cmprsk</code></h2>
+<p>In order to fit the model, one should first create a design matrix
+containing the covariates of interest, this can be done employing the
+<code>model.matrix()</code> function, which creates dummy variables for
+the discrete predictors.</p>
+<pre class="r"><code>library(cmprsk)
+predictors &lt;- model.matrix(~ age +
+                             sex +
+                             trtgiven +
+                             medwidsi +
+                             extranod +
+                             clinstg,
+                           data = hd_train)
+head(predictors)
+#&gt;   (Intercept)   age sexM trtgivenRT medwidsiN medwidsiS extranodY clinstg2
+#&gt; 1           1 55.00    1          1         1         0         0        0
+#&gt; 2           1 51.00    1          1         0         1         1        0
+#&gt; 3           1 19.00    1          1         1         0         0        0
+#&gt; 4           1 52.23    1          0         1         0         0        1
+#&gt; 5           1 41.00    0          1         1         0         0        1
+#&gt; 6           1 25.00    0          1         1         0         0        0</code></pre>
+<p>Note that our covariates now correspond to binary indicators (1 or 0)
+of a specific level of the original factor variables. In order to use
+this design matrix, we will first drop the intercept. Once that has been
+done, we can employ the <code>crr()</code> function to fit the
+model.</p>
+<pre class="r"><code>predictors &lt;-  predictors[, -1] # drop first column (intercept)
+
+
+FG_crr &lt;- crr(ftime = hd_train$time,
+              fstatus = hd_train$status,
+              cov1 = predictors, # for time interactions use argument cov2
+              failcode = 1,
+              cencode = 0)
+summary(FG_crr)
+#&gt; Competing Risks Regression
+#&gt; 
+#&gt; Call:
+#&gt; crr(ftime = hd_train$time, fstatus = hd_train$status, cov1 = predictors, 
+#&gt;     failcode = 1, cencode = 0)
+#&gt; 
+#&gt;               coef exp(coef) se(coef)      z p-value
+#&gt; age         0.0136     1.014  0.00436  3.109 0.00190
+#&gt; sexM        0.0705     1.073  0.13587  0.519 0.60000
+#&gt; trtgivenRT  0.7030     2.020  0.20557  3.419 0.00063
+#&gt; medwidsiN  -0.0594     0.942  0.25960 -0.229 0.82000
+#&gt; medwidsiS  -0.4029     0.668  0.25558 -1.577 0.11000
+#&gt; extranodY   0.3162     1.372  0.25042  1.263 0.21000
+#&gt; clinstg2    0.3376     1.402  0.15373  2.196 0.02800
+#&gt; 
+#&gt;            exp(coef) exp(-coef)  2.5% 97.5%
+#&gt; age            1.014      0.987 1.005  1.02
+#&gt; sexM           1.073      0.932 0.822  1.40
+#&gt; trtgivenRT     2.020      0.495 1.350  3.02
+#&gt; medwidsiN      0.942      1.061 0.567  1.57
+#&gt; medwidsiS      0.668      1.496 0.405  1.10
+#&gt; extranodY      1.372      0.729 0.840  2.24
+#&gt; clinstg2       1.402      0.714 1.037  1.89
+#&gt; 
+#&gt; Num. cases = 692
+#&gt; Pseudo Log-likelihood = -1462 
+#&gt; Pseudo likelihood ratio test = 33.1  on 7 df,</code></pre>
+<p>The above output includes the estimated covariate effects
+<code>exp(coef)</code>, as well as significance level from which we can
+infer that the marginal effects for age, treatment given, and clinical
+stage are significant. Note however that estimated hazard ratios are
+non-identical to those inferred in the cause-specific vignette. This is
+because the risks set differ between these two hazard functions.</p>
+<p>In this setting, we can make inferences on both, the covariate
+effects on the sub-distribution hazard and the directional effects of
+covariates on the CIF. For instance, the sub-distribution hazard ratio
+of relapse is 1.402 when a patient is in clinical stage 2. In addition,
+because the hazard ratio is greater than one, one can also infer that
+being in clinical stage 2 increases the incidence of relapse. Here, is
+important to highlight that we cannot use the magnitude of the hazard
+ratios to make inferences on the magnitude of the effect on the
+probability of occurrence.</p>
+<p>Because the sub-distribution hazard is directly related to the
+cumulative incidence function, we can make risk predictions. In order to
+do this, we first convert our test data (<code>hd_test</code>) into a
+design matrix format. Then, the function <code>predict()</code> will
+return the estimated CIF at all unique time events for all patients in
+the test set. This function computes <span
+class="math inline">\(1-\exp(-H)\)</span>, where <span
+class="math inline">\(H\)</span> is the cumulative hazard obtained using
+the Breslow estimator.</p>
+<pre class="r"><code>predictors_test &lt;- model.matrix(~ age +
+                                  sex +
+                                  trtgiven +
+                                  medwidsi +
+                                  extranod +
+                                  clinstg,
+                                data = hd_test)[, -1]
+
+CIF_hat &lt;- predict(object = FG_crr, cov1 = predictors_test)
+
+dim(CIF_hat)
+#&gt; [1]  72 174</code></pre>
+<p>The first column in CIF_hat corresponds to the 72 unique event times
+and the remaining 71 columns are the estimated CIFs for each patient
+(given their covariate values) at such event times. As an illustration,
+the following code is used to plot the estimated CIF for events type 1
+for two patients in the training dataset. The first patient is 37 years
+old, male, under radiation treatment, no mediastinum involvement, no
+extranodal disease, and in clinical stage 1. The second patient is 41
+years old, male, under radiation, no mediastinum involvement, no
+extranodal disease, and clinical stage 2.</p>
+<pre class="r"><code>par(mar = c(4, 4, 2, 0.1))
+plot(CIF_hat[, 1],
+     CIF_hat[, 2],
+     type = &quot;l&quot;,
+     col = &quot;red&quot;,
+     ylim = c(0, 0.5),
+     xlab = &quot;Time (years)&quot;,
+     ylab = &quot;Cumulative incidence&quot;)
+
+lines(CIF_hat[, 1], CIF_hat[, 4], col=&quot;blue&quot;)
+legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&quot;),
+       lty = c(1,1), col = c(&quot;red&quot;, &quot;blue&quot;))</code></pre>
+<p><img src="CIF_specification_files/figure-html/unnamed-chunk-10-1.png" width="576" /></p>
+<blockquote>
+<p><strong><em>NOTE:</em></strong> Using <code>cmprsk</code> it is not
+straightforward to do predictions at a specific time point beyond the
+unique time-points present in the training data.</p>
+</blockquote>
+</div>
+<div id="riskregression" class="section level2">
+<h2><code>riskRegression</code></h2>
+<p>This R package acts as a wrapper of the <code>crr()</code> function
+described above. However, it permits directly specifying the model
+through the formula argument, where we use <code>Hist()</code> to obtain
+the the response variable. When the cause argument is not passed, the
+default is 1.</p>
+<p>Below we confirm that estimated coefficients are identical to those
+obtained with <code>cmprsk</code> package and the interpretation is the
+same.</p>
+<pre class="r"><code>library(prodlim)         # for Hist()
+library(riskRegression)
+
+FG_riskRegression &lt;- FGR(formula = Hist(time, status) ~
+                           age +
+                           sex +
+                           trtgiven +
+                           medwidsi +
+                           extranod +
+                           clinstg,
+                          data = hd_train,
+                          cause = 1)
+print(FG_riskRegression)
+#&gt; 
+#&gt; Right-censored response of a competing.risks model
+#&gt; 
+#&gt; No.Observations: 692 
+#&gt; 
+#&gt; Pattern:
+#&gt;          
+#&gt; Cause     event right.censored
+#&gt;   1         233              0
+#&gt;   2         108              0
+#&gt;   unknown     0            351
+#&gt; 
+#&gt; 
+#&gt; Fine-Gray model: analysis of cause 1 
+#&gt; 
+#&gt; Competing Risks Regression
+#&gt; 
+#&gt; Call:
+#&gt; FGR(formula = Hist(time, status) ~ age + sex + trtgiven + medwidsi + 
+#&gt;     extranod + clinstg, data = hd_train, cause = 1)
+#&gt; 
+#&gt;               coef exp(coef) se(coef)      z p-value
+#&gt; age         0.0136     1.014  0.00436  3.109 0.00190
+#&gt; sexM        0.0705     1.073  0.13587  0.519 0.60000
+#&gt; trtgivenRT  0.7030     2.020  0.20557  3.419 0.00063
+#&gt; medwidsiN  -0.0594     0.942  0.25960 -0.229 0.82000
+#&gt; medwidsiS  -0.4029     0.668  0.25558 -1.577 0.11000
+#&gt; extranodY   0.3162     1.372  0.25042  1.263 0.21000
+#&gt; clinstg2    0.3376     1.402  0.15373  2.196 0.02800
+#&gt; 
+#&gt;            exp(coef) exp(-coef)  2.5% 97.5%
+#&gt; age            1.014      0.987 1.005  1.02
+#&gt; sexM           1.073      0.932 0.822  1.40
+#&gt; trtgivenRT     2.020      0.495 1.350  3.02
+#&gt; medwidsiN      0.942      1.061 0.567  1.57
+#&gt; medwidsiS      0.668      1.496 0.405  1.10
+#&gt; extranodY      1.372      0.729 0.840  2.24
+#&gt; clinstg2       1.402      0.714 1.037  1.89
+#&gt; 
+#&gt; Num. cases = 692
+#&gt; Pseudo Log-likelihood = -1462 
+#&gt; Pseudo likelihood ratio test = 33.1  on 7 df,
+#&gt; 
+#&gt; Convergence: TRUE</code></pre>
+<p>Differently to <code>cmprsk</code>,<code>riskRegression</code>
+permits to do predictions of the CIF at a specific time point
+(e.g. <span class="math inline">\(t=5\)</span> years) for a new dataset
+(e.g. <code>hd_test</code>). Below, we show results for the first 5
+subjects in the test set.</p>
+<pre class="r"><code>FG.prediction &lt;- predict(FG_riskRegression, newdata = hd_test,  times = 5)
+FG.prediction[c(1:5)]
+#&gt; [1] 0.2964653 0.4056692 0.3361023 0.3202368 0.2351294</code></pre>
+<p>Because the Fine-Gray model can be recovered when a complementary
+log-log link function is used in a transformation model (<span
+class="citation">Gerds, Scheike, and Andersen (<a href="#ref-gerds2012"
+role="doc-biblioref">2012</a>)</span>), we can use
+<code>riskRegression()</code> with <code>link = "prop"</code> as shown
+below:</p>
+<pre class="r"><code>FG.prop &lt;- riskRegression(formula = Hist(time, status) ~
+                            age +
+                            sex +
+                            trtgiven +
+                            medwidsi +
+                            extranod +
+                            clinstg,
+                          data = hd_train,
+                          cause = 1,
+                          link = &quot;prop&quot;)
+summary(FG.prop)
+#&gt; 
+#&gt; riskRegression: Competing risks regression model 
+#&gt; 
+#&gt; IPCW estimation. The weights are based on
+#&gt; the Kaplan-Meier estimate for the censoring distribution.
+#&gt; 
+#&gt; Link function: &#39;proportional&#39; yielding sub-hazard ratios (Fine &amp; Gray 1999), see help(riskRegression).
+#&gt; 
+#&gt; Covariates with time-varying effects:
+#&gt; 
+#&gt;  Intercept (numeric)
+#&gt; 
+#&gt; The effects of these variables depend on time.The column &#39;Intercept&#39; is the baseline risk where all the covariates have value zero
+#&gt; 
+#&gt;      (Intercept)
+#&gt; 0.36 &quot;0.0123&quot;   
+#&gt; 2    &quot;0.0670&quot;   
+#&gt; 3.8  &quot;0.0906&quot;   
+#&gt; 6.4  &quot;0.1064&quot;   
+#&gt; 20   &quot;0.1199&quot;   
+#&gt; 
+#&gt; Shown are selected time points, use
+#&gt; 
+#&gt; plot.riskRegression
+#&gt; 
+#&gt; to investigate the full shape.
+#&gt; 
+#&gt; 
+#&gt; Covariates with time-constant effects:
+#&gt; 
+#&gt;  age (numeric)
+#&gt;  sexM (numeric)
+#&gt;  trtgivenRT (numeric)
+#&gt;  medwidsiN (numeric)
+#&gt;  medwidsiS (numeric)
+#&gt;  extranodY (numeric)
+#&gt;  clinstg2 (numeric)
+#&gt; 
+#&gt; Time constant regression coefficients:
+#&gt; 
+#&gt;      Factor    Coef exp(Coef) StandardError       z         CI_95    Pvalue
+#&gt;         age 0.01649   1.01663       0.00431 3.82626 [1.008;1.025] 0.0001301
+#&gt;        sexM  0.0133    1.0134        0.1419  0.0939 [0.767;1.338] 0.9251590
+#&gt;  trtgivenRT   0.712     2.037         0.217   3.283 [1.332;3.115] 0.0010271
+#&gt;   medwidsiN -0.0687    0.9336        0.2768 -0.2481 [0.543;1.606] 0.8040708
+#&gt;   medwidsiS  -0.407     0.665         0.274  -1.489 [0.389;1.137] 0.1364193
+#&gt;   extranodY   0.231     1.259         0.254   0.908 [0.766;2.071] 0.3637606
+#&gt;    clinstg2   0.339     1.403         0.163   2.082 [1.020;1.930] 0.0373014
+#&gt; 
+#&gt; 
+#&gt; Note: The values exp(Coef) are sub-hazard ratios (Fine &amp; Gray 1999)</code></pre>
+<p>In this case, <code>predict()</code> returns the risk at observed
+time points for each subject.</p>
+<pre class="r"><code>prediction.FG.prop  &lt;- predict(FG.prop, newdata = hd_test[c(1, 2), ])
+prediction.FG.prop
+#&gt; $time
+#&gt;  [1]  0.3550000  0.4926531  0.6303061  0.7679592  0.9056122  1.0432653
+#&gt;  [7]  1.1809184  1.3185714  1.4562245  1.5938776  1.7315306  1.8691837
+#&gt; [13]  2.0068367  2.1444898  2.2821429  2.4197959  2.5574490  2.6951020
+#&gt; [19]  2.8327551  2.9704082  3.2080612  3.3457143  3.4833673  3.6210204
+#&gt; [25]  3.7586735  3.9926531  4.1679592  4.3716327  4.5185714  4.7938776
+#&gt; [31]  5.0691837  5.3222449  5.5197959  5.6975510  6.0352041  6.2457143
+#&gt; [37]  6.4105102  6.6926531  7.1574490  7.4234694  7.5611224  8.8840816
+#&gt; [43]  9.5457143 10.6889796 11.4290816 12.4493878 12.8481633 15.0987755
+#&gt; [49] 16.7716327 19.8000000
+#&gt; 
+#&gt; $risk
+#&gt;            [,1]       [,2]       [,3]       [,4]      [,5]      [,6]      [,7]
+#&gt; [1,] 0.04268004 0.05112741 0.06900018 0.08112631 0.1041914 0.1197376 0.1343491
+#&gt; [2,] 0.06328963 0.07565201 0.10162716 0.11910964 0.1520457 0.1740082 0.1944747
+#&gt;           [,8]      [,9]     [,10]     [,11]     [,12]     [,13]     [,14]
+#&gt; [1,] 0.1499184 0.1591504 0.1749583 0.1926217 0.1963322 0.2116438 0.2173892
+#&gt; [2,] 0.2160937 0.2288202 0.2504501 0.2743753 0.2793683 0.2998503 0.3074850
+#&gt;          [,15]     [,16]     [,17]     [,18]     [,19]     [,20]     [,21]
+#&gt; [1,] 0.2192026 0.2274841 0.2326651 0.2339825 0.2442934 0.2492066 0.2574446
+#&gt; [2,] 0.3098889 0.3208316 0.3276478 0.3293774 0.3428628 0.3492565 0.3599301
+#&gt;          [,22]     [,23]     [,24]     [,25]     [,26]     [,27]     [,28]
+#&gt; [1,] 0.2636049 0.2669364 0.2735112 0.2748284 0.2756051 0.2809147 0.2820748
+#&gt; [2,] 0.3678732 0.3721550 0.3805769 0.3822596 0.3832511 0.3900149 0.3914895
+#&gt;          [,29]     [,30]     [,31]     [,32]     [,33]     [,34]     [,35]
+#&gt; [1,] 0.2844348 0.2874550 0.2890380 0.2972745 0.2987909 0.3018743 0.3078412
+#&gt; [2,] 0.3944854 0.3983123 0.4003149 0.4106985 0.4126036 0.4164711 0.4239312
+#&gt;          [,36]     [,37]     [,38]     [,39]     [,40]     [,41]     [,42]
+#&gt; [1,] 0.3109461 0.3144607 0.3161547 0.3170026 0.3199931 0.3229954 0.3246863
+#&gt; [2,] 0.4278003 0.4321695 0.4342715 0.4353226 0.4390247 0.4427332 0.4448181
+#&gt;          [,43]     [,44]     [,45]     [,46]     [,47]     [,48]     [,49]
+#&gt; [1,] 0.3281412 0.3297946 0.3329718 0.3364468 0.3378281 0.3409324 0.3423308
+#&gt; [2,] 0.4490702 0.4511013 0.4549971 0.4592476 0.4609341 0.4647178 0.4664193
+#&gt;          [,50]
+#&gt; [1,] 0.3464244
+#&gt; [2,] 0.4713900
+#&gt; 
+#&gt; attr(,&quot;class&quot;)
+#&gt; [1] &quot;predictedRisk&quot;</code></pre>
+<p>Below, we plot the CIF for patient 1 (red) and 2 (blue) in the test
+set.</p>
+<pre class="r"><code>par(mar = c(4, 4, 2, 0.1))
+plot(prediction.FG.prop$time,
+     prediction.FG.prop$risk[1, ],
+     type = &quot;l&quot;,
+     col = &quot;red&quot;,
+     ylim = c(0, 0.5),
+     xlab = &quot;Time (years)&quot;,
+     ylab = &quot;Cumulative incidence&quot;)
+lines(prediction.FG.prop$time, prediction.FG.prop$risk[2, ], col=&quot;blue&quot;)
+legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&quot;),
+       lty = c(1,1), col = c(&quot;red&quot;, &quot;blue&quot;))</code></pre>
+<p><img src="CIF_specification_files/figure-html/unnamed-chunk-15-1.png" width="576" /></p>
+</div>
+</div>
+<div id="sparse-regression" class="section level1">
+<h1>Sparse regression</h1>
+<p><strong>CoxBoost was deleted from CRAN</strong></p>
+</div>
+<div id="pseudo-values" class="section level1">
+<h1>Pseudo-values</h1>
+<blockquote>
+<p><strong><em>NOTE:</em></strong> the package have been updated with
+respect to the code shown in <span class="citation">Klein et al. (<a
+href="#ref-klein2008" role="doc-biblioref">2008</a>)</span>. The user is
+referred to the package documentation for the function.**</p>
+</blockquote>
+<p>We define a time point grid of <span
+class="math inline">\(M=7\)</span> equally spaced points at which we
+will compute the pseudo-values. Pseudo-observations are computed with
+the <code>pseudoci()</code> function for both competing events. Below,
+we only consider relapse (cause 1).</p>
+<pre class="r"><code>library(pseudo)
+
+cutoffs &lt;- c(5, 10, 15, 20, 25, 30, 35)
+
+pseudo &lt;- pseudoci(hd_train$time,
+                   hd_train$status,
+                   tmax = cutoffs)$pseudo$cause1     # we only consider cause 1
+dim(pseudo)
+#&gt; [1] 692   7</code></pre>
+<p><code>pseudo</code> contains the pseudo-values of the 692 patients
+(rows) at the 7 different time points (columns) for relapse.</p>
+<p>The following code will merge the pseudo-values with our train
+dataset.</p>
+<pre class="r"><code>merged_dataset &lt;- NULL
+for (j in seq_len(ncol(pseudo))) {
+    merged_dataset &lt;- rbind(merged_dataset,
+                            cbind(hd_train,
+                                  pseudo = pseudo[, j],
+                                  tpseudo = cutoffs[j],
+                                  id = seq_len(nrow(hd_train))))
+}
+
+merged_dataset &lt;- merged_dataset[order(merged_dataset$id), ]
+merged_dataset$tpseudo &lt;- as.factor(merged_dataset$tpseudo)</code></pre>
+<p>We will now fit a generalised linear model using <code>geese()</code>
+function from R package <code>geepack</code>. We set
+<code>mean.link = "cloglog"</code> to use a complementary log-log link
+in order to recover Fine-Gray approach (alternative link functions can
+also be used, e.g. <span class="citation">Klein et al. (<a
+href="#ref-klein2008" role="doc-biblioref">2008</a>)</span> explored a
+logistic link function).</p>
+<pre class="r"><code>library(geepack)
+
+fit_pseudo &lt;- geese(pseudo ~
+                      tpseudo +
+                      age +
+                      sex +
+                      trtgiven +
+                      medwidsi +
+                      extranod +
+                      clinstg - 1,
+                    data = merged_dataset,
+                    id = id,
+                    jack = TRUE,
+                    scale.fix = TRUE,
+                    family = gaussian,
+                    mean.link = &quot;cloglog&quot;,
+                    corstr = &quot;independence&quot;)
+summary(fit_pseudo)
+#&gt; 
+#&gt; Call:
+#&gt; geese(formula = pseudo ~ tpseudo + age + sex + trtgiven + medwidsi + 
+#&gt;     extranod + clinstg - 1, id = id, data = merged_dataset, family = gaussian, 
+#&gt;     mean.link = &quot;cloglog&quot;, scale.fix = TRUE, corstr = &quot;independence&quot;, 
+#&gt;     jack = TRUE)
+#&gt; 
+#&gt; Mean Model:
+#&gt;  Mean Link:                 cloglog 
+#&gt;  Variance to Mean Relation: gaussian 
+#&gt; 
+#&gt;  Coefficients:
+#&gt;               estimate      san.se      ajs.se       wald            p
+#&gt; tpseudo5   -2.09156255 0.304444865 0.306480315 47.1980882 6.416312e-12
+#&gt; tpseudo10  -1.93467529 0.303505493 0.305580169 40.6333901 1.836417e-10
+#&gt; tpseudo15  -1.89317851 0.304132302 0.306209180 38.7487802 4.820113e-10
+#&gt; tpseudo20  -1.87334298 0.304302051 0.306377963 37.8987455 7.451314e-10
+#&gt; tpseudo25  -1.87334298 0.304302051 0.306377963 37.8987455 7.451314e-10
+#&gt; tpseudo30  -1.87334298 0.304302051 0.306377963 37.8987455 7.451314e-10
+#&gt; tpseudo35  -1.87334298 0.304302051 0.306377963 37.8987455 7.451314e-10
+#&gt; age         0.01187650 0.004197232 0.004222343  8.0066538 4.660578e-03
+#&gt; sexM        0.04476491 0.135461219 0.135829640  0.1092057 7.410502e-01
+#&gt; trtgivenRT  0.71119910 0.202461201 0.203996253 12.3395346 4.434656e-04
+#&gt; medwidsiN  -0.11158758 0.262221132 0.265533993  0.1810908 6.704375e-01
+#&gt; medwidsiS  -0.44758745 0.258239410 0.261306977  3.0040749 8.305538e-02
+#&gt; extranodY   0.21683169 0.236076424 0.241292660  0.8436072 3.583671e-01
+#&gt; clinstg2    0.27668796 0.155666142 0.155970837  3.1593097 7.549510e-02
+#&gt; 
+#&gt; Scale is fixed.
+#&gt; 
+#&gt; Correlation Model:
+#&gt;  Correlation Structure:     independence 
+#&gt; 
+#&gt; Returned Error Value:    0 
+#&gt; Number of clusters:   692   Maximum cluster size: 7</code></pre>
+<p>Covariate effects are shown below and are interpreted as logarithms
+of sub-distribution hazard ratios. Because we used a complementary
+log-log link function, we observe that the estimated effects are akin to
+those obtained in the previous section.</p>
+<pre class="r"><code>exp(fit_pseudo$beta)
+#&gt;   tpseudo5  tpseudo10  tpseudo15  tpseudo20  tpseudo25  tpseudo30  tpseudo35 
+#&gt;  0.1234940  0.1444712  0.1505924  0.1536093  0.1536093  0.1536093  0.1536093 
+#&gt;        age       sexM trtgivenRT  medwidsiN  medwidsiS  extranodY   clinstg2 
+#&gt;  1.0119473  1.0457820  2.0364317  0.8944131  0.6391683  1.2421350  1.3187548</code></pre>
+<p>The estimated coefficients for the selected time points can be used
+to estimate the CIF, but this is only possible at the time-points used
+in the <code>cutoffs</code> grid.</p>
+</div>
+<div id="direct-binomial" class="section level1">
+<h1>Direct binomial</h1>
+<p>Binomial modelling approach can be fitted using the
+<code>timereg</code> R package.</p>
+<p>To fit the model, we should first use the <code>Event()</code>
+function to obtain the response variable to be used in the formula
+argument of the <code>comp.risk()</code> function. The cause of interest
+must be explicitly defined through the cause argument. The function
+supports several models. Here we focus on recovering the Fine-Gray
+approach.</p>
+<pre class="r"><code>library(timereg)
+
+fit_DB &lt;- comp.risk(Event(time, status) ~
+                      const(age) + # const for time-invariant
+                      const(sex) +
+                      const(trtgiven) + 
+                      const(medwidsi) +
+                      const(extranod) +
+                      const(clinstg),
+                    data = hd_train,
+                    cause = 1,
+                    n.sim = 5000,
+                    model = &quot;prop&quot;,       # Fine-Gray
+                    resample.iid = 1)
+summary(fit_DB)
+#&gt; Competing risks Model 
+#&gt; 
+#&gt; Test for nonparametric terms 
+#&gt; 
+#&gt; Test for non-significant effects 
+#&gt;             Supremum-test of significance p-value H_0: B(t)=0
+#&gt; (Intercept)                          11.9                   0
+#&gt; 
+#&gt; Test for time invariant effects 
+#&gt;                   Kolmogorov-Smirnov test p-value H_0:constant effect
+#&gt; (Intercept)                          1.63                           0
+#&gt;                     Cramer von Mises test p-value H_0:constant effect
+#&gt; (Intercept)                          3.79                           0
+#&gt; 
+#&gt; Parametric terms : 
+#&gt;                     Coef.      SE Robust SE       z   P-val lower2.5%
+#&gt; const(age)         0.0165 0.00431   0.00431  3.8300 0.00013   0.00805
+#&gt; const(sex)M        0.0133 0.14200   0.14200  0.0939 0.92500  -0.26500
+#&gt; const(trtgiven)RT  0.7120 0.21700   0.21700  3.2800 0.00103   0.28700
+#&gt; const(medwidsi)N  -0.0687 0.27700   0.27700 -0.2480 0.80400  -0.61200
+#&gt; const(medwidsi)S  -0.4070 0.27400   0.27400 -1.4900 0.13600  -0.94400
+#&gt; const(extranod)Y   0.2310 0.25400   0.25400  0.9080 0.36400  -0.26700
+#&gt; const(clinstg)2    0.3390 0.16300   0.16300  2.0800 0.03730   0.01950
+#&gt;                   upper97.5%
+#&gt; const(age)            0.0249
+#&gt; const(sex)M           0.2920
+#&gt; const(trtgiven)RT     1.1400
+#&gt; const(medwidsi)N      0.4740
+#&gt; const(medwidsi)S      0.1300
+#&gt; const(extranod)Y      0.7290
+#&gt; const(clinstg)2       0.6580
+#&gt; </code></pre>
+<p>According to the summary output, the covariate effects associated to
+age, treatment and clinical stage are significant. Below, we show
+estimated hazard ratios.</p>
+<pre class="r"><code>knitr::kable(round(exp(fit_DB$gamma), 4), col.names = c(&quot;Exp coef&quot;))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">Exp coef</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">const(age)</td>
+<td align="right">1.0166</td>
+</tr>
+<tr class="even">
+<td align="left">const(sex)M</td>
+<td align="right">1.0134</td>
+</tr>
+<tr class="odd">
+<td align="left">const(trtgiven)RT</td>
+<td align="right">2.0372</td>
+</tr>
+<tr class="even">
+<td align="left">const(medwidsi)N</td>
+<td align="right">0.9336</td>
+</tr>
+<tr class="odd">
+<td align="left">const(medwidsi)S</td>
+<td align="right">0.6654</td>
+</tr>
+<tr class="even">
+<td align="left">const(extranod)Y</td>
+<td align="right">1.2593</td>
+</tr>
+<tr class="odd">
+<td align="left">const(clinstg)2</td>
+<td align="right">1.4033</td>
+</tr>
+</tbody>
+</table>
+<p>In order to do predictions of the CIF, we use the
+<code>predict()</code> function. The default makes predictions at all
+observed time points. Below we show estimated incidence for the first
+(red) and second (blue) patients in the tests set:</p>
+<pre class="r"><code>par(mar = c(4, 4, 2, 0.1))
+pred_DB &lt;- predict.timereg(fit_DB, 
+                           newdata = as.data.frame(hd_test[1:2,2:7]), se = 0)
+plot(pred_DB,
+     multiple = 1,
+     col = c(&quot;red&quot;, &quot;blue&quot;),
+     ylim = c(0, 0.6),
+     ylab = &quot;Cumulative incidence&quot;)
+legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&quot;),
+       lty = c(1,1), col = c(&quot;red&quot;, &quot;blue&quot;))</code></pre>
+<p><img src="CIF_specification_files/figure-html/unnamed-chunk-22-1.png" width="576" /></p>
+<p>In addition, one can also makes predictions at a specific time
+through the argument <code>times</code>. Absolute risk predictions at
+time <span class="math inline">\(t=5\)</span> for the first 5 patients
+are shown:</p>
+<pre class="r"><code>pred_DB.t &lt;- predict.timereg(fit_DB, newdata = hd_test[, 2:7], times = 5)
+pred_DB.t$P1[1:5]
+#&gt; [1] 0.2874550 0.3983123 0.3151614 0.2977388 0.2162792</code></pre>
+<p><code>timereg</code> permits fitting the model time varying effects.
+For example, the following code includes a time-dependent effect for
+<code>trtgiven</code>.</p>
+<pre class="r"><code>fit_DBtime &lt;- comp.risk(Event(time, status) ~
+                          const(age) +
+                          const(sex) +
+                          trtgiven + 
+                          const(medwidsi) +
+                          const(extranod) +
+                          const(clinstg),
+                        data = hd_train,
+                        cause = 1,
+                        model = &quot;prop&quot;, # Fine-Gray
+                        resample.iid = 1,
+                        n.sim = 100)
+summary(fit_DBtime)
+#&gt; Competing risks Model 
+#&gt; 
+#&gt; Test for nonparametric terms 
+#&gt; 
+#&gt; Test for non-significant effects 
+#&gt;             Supremum-test of significance p-value H_0: B(t)=0
+#&gt; (Intercept)                          8.60                   0
+#&gt; trtgivenRT                           3.62                   0
+#&gt; 
+#&gt; Test for time invariant effects 
+#&gt;                   Kolmogorov-Smirnov test p-value H_0:constant effect
+#&gt; (Intercept)                         1.220                         0.0
+#&gt; trtgivenRT                          0.548                         0.1
+#&gt;                     Cramer von Mises test p-value H_0:constant effect
+#&gt; (Intercept)                         2.470                        0.00
+#&gt; trtgivenRT                          0.114                        0.42
+#&gt; 
+#&gt; Parametric terms : 
+#&gt;                    Coef.      SE Robust SE       z    P-val lower2.5%
+#&gt; const(age)        0.0165 0.00431   0.00431  3.8200 0.000131   0.00805
+#&gt; const(sex)M       0.0129 0.14200   0.14200  0.0912 0.927000  -0.26500
+#&gt; const(medwidsi)N -0.0684 0.27700   0.27700 -0.2470 0.805000  -0.61100
+#&gt; const(medwidsi)S -0.4080 0.27300   0.27300 -1.4900 0.136000  -0.94300
+#&gt; const(extranod)Y  0.2270 0.25400   0.25400  0.8940 0.371000  -0.27100
+#&gt; const(clinstg)2   0.3390 0.16300   0.16300  2.0800 0.037400   0.01950
+#&gt;                  upper97.5%
+#&gt; const(age)           0.0249
+#&gt; const(sex)M          0.2910
+#&gt; const(medwidsi)N     0.4750
+#&gt; const(medwidsi)S     0.1270
+#&gt; const(extranod)Y     0.7250
+#&gt; const(clinstg)2      0.6580
+#&gt; </code></pre>
+</div>
+<div id="dependent-dirichlet-processes" class="section level1">
+<h1>Dependent Dirichlet processes</h1>
+<blockquote>
+<p><strong><em>NOTE:</em></strong> <code>DPWeibull</code> is not
+available on CRAN because a dependency, <code>binaryLogic</code>, was
+removed from CRAN as the maintainer’s email address is no longer
+accessible**</p>
+</blockquote>
+<p>The formula definition uses <code>Hist()</code>.</p>
+<p>An indication of a competing risk setting must be passed by setting
+<code>comp = TRUE</code>. Below, we run the MCMC chain for 5000
+iterations, we discarded 3000 as part of the burn-in period, and to
+reduce autocorrelation, a thinning of 10 was used (default).</p>
+<pre class="r"><code>library(DPWeibull)
+library(prodlim) # for Hist() function
+set.seed(1)
+fit_DDP &lt;- dpweib(Hist(time, status) ~
+                    age +
+                    sex +
+                    trtgiven +
+                    medwidsi +
+                    extranod +
+                    clinstg ,
+                  data = hd_train,
+                  comp = TRUE,
+                  burnin = 1000,
+                  iteration = 5000,
+                  predtime = seq(from = min(hd_train$time),
+                                 to = max(hd_train$time),
+                  length =  40))</code></pre>
+<pre class="r"><code>summary(fit_DDP)
+#&gt; $age
+#&gt;                            1/4 Observation Time 1/2 Observation Time
+#&gt; Time                               8.2869230769        17.4912820513
+#&gt; Estimated Log Hazard Ratio         0.0003380438         0.0002464215
+#&gt; Upper Credible Interval            0.0018195577         0.0058903863
+#&gt; Lower Credible Interval           -0.0018205100        -0.0031965669
+#&gt;                            3/4 Observation Time Observation Time
+#&gt; Time                              26.6956410256     35.900000000
+#&gt; Estimated Log Hazard Ratio         0.0004508814      0.000551480
+#&gt; Upper Credible Interval            0.0069962877      0.005185981
+#&gt; Lower Credible Interval           -0.0039103809     -0.004638337
+#&gt; 
+#&gt; $sexM
+#&gt;                            1/4 Observation Time 1/2 Observation Time
+#&gt; Time                                 8.28692308            17.491282
+#&gt; Estimated Log Hazard Ratio           0.03757504             0.396774
+#&gt; Upper Credible Interval              0.68192285             2.655139
+#&gt; Lower Credible Interval             -0.57069497            -1.273943
+#&gt;                            3/4 Observation Time Observation Time
+#&gt; Time                                  26.695641       35.9000000
+#&gt; Estimated Log Hazard Ratio             0.230925        0.1271191
+#&gt; Upper Credible Interval                2.875875        2.6579863
+#&gt; Lower Credible Interval               -1.609698       -2.2930750
+#&gt; 
+#&gt; $trtgivenRT
+#&gt;                            1/4 Observation Time 1/2 Observation Time
+#&gt; Time                                  8.2869231           17.4912821
+#&gt; Estimated Log Hazard Ratio            0.4255656            0.6862159
+#&gt; Upper Credible Interval               1.5025027            3.0389268
+#&gt; Lower Credible Interval              -0.3159119           -1.0110657
+#&gt;                            3/4 Observation Time Observation Time
+#&gt; Time                                 26.6956410       35.9000000
+#&gt; Estimated Log Hazard Ratio            0.8109971        0.7289966
+#&gt; Upper Credible Interval               4.6557493        5.5658513
+#&gt; Lower Credible Interval              -1.4274445       -1.2762517
+#&gt; 
+#&gt; $medwidsiN
+#&gt;                            1/4 Observation Time 1/2 Observation Time
+#&gt; Time                                 8.28692308          17.49128205
+#&gt; Estimated Log Hazard Ratio          -0.03099757          -0.02143304
+#&gt; Upper Credible Interval              0.63660950           1.86018782
+#&gt; Lower Credible Interval             -0.97893186          -1.89722739
+#&gt;                            3/4 Observation Time Observation Time
+#&gt; Time                                26.69564103       35.9000000
+#&gt; Estimated Log Hazard Ratio           0.09014624        0.1365163
+#&gt; Upper Credible Interval              3.16775364        3.9081672
+#&gt; Lower Credible Interval             -1.80070446       -1.8135428
+#&gt; 
+#&gt; $medwidsiS
+#&gt;                            1/4 Observation Time 1/2 Observation Time
+#&gt; Time                                  8.2869231           17.4912821
+#&gt; Estimated Log Hazard Ratio           -0.1714246           -0.5070214
+#&gt; Upper Credible Interval               0.5454566            1.2067218
+#&gt; Lower Credible Interval              -1.1837935           -2.8839561
+#&gt;                            3/4 Observation Time Observation Time
+#&gt; Time                                 26.6956410       35.9000000
+#&gt; Estimated Log Hazard Ratio           -0.4325532       -0.3142746
+#&gt; Upper Credible Interval               1.5553695        2.2687418
+#&gt; Lower Credible Interval              -2.7906437       -2.8853836
+#&gt; 
+#&gt; $extranodY
+#&gt;                            1/4 Observation Time 1/2 Observation Time
+#&gt; Time                                  8.2869231           17.4912821
+#&gt; Estimated Log Hazard Ratio           -0.1758831           -0.2495774
+#&gt; Upper Credible Interval               0.5527547            1.7489073
+#&gt; Lower Credible Interval              -1.7021966           -2.2424684
+#&gt;                            3/4 Observation Time Observation Time
+#&gt; Time                                 26.6956410       35.9000000
+#&gt; Estimated Log Hazard Ratio           -0.1945156       -0.1597791
+#&gt; Upper Credible Interval               1.8459720        1.9245048
+#&gt; Lower Credible Interval              -3.3050354       -4.0826921
+#&gt; 
+#&gt; $clinstg2
+#&gt;                            1/4 Observation Time 1/2 Observation Time
+#&gt; Time                                  8.2869231           17.4912821
+#&gt; Estimated Log Hazard Ratio            0.1338837            0.2788162
+#&gt; Upper Credible Interval               0.6904625            2.2895115
+#&gt; Lower Credible Interval              -0.4267233           -1.3259758
+#&gt;                            3/4 Observation Time Observation Time
+#&gt; Time                                 26.6956410       35.9000000
+#&gt; Estimated Log Hazard Ratio            0.3455235        0.3214506
+#&gt; Upper Credible Interval               2.8648327        2.6368488
+#&gt; Lower Credible Interval              -1.2119832       -1.3831598
+#&gt; 
+#&gt; attr(,&quot;class&quot;)
+#&gt; [1] &quot;summary.ddpcomp&quot;</code></pre>
+<p>Note that in order to make valid inferences one should ensure that
+convergence was achieved. One can explore trace plots of the estimated
+parameters using the <code>coda</code> library. This will help us to
+determine if the MCMC parameters employed when fitting the model should
+be modified. For instance, below we show trace plots of <span
+class="math inline">\(\alpha\)</span> and <span
+class="math inline">\(\lambda\)</span> for patient 1, where we observe
+that the chains for <span class="math inline">\(\alpha\)</span> do not
+appear to have converged and therefore a larger number of MCMC
+iterations should be used.</p>
+<pre class="r"><code>library(coda)
+par(mar = c(4, 4, 2, 0.1))
+traceplot(as.mcmc(fit_DDP$alpharec1[, 1]))</code></pre>
+<p><img src="CIF_specification_files/figure-html/unnamed-chunk-27-1.png" width="480" /></p>
+<pre class="r"><code>traceplot(as.mcmc(fit_DDP$lambda0rec1[, 1]))</code></pre>
+<p><img src="CIF_specification_files/figure-html/unnamed-chunk-27-2.png" width="480" /></p>
+<p>Below, we illustrate how to do predictions with
+<code>DPWeibull</code>. First, we show how to estimate the CIF for two
+subjects in the test set at all observed event times.</p>
+<pre class="r"><code>par(mar = c(4, 4, 2, 0.1))
+
+pred_DDP &lt;- predict(fit_DDP, newdata = as.data.frame(hd_test[c(1, 2), 2:7]))</code></pre>
+<p>Note that <code>pred_DDP</code> contains posterior samples for the 2
+subjects at observed event times, as well as posterior estimated and
+credible intervals.</p>
+<p>Below, we show the estimated CIF curves for patient 1 (red) and 2
+(blue).</p>
+<pre class="r"><code>plot(pred_DDP$tpred,
+     pred_DDP$Fpred[1, ],
+     type = &quot;l&quot;,
+     col = &quot;red&quot;,
+     xlab = &quot;Time (years)&quot;,
+     ylab = &quot;Cumulative incidence&quot;,
+     ylim = c(0, 0.5))
+lines(pred_DDP$tpred, pred_DDP$Fpred[2, ], col=&quot;blue&quot;)
+legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&quot;),
+       lty = c(1,1), col = c(&quot;red&quot;, &quot;blue&quot;))</code></pre>
+<p><img src="CIF_specification_files/figure-html/unnamed-chunk-29-1.png" width="576" /></p>
+<pre class="r"><code>
+
+plot(pred_DDP)</code></pre>
+<p><img src="CIF_specification_files/figure-html/unnamed-chunk-29-2.png" width="576" /><img src="CIF_specification_files/figure-html/unnamed-chunk-29-3.png" width="576" /><img src="CIF_specification_files/figure-html/unnamed-chunk-29-4.png" width="576" /><img src="CIF_specification_files/figure-html/unnamed-chunk-29-5.png" width="576" /><img src="CIF_specification_files/figure-html/unnamed-chunk-29-6.png" width="576" /><img src="CIF_specification_files/figure-html/unnamed-chunk-29-7.png" width="576" /></p>
+<p>In addition, we can also make predictions at a specific time point,
+e.g. <span class="math inline">\(t=5\)</span>. Below, we show the
+estimated risk for the first 5 subjects in the test data set:</p>
+<pre class="r"><code>pred_DDP.t &lt;- predict(fit_DDP, 
+                      newdata = as.data.frame(hd_test[, 2:7]), tpred = 5)
+pred_DDP.t$Fpred[1:5]
+#&gt; [1] 0.2931222 0.3785346 0.3107608 0.3082350 0.2335271</code></pre>
+</div>
+<div id="storing-predictions" class="section level1">
+<h1>Storing predictions</h1>
+<p>In order to allow comparison with the predictions generated by other
+methods, we save the predictions obtained in this vignette.</p>
+<pre class="r"><code>pred_CIF &lt;- data.frame(&quot;testID&quot; = seq_len(nrow(hd_test)),
+                      &quot;FG_riskRegression&quot; = FG.prediction,
+                      &quot;DirectBinomal&quot; = pred_DB.t$P1,
+                      &quot;DPWeibull&quot; = pred_DDP.t$Fpred)
+write.csv(pred_CIF, &quot;../Predictions/pred_CIF.csv&quot;, row.names = FALSE)</code></pre>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-gerds2012" class="csl-entry">
+Gerds, Thomas A, Thomas H Scheike, and Per K Andersen. 2012.
+<span>“Absolute Risk Regression for Competing Risks: Interpretation,
+Link Functions, and Prediction.”</span> <em>Statistics in Medicine</em>
+31 (29): 3921–30.
+</div>
+<div id="ref-klein2008" class="csl-entry">
+Klein, John P., Mette Gerster, Per Kragh Andersen, Sergey Tarima, and
+Maja Pohar Perme. 2008. <span>“SAS and r Functions to Compute
+Pseudo-Values for Censored Data Regression.”</span> <em>Comput. Methods
+Prog. Biomed.</em> 89 (3): 289–300. <a
+href="https://doi.org/10.1016/j.cmpb.2007.11.017">https://doi.org/10.1016/j.cmpb.2007.11.017</a>.
+</div>
+<div id="ref-pintilie2006competing" class="csl-entry">
+Pintilie, Melania. 2006. <em>Competing Risks: A Practical
+Perspective</em>. John Wiley &amp; Sons.
+</div>
+</div>
+</div>
+<div id="session-info" class="section level1">
+<h1>Session Info</h1>
+<pre class="r"><code>sessionInfo()
+#&gt; R version 4.1.2 (2021-11-01)
+#&gt; Platform: x86_64-apple-darwin17.0 (64-bit)
+#&gt; Running under: macOS Big Sur 10.16
+#&gt; 
+#&gt; Matrix products: default
+#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
+#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
+#&gt; 
+#&gt; locale:
+#&gt; [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
+#&gt; 
+#&gt; attached base packages:
+#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     
+#&gt; 
+#&gt; other attached packages:
+#&gt;  [1] coda_0.19-4               DPWeibull_1.8            
+#&gt;  [3] timereg_2.0.4             pseudo_1.4.3             
+#&gt;  [5] geepack_1.3.9             KMsurv_0.1-5             
+#&gt;  [7] riskRegression_2022.11.21 prodlim_2019.11.13       
+#&gt;  [9] cmprsk_2.2-11             survival_3.4-0           
+#&gt; [11] splitstackshape_1.4.8     pander_0.6.5             
+#&gt; [13] readr_2.1.3              
+#&gt; 
+#&gt; loaded via a namespace (and not attached):
+#&gt;   [1] TH.data_1.1-1       colorspace_2.0-3    deldir_1.0-6       
+#&gt;   [4] ellipsis_0.3.2      evd_2.3-6.1         htmlTable_2.4.1    
+#&gt;   [7] base64enc_0.1-3     rstudioapi_0.14     listenv_0.8.0      
+#&gt;  [10] MatrixModels_0.5-1  bit64_4.0.5         fansi_1.0.3        
+#&gt;  [13] mvtnorm_1.1-3       codetools_0.2-18    splines_4.1.2      
+#&gt;  [16] cachem_1.0.6        knitr_1.41          Formula_1.2-4      
+#&gt;  [19] jsonlite_1.8.3      broom_1.0.1         cluster_2.1.4      
+#&gt;  [22] png_0.1-7           compiler_4.1.2      backports_1.4.1    
+#&gt;  [25] assertthat_0.2.1    Matrix_1.5-3        fastmap_1.1.0      
+#&gt;  [28] cli_3.4.1           htmltools_0.5.3     quantreg_5.94      
+#&gt;  [31] tools_4.1.2         gtable_0.3.1        glue_1.6.2         
+#&gt;  [34] dplyr_1.0.10        Rcpp_1.0.9          jquerylib_0.1.4    
+#&gt;  [37] vctrs_0.5.1         nlme_3.1-160        iterators_1.0.14   
+#&gt;  [40] xfun_0.35           stringr_1.4.1       globals_0.16.2     
+#&gt;  [43] lifecycle_1.0.3     future_1.29.0       polspline_1.1.22   
+#&gt;  [46] MASS_7.3-58.1       zoo_1.8-11          scales_1.2.1       
+#&gt;  [49] vroom_1.6.0         hms_1.1.2           parallel_4.1.2     
+#&gt;  [52] sandwich_3.0-2      SparseM_1.81        RColorBrewer_1.1-3 
+#&gt;  [55] yaml_2.3.6          gridExtra_2.3       ggplot2_3.4.0      
+#&gt;  [58] sass_0.4.4          rms_6.3-0           truncdist_1.0-2    
+#&gt;  [61] rpart_4.1.19        latticeExtra_0.6-30 stringi_1.7.8      
+#&gt;  [64] highr_0.9           foreach_1.5.2       checkmate_2.1.0    
+#&gt;  [67] lava_1.7.0          mets_1.3.1          rlang_1.0.6        
+#&gt;  [70] pkgconfig_2.0.3     evaluate_0.18       lattice_0.20-45    
+#&gt;  [73] purrr_0.3.5         htmlwidgets_1.5.4   bit_4.0.5          
+#&gt;  [76] tidyselect_1.2.0    parallelly_1.32.1   magrittr_2.0.3     
+#&gt;  [79] R6_2.5.1            generics_0.1.3      Hmisc_4.7-2        
+#&gt;  [82] multcomp_1.4-20     DBI_1.1.3           pillar_1.8.1       
+#&gt;  [85] foreign_0.8-83      nnet_7.3-18         tibble_3.1.8       
+#&gt;  [88] future.apply_1.10.0 crayon_1.5.2        interp_1.1-3       
+#&gt;  [91] utf8_1.2.2          tzdb_0.3.0          rmarkdown_2.18     
+#&gt;  [94] jpeg_0.1-9          grid_4.1.2          data.table_1.14.6  
+#&gt;  [97] binaryLogic_0.3.9   digest_0.6.30       tidyr_1.2.1        
+#&gt; [100] numDeriv_2016.8-1.1 stats4_4.1.2        munsell_0.5.0      
+#&gt; [103] bslib_0.4.1</code></pre>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
