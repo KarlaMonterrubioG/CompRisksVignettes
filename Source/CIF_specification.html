@@ -578,7 +578,7 @@ same.</p>
 <pre class="r"><code>library(prodlim)         # for Hist()
 library(riskRegression)
 
-FG_riskregression &lt;- FGR(formula = Hist(time, status) ~
+FG_riskRegression &lt;- FGR(formula = Hist(time, status) ~
                            age +
                            sex +
                            trtgiven +
@@ -587,7 +587,7 @@ FG_riskregression &lt;- FGR(formula = Hist(time, status) ~
                            clinstg,
                           data = hd_train,
                           cause = 1)
-print(FG_riskregression)
+print(FG_riskRegression)
 #&gt; 
 #&gt; Right-censored response of a competing.risks model
 #&gt; 
@@ -637,7 +637,7 @@ permits to do predictions of the CIF at a specific time point
 (e.g. <span class="math inline">\(t=5\)</span> years) for a new dataset
 (e.g. <code>hd_test</code>). Below, we show results for the first 5
 subjects in the test set.</p>
-<pre class="r"><code>FG.prediction &lt;- predict(FG_riskregression, newdata = hd_test,  times = 5)
+<pre class="r"><code>FG.prediction &lt;- predict(FG_riskRegression, newdata = hd_test,  times = 5)
 FG.prediction[c(1:5)]
 #&gt; [1] 0.2964653 0.4056692 0.3361023 0.3202368 0.2351294</code></pre>
 <p>Because the Fine-Gray model can be recovered when a complementary
@@ -710,7 +710,7 @@ summary(FG.prop)
 #&gt; Note: The values exp(Coef) are sub-hazard ratios (Fine &amp; Gray 1999)</code></pre>
 <p>In this case, <code>predict()</code> returns the risk at observed
 time points for each subject.</p>
-<pre class="r"><code>prediction.FG.prop  &lt;- predict(FG.prop, newdata = hd_test[c(1, 3), ])
+<pre class="r"><code>prediction.FG.prop  &lt;- predict(FG.prop, newdata = hd_test[c(1, 2), ])
 prediction.FG.prop
 #&gt; $time
 #&gt;  [1]  0.3550000  0.4926531  0.6303061  0.7679592  0.9056122  1.0432653
@@ -726,28 +726,28 @@ prediction.FG.prop
 #&gt; $risk
 #&gt;            [,1]       [,2]       [,3]       [,4]      [,5]      [,6]      [,7]
 #&gt; [1,] 0.04268004 0.05112741 0.06900018 0.08112631 0.1041914 0.1197376 0.1343491
-#&gt; [2,] 0.04755392 0.05693691 0.07675695 0.09017895 0.1156515 0.1327773 0.1488413
+#&gt; [2,] 0.06328963 0.07565201 0.10162716 0.11910964 0.1520457 0.1740082 0.1944747
 #&gt;           [,8]      [,9]     [,10]     [,11]     [,12]     [,13]     [,14]
 #&gt; [1,] 0.1499184 0.1591504 0.1749583 0.1926217 0.1963322 0.2116438 0.2173892
-#&gt; [2,] 0.1659232 0.1760349 0.1933190 0.2125860 0.2166271 0.2332799 0.2395189
+#&gt; [2,] 0.2160937 0.2288202 0.2504501 0.2743753 0.2793683 0.2998503 0.3074850
 #&gt;          [,15]     [,16]     [,17]     [,18]     [,19]     [,20]     [,21]
 #&gt; [1,] 0.2192026 0.2274841 0.2326651 0.2339825 0.2442934 0.2492066 0.2574446
-#&gt; [2,] 0.2414869 0.2504679 0.2560807 0.2575073 0.2686622 0.2739714 0.2828642
+#&gt; [2,] 0.3098889 0.3208316 0.3276478 0.3293774 0.3428628 0.3492565 0.3599301
 #&gt;          [,22]     [,23]     [,24]     [,25]     [,26]     [,27]     [,28]
 #&gt; [1,] 0.2636049 0.2669364 0.2735112 0.2748284 0.2756051 0.2809147 0.2820748
-#&gt; [2,] 0.2895066 0.2930961 0.3001744 0.3015916 0.3024271 0.3081360 0.3093827
+#&gt; [2,] 0.3678732 0.3721550 0.3805769 0.3822596 0.3832511 0.3900149 0.3914895
 #&gt;          [,29]     [,30]     [,31]     [,32]     [,33]     [,34]     [,35]
 #&gt; [1,] 0.2844348 0.2874550 0.2890380 0.2972745 0.2987909 0.3018743 0.3078412
-#&gt; [2,] 0.3119181 0.3151614 0.3168607 0.3256950 0.3273201 0.3306234 0.3370108
+#&gt; [2,] 0.3944854 0.3983123 0.4003149 0.4106985 0.4126036 0.4164711 0.4239312
 #&gt;          [,36]     [,37]     [,38]     [,39]     [,40]     [,41]     [,42]
 #&gt; [1,] 0.3109461 0.3144607 0.3161547 0.3170026 0.3199931 0.3229954 0.3246863
-#&gt; [2,] 0.3403320 0.3440893 0.3458995 0.3468053 0.3499993 0.3532041 0.3550083
+#&gt; [2,] 0.4278003 0.4321695 0.4342715 0.4353226 0.4390247 0.4427332 0.4448181
 #&gt;          [,43]     [,44]     [,45]     [,46]     [,47]     [,48]     [,49]
 #&gt; [1,] 0.3281412 0.3297946 0.3329718 0.3364468 0.3378281 0.3409324 0.3423308
-#&gt; [2,] 0.3586930 0.3604558 0.3638414 0.3675423 0.3690128 0.3723161 0.3738036
+#&gt; [2,] 0.4490702 0.4511013 0.4549971 0.4592476 0.4609341 0.4647178 0.4664193
 #&gt;          [,50]
 #&gt; [1,] 0.3464244
-#&gt; [2,] 0.3781558
+#&gt; [2,] 0.4713900
 #&gt; 
 #&gt; attr(,&quot;class&quot;)
 #&gt; [1] &quot;predictedRisk&quot;</code></pre>
@@ -999,8 +999,8 @@ legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&q
 through the argument <code>times</code>. Absolute risk predictions at
 time <span class="math inline">\(t=5\)</span> for the first 5 patients
 are shown:</p>
-<pre class="r"><code>pred_DB.t &lt;- predict.timereg(fit_DB, newdata = hd_test[1:5, 2:7], times = 5)
-c(pred_DB.t$P1)
+<pre class="r"><code>pred_DB.t &lt;- predict.timereg(fit_DB, newdata = hd_test[, 2:7], times = 5)
+pred_DB.t$P1[1:5]
 #&gt; [1] 0.2874550 0.3983123 0.3151614 0.2977388 0.2162792</code></pre>
 <p><code>timereg</code> permits fitting the model time varying effects.
 For example, the following code includes a time-dependent effect for
@@ -1201,7 +1201,8 @@ credible intervals.</p>
      type = &quot;l&quot;,
      col = &quot;red&quot;,
      xlab = &quot;Time (years)&quot;,
-     ylab = &quot;Cumulative incidence&quot;)
+     ylab = &quot;Cumulative incidence&quot;,
+     ylim = c(0, 0.5))
 lines(pred_DDP$tpred, pred_DDP$Fpred[2, ], col=&quot;blue&quot;)
 legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&quot;),
        lty = c(1,1), col = c(&quot;red&quot;, &quot;blue&quot;))</code></pre>
@@ -1214,14 +1215,19 @@ plot(pred_DDP)</code></pre>
 e.g. <span class="math inline">\(t=5\)</span>. Below, we show the
 estimated risk for the first 5 subjects in the test data set:</p>
 <pre class="r"><code>pred_DDP.t &lt;- predict(fit_DDP, 
-                      newdata = as.data.frame(hd_test[1:5, 2:7]), tpred = 5)
-pred_DDP.t$Fpred
-#&gt;           [,1]
-#&gt; [1,] 0.2931222
-#&gt; [2,] 0.3785346
-#&gt; [3,] 0.3107608
-#&gt; [4,] 0.3082350
-#&gt; [5,] 0.2335271</code></pre>
+                      newdata = as.data.frame(hd_test[, 2:7]), tpred = 5)
+pred_DDP.t$Fpred[1:5]
+#&gt; [1] 0.2931222 0.3785346 0.3107608 0.3082350 0.2335271</code></pre>
+</div>
+<div id="storing-predictions" class="section level1">
+<h1>Storing predictions</h1>
+<p>In order to allow comparison with the predictions generated by other
+methods, we save the predictions obtained in this vignette.</p>
+<pre class="r"><code>pred_CIF &lt;- data.frame(&quot;testID&quot; = seq_len(nrow(hd_test)),
+                      &quot;FG_riskRegression&quot; = FG.prediction,
+                      &quot;DirectBinomal&quot; = pred_DB.t$P1,
+                      &quot;DPWeibull&quot; = pred_DDP.t$Fpred)
+write.csv(pred_CIF, &quot;../Predictions/pred_CIF.csv&quot;, row.names = FALSE)</code></pre>
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>
