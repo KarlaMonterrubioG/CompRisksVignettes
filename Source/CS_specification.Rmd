@@ -399,6 +399,13 @@ The estimated coefficients for specific $\lambda$ values can be obtained using
 coef(lasso.fit, s = 0.06) # s:=\lambda
 ```
 
+Note that due to the lack of intercept in the design matrix, the interpretation
+of the regression coefficients differs from those presented in earlier sections.
+For example, two separate coefficients are reported for sex (one for males; one
+for females). Instead, previous models used females as a reference, reporting a
+single regression coefficient to quantify the difference between males and 
+females (in terms of the hazard). 
+
 
 One can also employ k-fold cross-validation to select the optimal value of
 $\lambda$. Below, we show how to do that using 10 folds and Harrel's concordance
