@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
+
+<meta name="date" content="2022-11-30" />
+
+<title>Approaches based on a proportional cause-specific hazard specification</title>
+
+<script src="CS_specification_files/header-attrs-2.18/header-attrs.js"></script>
+<script src="CS_specification_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="CS_specification_files/bootstrap-3.3.5/css/simplex.min.css" rel="stylesheet" />
+<script src="CS_specification_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="CS_specification_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="CS_specification_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="CS_specification_files/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="CS_specification_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="CS_specification_files/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="CS_specification_files/navigation-1.1/tabsets.js"></script>
+<script src="CS_specification_files/navigation-1.1/codefolding.js"></script>
+<link href="CS_specification_files/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="CS_specification_files/highlightjs-9.12.0/highlight.js"></script>
+<script src="https://kit.fontawesome.com/1339b11c04.js" crossorigin="anonymous"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div id = "nav">
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="CIF_specification.html">Cumulative Incidence</a></li>
+    <li><a href="CS_specification.html">Cause Specific</a></li>
+    <li><a href="Discrete_specification.html">Discrete</a></li>
+    <li><a href="Others.html">Other</a></li>
+    <li style="float:right"><a href="https://github.com/KarlaMonterrubioG/Competing_risks"><i style="font-size: 20px; padding-top: 0px; padding-bottom: 0px;" class="fa-brands fa-github"></i></a></li>
+  </ul>
+</div>
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Approaches based on a proportional
+cause-specific hazard specification</h1>
+<h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
+and Catalina Vallejos</h4>
+<h4 class="date">2022-11-30</h4>
+
+</div>
+
+
+<div id="data" class="section level1">
+<h1>Data</h1>
+<p>In order to demonstrate methods using a proportional cause-specific
+hazard specification, we employ publicly available data.</p>
+<p>The dataset used here corresponds to the Hodgkin’s disease (HD) study
+described in Pintilie, 2006. The dataset comprises 865 patients
+diagnosed with early stage (I or II) HD, and which were treated either
+with radiation (RT) or with radiation and chemotherapy (CMT).</p>
+<p>The recorded data includes:</p>
+<ul>
+<li>age: Age (years)</li>
+<li>sex: Sex, F=female and M=Male.</li>
+<li>trtgiven: Treatment given, RT=Radiation, CMT=Chemotherapy and
+radiation</li>
+<li>medwidsi: Size of mediastinum involvement, N=No, S=Small,
+L=Large</li>
+<li>extranod: Extranodal disease, Y=Extranodal disease, N= Nodal
+disease</li>
+<li>clinstg: Clinical stage, 1=Stage I, 2=Stage II</li>
+<li>time: time to failure (years) calculated from the date of
+diagnosis</li>
+<li>status: 0=censoring, 1=relapse and 2=death.</li>
+</ul>
+<p>We now load and display the structure of the HD dataset:</p>
+<pre class="r"><code>require(readr)
+hd &lt;- data.frame(read_csv(&quot;../Data/HD/hd.csv&quot;,
+                          col_types = cols(X1 = col_skip())))
+str(hd)
+#&gt; &#39;data.frame&#39;:    865 obs. of  9 variables:
+#&gt;  $ ...1    : num  1 2 3 4 5 6 7 8 9 10 ...
+#&gt;  $ age     : num  64 63 17 63 21 37 41 35 27 32 ...
+#&gt;  $ sex     : chr  &quot;F&quot; &quot;M&quot; &quot;M&quot; &quot;M&quot; ...
+#&gt;  $ trtgiven: chr  &quot;RT&quot; &quot;RT&quot; &quot;RT&quot; &quot;RT&quot; ...
+#&gt;  $ medwidsi: chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+#&gt;  $ extranod: chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+#&gt;  $ clinstg : num  1 1 2 2 2 1 2 2 2 2 ...
+#&gt;  $ time    : num  3.1 15.9 0.9 13.1 35.9 1.1 2.5 0.003 4.1 28.1 ...
+#&gt;  $ status  : num  2 2 1 2 0 1 1 1 1 0 ...</code></pre>
+<p>To procede with the analysis, it is important to change the data type
+of sex, trtgiven, medwidsi, and extranod from <code>character</code> to
+<code>factor</code>. Similarly, we convert clinstg from
+<code>numeric</code> to <code>factor</code>.</p>
+<pre class="r"><code>  hd$sex      &lt;- as.factor(hd$sex)
+  hd$trtgiven &lt;- as.factor(hd$trtgiven)
+  hd$medwidsi &lt;- as.factor(hd$medwidsi)
+  hd$extranod &lt;- as.factor(hd$extranod)
+  hd$clinstg  &lt;- as.factor(hd$clinstg)</code></pre>
+<p>Now, we explore the number of events for each event type:</p>
+<pre class="r"><code>require(pander)
+pander::pander(table(hd$status))</code></pre>
+<table style="width:25%;">
+<colgroup>
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">0</th>
+<th align="center">1</th>
+<th align="center">2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">439</td>
+<td align="center">291</td>
+<td align="center">135</td>
+</tr>
+</tbody>
+</table>
+<p>Thus, we have 439 censored patients, 291 with relapse and 135 who
+died. From now on, we assume that the event of interest is relapse,
+i.e. <code>status=1</code>.</p>
+<p>In order to create a test set, we use stratified sampling to
+partition our data in 80% for train and 20% for test.</p>
+<pre class="r"><code>require(splitstackshape)
+set.seed(2022)
+split_data &lt;- stratified(hd, c(&quot;status&quot;), 0.8, bothSets = TRUE)
+hd_train   &lt;- as.data.frame(split_data$SAMP1[,-1])
+hd_test    &lt;- as.data.frame(split_data$SAMP2[,-1])</code></pre>
+<p>Now, we explore the number of observations per status in both train
+and test set:</p>
+<pre class="r"><code>pander::pander(table(hd_train$status))</code></pre>
+<table style="width:25%;">
+<colgroup>
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">0</th>
+<th align="center">1</th>
+<th align="center">2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">351</td>
+<td align="center">233</td>
+<td align="center">108</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>pander::pander(table(hd_test$status))</code></pre>
+<table style="width:21%;">
+<colgroup>
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">0</th>
+<th align="center">1</th>
+<th align="center">2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">88</td>
+<td align="center">58</td>
+<td align="center">27</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="cause-specific-cox-proportional-hazards"
+class="section level1">
+<h1>Cause-specific Cox Proportional-Hazards</h1>
+<p>There are several R packages that one can employ to fit a
+cause-specific hazard regression model. For this purpose, separate Cox
+proportional hazards models are fitted for each event type, treating
+other events as censored observations. In this section, we explore how
+we can perform this task with different R packages. We discuss its
+similarities and differences: highlighting important aspects to consider
+in each case.</p>
+<div id="the-survival-package" class="section level2">
+<h2>The <code>survival</code> package</h2>
+<p>The model can be fit with the <code>coxph()</code> function in the
+<code>survival</code> package. In order to do so, one should first
+create a survival time object with the <code>Surv()</code> function.
+This object will be the response variable in our regression model. For
+illustration purposes, we only fit the cause-specific model associated
+to events of type 1. To do this, in the code below, we have set
+<code>status==1</code> in the second argument of <code>Surv()</code> to
+indicate that we are interested in event type 1. This setting will treat
+the other status values as censored observations. The cause-specific
+model for the second event type can be fitted using
+<code>status==2</code>.</p>
+<pre class="r"><code>require(survival)
+csh_survival &lt;- coxph(Surv(time, status == 1) ~ age +
+                        sex +
+                        trtgiven +
+                        medwidsi +
+                        extranod +
+                        clinstg,
+                       data = hd_train,
+                       x = TRUE,         # needed for predictions
+                       # this is the default, one can also use Breslow
+                       ties = &quot;efron&quot;)
+summary(csh_survival)
+#&gt; Call:
+#&gt; coxph(formula = Surv(time, status == 1) ~ age + sex + trtgiven + 
+#&gt;     medwidsi + extranod + clinstg, data = hd_train, ties = &quot;efron&quot;, 
+#&gt;     x = TRUE)
+#&gt; 
+#&gt;   n= 692, number of events= 233 
+#&gt; 
+#&gt;                 coef exp(coef)  se(coef)      z Pr(&gt;|z|)    
+#&gt; age         0.015879  1.016006  0.004249  3.738 0.000186 ***
+#&gt; sexM        0.087491  1.091432  0.134759  0.649 0.516182    
+#&gt; trtgivenRT  0.713903  2.041946  0.194581  3.669 0.000244 ***
+#&gt; medwidsiN  -0.044301  0.956666  0.256368 -0.173 0.862807    
+#&gt; medwidsiS  -0.402680  0.668526  0.253404 -1.589 0.112041    
+#&gt; extranodY   0.326442  1.386027  0.239225  1.365 0.172384    
+#&gt; clinstg2    0.371257  1.449556  0.156389  2.374 0.017600 *  
+#&gt; ---
+#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+#&gt; 
+#&gt;            exp(coef) exp(-coef) lower .95 upper .95
+#&gt; age           1.0160     0.9842    1.0076     1.025
+#&gt; sexM          1.0914     0.9162    0.8381     1.421
+#&gt; trtgivenRT    2.0419     0.4897    1.3945     2.990
+#&gt; medwidsiN     0.9567     1.0453    0.5788     1.581
+#&gt; medwidsiS     0.6685     1.4958    0.4068     1.099
+#&gt; extranodY     1.3860     0.7215    0.8672     2.215
+#&gt; clinstg2      1.4496     0.6899    1.0669     1.969
+#&gt; 
+#&gt; Concordance= 0.61  (se = 0.02 )
+#&gt; Likelihood ratio test= 37.91  on 7 df,   p=3e-06
+#&gt; Wald test            = 38.21  on 7 df,   p=3e-06
+#&gt; Score (logrank) test = 38.95  on 7 df,   p=2e-06</code></pre>
+<p>The above output summarises the fitted model. First, it shows that
+out of the 692 patients, 233 experienced the event of interest
+(relapse). Second, it shows the coefficients and hazard ratios
+(<code>exp(coef)</code>) for each covariate, along with a significance
+test. The results suggest that age, treatment, and clinical stage are
+significantly associated with the hazard of relapse. For instance, being
+in clinical stage 2 increases the cause-specific hazard (rate) of
+relapse by 44.96% when compared to a patient in stage 1. It is important
+to emphasise that one should be cautious when interpreting these
+covariate effects as this modelling strategy only permits to do
+inference of the effects on the hazard but not on the prognosis or
+survival (see more details in <span class="citation">Austin, Lee, and
+Fine (<a href="#ref-Austin2016" role="doc-biblioref">2016</a>)</span>).
+Finally, the output also reports model fitness statistics. The
+concordance index, which summaries the in-sample discriminative ability
+of the model (a value close to 1 is preferred), and three tests to check
+if (overall) the model is significant.</p>
+<p>Note that naively estimating survival/risk probabilities from this
+model, will result in overestimation of the survival function, as
+competing risks are not taken into account. See the <a
+href="#the-riskregression-package">riskRegression section</a> for a
+valid approach.</p>
+</div>
+<div id="the-rms-package" class="section level2">
+<h2>The <code>rms</code> package</h2>
+<p>Another package that permits to fit the model is <code>rms</code>.
+This package provides useful functions for model validation, and
+plotting which are well documented in <span class="citation">Harrell (<a
+href="#ref-harrell2017" role="doc-biblioref">2017</a>)</span>.</p>
+<p>Before fitting the model, it is important to compute summary
+statistics of the covariates that will be employed. Such statistics will
+be used when plotting or doing predictions. These summary statistics are
+computed using <code>datadist()</code> function.</p>
+<p>As in the previous section, we only fit the cause specific model for
+the first event type. The code for the model associated to the second
+event type is analogous, using <code>status == 2</code> in the
+<code>Surv()</code> call.</p>
+<pre class="r"><code>require(rms)
+
+units(hd$time) &lt;- &quot;years&quot;
+dd &lt;- datadist(hd)
+options(datadistc = &quot;dd&quot;)
+
+csh_rms &lt;- cph(Surv(time, status == 1) ~ age +
+                                        sex +
+                                        trtgiven +
+                                        medwidsi +
+                                        extranod +
+                                        clinstg,
+                data = hd_train,
+                x = TRUE,
+                y = TRUE,
+                surv = TRUE,
+                method = &quot;efron&quot;)  # default is efron, one can also use breslow
+
+print(csh_rms)
+#&gt; Cox Proportional Hazards Model
+#&gt;  
+#&gt;  cph(formula = Surv(time, status == 1) ~ age + sex + trtgiven + 
+#&gt;      medwidsi + extranod + clinstg, data = hd_train, method = &quot;efron&quot;, 
+#&gt;      x = TRUE, y = TRUE, surv = TRUE)
+#&gt;  
+#&gt;                         Model Tests    Discrimination    
+#&gt;                                               Indexes    
+#&gt;  Obs       692    LR chi2     37.91    R2       0.054    
+#&gt;  Events    233    d.f.            7    Dxy      0.219    
+#&gt;  Center 1.2434    Pr(&gt; chi2) 0.0000    g        0.474    
+#&gt;                   Score chi2  38.95    gr       1.606    
+#&gt;                   Pr(&gt; chi2) 0.0000                      
+#&gt;  
+#&gt;              Coef    S.E.   Wald Z Pr(&gt;|Z|)
+#&gt;  age          0.0159 0.0042  3.74  0.0002  
+#&gt;  sex=M        0.0875 0.1348  0.65  0.5162  
+#&gt;  trtgiven=RT  0.7139 0.1946  3.67  0.0002  
+#&gt;  medwidsi=N  -0.0443 0.2564 -0.17  0.8628  
+#&gt;  medwidsi=S  -0.4027 0.2534 -1.59  0.1120  
+#&gt;  extranod=Y   0.3264 0.2392  1.36  0.1724  
+#&gt;  clinstg=2    0.3713 0.1564  2.37  0.0176  
+#&gt; </code></pre>
+<p>In this case, printing the fitted model, gives a slightly different
+output. First, the output includes several discrimination indices. Note
+that, the concordance index can be recovered using the <code>Dxy</code>
+index. Moreover, note that these metrics ignore the presence of
+competing event types.</p>
+<p><code>summary.rms()</code> is of more utility to compute hazard
+ratios. For continuous covariates, the HR are computed with respect to
+the lower and upper quartiles. For instance, from the output below we
+can infer that a 20-year increase in age (going from 23 to 43),
+increases the cause-specific hazard of relapse by 37.38% . This is in
+contrast to the coefficients obtained by <code>print()</code>, which in
+this case corresponds to <code>exp(coef)</code>=1.02 and whose
+interpretation refers to the effect on the hazard by 1-year
+increase.</p>
+<pre class="r"><code>summary(csh_rms)
+#&gt;              Effects              Response : Surv(time, status == 1) 
+#&gt; 
+#&gt;  Factor            Low High Diff. Effect    S.E.     Lower 0.95 Upper 0.95
+#&gt;  age               23  43   20     0.317580 0.084972  0.15104    0.484130 
+#&gt;   Hazard Ratio     23  43   20     1.373800       NA  1.16300    1.622800 
+#&gt;  sex - F:M          2   1   NA    -0.087491 0.134760 -0.35161    0.176630 
+#&gt;   Hazard Ratio      2   1   NA     0.916230       NA  0.70355    1.193200 
+#&gt;  trtgiven - CMT:RT  2   1   NA    -0.713900 0.194580 -1.09530   -0.332530 
+#&gt;   Hazard Ratio      2   1   NA     0.489730       NA  0.33445    0.717110 
+#&gt;  medwidsi - L:N     2   1   NA     0.044301 0.256370 -0.45817    0.546770 
+#&gt;   Hazard Ratio      2   1   NA     1.045300       NA  0.63244    1.727700 
+#&gt;  medwidsi - S:N     2   3   NA    -0.358380 0.171210 -0.69395   -0.022805 
+#&gt;   Hazard Ratio      2   3   NA     0.698810       NA  0.49960    0.977450 
+#&gt;  extranod - Y:N     1   2   NA     0.326440 0.239220 -0.14243    0.795310 
+#&gt;   Hazard Ratio      1   2   NA     1.386000       NA  0.86725    2.215100 
+#&gt;  clinstg - 1:2      2   1   NA    -0.371260 0.156390 -0.67777   -0.064740 
+#&gt;   Hazard Ratio      2   1   NA     0.689870       NA  0.50775    0.937310</code></pre>
+<p>Furthermore, one can manually define ranges in which we want to
+compute HR; for instance going from 30-40 years, i.e. a 10-year increase
+will result in a increase in the cause-specific hazard of 17.21%, as
+shown below. Similarly, for discrete covariates, one can define the
+reference level with respect to which the HR are computed; for example,
+below we have changed the reference level for sex.</p>
+<pre class="r"><code>summary(csh_rms, age = c(30, 40), sex = &quot;F&quot;)
+#&gt;              Effects              Response : Surv(time, status == 1) 
+#&gt; 
+#&gt;  Factor            Low High Diff. Effect    S.E.     Lower 0.95 Upper 0.95
+#&gt;  age               30  40   10     0.158790 0.042486  0.075521   0.242060 
+#&gt;   Hazard Ratio     30  40   10     1.172100       NA  1.078400   1.273900 
+#&gt;  sex - M:F          1   2   NA     0.087491 0.134760 -0.176630   0.351610 
+#&gt;   Hazard Ratio      1   2   NA     1.091400       NA  0.838090   1.421400 
+#&gt;  trtgiven - CMT:RT  2   1   NA    -0.713900 0.194580 -1.095300  -0.332530 
+#&gt;   Hazard Ratio      2   1   NA     0.489730       NA  0.334450   0.717110 
+#&gt;  medwidsi - L:N     2   1   NA     0.044301 0.256370 -0.458170   0.546770 
+#&gt;   Hazard Ratio      2   1   NA     1.045300       NA  0.632440   1.727700 
+#&gt;  medwidsi - S:N     2   3   NA    -0.358380 0.171210 -0.693950  -0.022805 
+#&gt;   Hazard Ratio      2   3   NA     0.698810       NA  0.499600   0.977450 
+#&gt;  extranod - Y:N     1   2   NA     0.326440 0.239220 -0.142430   0.795310 
+#&gt;   Hazard Ratio      1   2   NA     1.386000       NA  0.867250   2.215100 
+#&gt;  clinstg - 1:2      2   1   NA    -0.371260 0.156390 -0.677770  -0.064740 
+#&gt;   Hazard Ratio      2   1   NA     0.689870       NA  0.507750   0.937310</code></pre>
+<p>Note that naively estimating survival probabilities from this model,
+will result in overestimation of the survival function, as competing
+risks are not taken into account. See the next section for a valid
+approach.</p>
+</div>
+<div id="the-riskregression-package" class="section level2">
+<h2>The <code>riskRegression</code> package</h2>
+<p>One can also use the <code>CSC()</code> function from
+<code>riskRegression</code> to fit cause-specific hazard regression
+models. This package acts as an interface to obtain either a
+<code>coxph</code> or a <code>cph</code> object through the
+<code>fitter</code> argument. In addition, this function simultaneously
+fits models for both competing events when
+<code>surv.type = "hazard"</code>. Below, we employ the same covariates
+for both event types, but it is possible to fit different regression
+models for each cause (see example below). Note that in this case, the
+response variable in the regression model is obtained with the
+<code>Hist()</code> function available in the <code>prodlim</code> R
+package.</p>
+<pre class="r"><code>require(riskRegression)
+require(prodlim) # for Hist()
+csh_riskRegression &lt;- CSC(Hist(time, status) ~ age +
+                                               sex +
+                                               trtgiven +
+                                               medwidsi +
+                                               extranod +
+                                               clinstg,
+                          data = hd_train,
+                          surv.type = &quot;hazard&quot;,
+                          cause = 1)
+print(csh_riskRegression)
+#&gt; CSC(formula = Hist(time, status) ~ age + sex + trtgiven + medwidsi + 
+#&gt;     extranod + clinstg, data = hd_train, cause = 1, surv.type = &quot;hazard&quot;)
+#&gt; 
+#&gt; Right-censored response of a competing.risks model
+#&gt; 
+#&gt; No.Observations: 692 
+#&gt; 
+#&gt; Pattern:
+#&gt;          
+#&gt; Cause     event right.censored
+#&gt;   1         233              0
+#&gt;   2         108              0
+#&gt;   unknown     0            351
+#&gt; 
+#&gt; 
+#&gt; ----------&gt; Cause:  1 
+#&gt; 
+#&gt; Call:
+#&gt; coxph(formula = survival::Surv(time, status) ~ age + sex + trtgiven + 
+#&gt;     medwidsi + extranod + clinstg, x = TRUE, y = TRUE)
+#&gt; 
+#&gt;   n= 692, number of events= 233 
+#&gt; 
+#&gt;                 coef exp(coef)  se(coef)      z Pr(&gt;|z|)    
+#&gt; age         0.015879  1.016006  0.004249  3.738 0.000186 ***
+#&gt; sexM        0.087491  1.091432  0.134759  0.649 0.516182    
+#&gt; trtgivenRT  0.713903  2.041946  0.194581  3.669 0.000244 ***
+#&gt; medwidsiN  -0.044301  0.956666  0.256368 -0.173 0.862807    
+#&gt; medwidsiS  -0.402680  0.668526  0.253404 -1.589 0.112041    
+#&gt; extranodY   0.326442  1.386027  0.239225  1.365 0.172384    
+#&gt; clinstg2    0.371257  1.449556  0.156389  2.374 0.017600 *  
+#&gt; ---
+#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+#&gt; 
+#&gt;            exp(coef) exp(-coef) lower .95 upper .95
+#&gt; age           1.0160     0.9842    1.0076     1.025
+#&gt; sexM          1.0914     0.9162    0.8381     1.421
+#&gt; trtgivenRT    2.0419     0.4897    1.3945     2.990
+#&gt; medwidsiN     0.9567     1.0453    0.5788     1.581
+#&gt; medwidsiS     0.6685     1.4958    0.4068     1.099
+#&gt; extranodY     1.3860     0.7215    0.8672     2.215
+#&gt; clinstg2      1.4496     0.6899    1.0669     1.969
+#&gt; 
+#&gt; Concordance= 0.61  (se = 0.02 )
+#&gt; Likelihood ratio test= 37.91  on 7 df,   p=3e-06
+#&gt; Wald test            = 38.21  on 7 df,   p=3e-06
+#&gt; Score (logrank) test = 38.95  on 7 df,   p=2e-06
+#&gt; 
+#&gt; 
+#&gt; 
+#&gt; ----------&gt; Cause:  2 
+#&gt; 
+#&gt; Call:
+#&gt; coxph(formula = survival::Surv(time, status) ~ age + sex + trtgiven + 
+#&gt;     medwidsi + extranod + clinstg, x = TRUE, y = TRUE)
+#&gt; 
+#&gt;   n= 692, number of events= 108 
+#&gt; 
+#&gt;                 coef exp(coef)  se(coef)      z Pr(&gt;|z|)    
+#&gt; age         0.077784  1.080889  0.006867 11.327  &lt; 2e-16 ***
+#&gt; sexM        0.644928  1.905850  0.209051  3.085  0.00204 ** 
+#&gt; trtgivenRT -0.062907  0.939031  0.241929 -0.260  0.79485    
+#&gt; medwidsiN   0.264183  1.302367  0.408144  0.647  0.51745    
+#&gt; medwidsiS   0.188405  1.207322  0.404631  0.466  0.64149    
+#&gt; extranodY  -0.140512  0.868913  0.383517 -0.366  0.71408    
+#&gt; clinstg2    0.451261  1.570291  0.228931  1.971  0.04871 *  
+#&gt; ---
+#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+#&gt; 
+#&gt;            exp(coef) exp(-coef) lower .95 upper .95
+#&gt; age           1.0809     0.9252    1.0664     1.096
+#&gt; sexM          1.9059     0.5247    1.2652     2.871
+#&gt; trtgivenRT    0.9390     1.0649    0.5845     1.509
+#&gt; medwidsiN     1.3024     0.7678    0.5852     2.898
+#&gt; medwidsiS     1.2073     0.8283    0.5463     2.668
+#&gt; extranodY     0.8689     1.1509    0.4098     1.843
+#&gt; clinstg2      1.5703     0.6368    1.0026     2.460
+#&gt; 
+#&gt; Concordance= 0.816  (se = 0.022 )
+#&gt; Likelihood ratio test= 159.6  on 7 df,   p=&lt;2e-16
+#&gt; Wald test            = 161.9  on 7 df,   p=&lt;2e-16
+#&gt; Score (logrank) test = 211.8  on 7 df,   p=&lt;2e-16</code></pre>
+<p>Now the output shows model summaries for both causes. If we analyse
+Cause: 1, the results should be identical to those obtained with
+<code>coxph()</code> in the survival package, and are interpreted in the
+same way.</p>
+<p>Results obtained by using a <code>cph</code> fitter are the same as
+above and are shown below:</p>
+<pre class="r"><code>csh_riskRegression.cph &lt;- CSC(Hist(time, status) ~ age +
+                                                   sex +
+                                                   trtgiven +
+                                                   medwidsi +
+                                                   extranod + clinstg,
+                              data = hd_train,
+                              surv.type = &quot;hazard&quot;,
+                              fitter = &quot;cph&quot;)
+print(csh_riskRegression.cph)
+#&gt; CSC(formula = Hist(time, status) ~ age + sex + trtgiven + medwidsi + 
+#&gt;     extranod + clinstg, data = hd_train, surv.type = &quot;hazard&quot;, 
+#&gt;     fitter = &quot;cph&quot;)
+#&gt; 
+#&gt; Right-censored response of a competing.risks model
+#&gt; 
+#&gt; No.Observations: 692 
+#&gt; 
+#&gt; Pattern:
+#&gt;          
+#&gt; Cause     event right.censored
+#&gt;   1         233              0
+#&gt;   2         108              0
+#&gt;   unknown     0            351
+#&gt; 
+#&gt; 
+#&gt; ----------&gt; Cause:  1 
+#&gt; 
+#&gt; Cox Proportional Hazards Model
+#&gt;  
+#&gt;  cph(formula = survival::Surv(time, status) ~ age + sex + trtgiven + 
+#&gt;      medwidsi + extranod + clinstg, x = TRUE, y = TRUE, surv = TRUE)
+#&gt;  
+#&gt;                         Model Tests    Discrimination    
+#&gt;                                               Indexes    
+#&gt;  Obs       692    LR chi2     37.91    R2       0.054    
+#&gt;  Events    233    d.f.            7    Dxy      0.219    
+#&gt;  Center 1.2434    Pr(&gt; chi2) 0.0000    g        0.474    
+#&gt;                   Score chi2  38.95    gr       1.606    
+#&gt;                   Pr(&gt; chi2) 0.0000                      
+#&gt;  
+#&gt;              Coef    S.E.   Wald Z Pr(&gt;|Z|)
+#&gt;  age          0.0159 0.0042  3.74  0.0002  
+#&gt;  sex=M        0.0875 0.1348  0.65  0.5162  
+#&gt;  trtgiven=RT  0.7139 0.1946  3.67  0.0002  
+#&gt;  medwidsi=N  -0.0443 0.2564 -0.17  0.8628  
+#&gt;  medwidsi=S  -0.4027 0.2534 -1.59  0.1120  
+#&gt;  extranod=Y   0.3264 0.2392  1.36  0.1724  
+#&gt;  clinstg=2    0.3713 0.1564  2.37  0.0176  
+#&gt;  
+#&gt; 
+#&gt; 
+#&gt; ----------&gt; Cause:  2 
+#&gt; 
+#&gt; Cox Proportional Hazards Model
+#&gt;  
+#&gt;  cph(formula = survival::Surv(time, status) ~ age + sex + trtgiven + 
+#&gt;      medwidsi + extranod + clinstg, x = TRUE, y = TRUE, surv = TRUE)
+#&gt;  
+#&gt;                         Model Tests    Discrimination    
+#&gt;                                               Indexes    
+#&gt;  Obs       692    LR chi2    159.59    R2       0.247    
+#&gt;  Events    108    d.f.            7    Dxy      0.631    
+#&gt;  Center 3.5568    Pr(&gt; chi2) 0.0000    g        1.400    
+#&gt;                   Score chi2 211.82    gr       4.055    
+#&gt;                   Pr(&gt; chi2) 0.0000                      
+#&gt;  
+#&gt;              Coef    S.E.   Wald Z Pr(&gt;|Z|)
+#&gt;  age          0.0778 0.0069 11.33  &lt;0.0001 
+#&gt;  sex=M        0.6449 0.2091  3.09  0.0020  
+#&gt;  trtgiven=RT -0.0629 0.2419 -0.26  0.7948  
+#&gt;  medwidsi=N   0.2642 0.4081  0.65  0.5175  
+#&gt;  medwidsi=S   0.1884 0.4046  0.47  0.6415  
+#&gt;  extranod=Y  -0.1405 0.3835 -0.37  0.7141  
+#&gt;  clinstg=2    0.4513 0.2289  1.97  0.0487  
+#&gt; </code></pre>
+<p>Assume that we are interested in making risk predictions at time
+<span class="math inline">\(t=5\)</span> years for a new set of patients
+(i.e. the test dataset <code>hd_test</code>). As an illustration, we
+focus on predicting whether an event of type 1 will occur by that time
+(to predict the occurrence of the second event type, use
+<code>cause = 2</code> in the code below). The
+<code>riskRegression</code> package permits obtaining absolute risk
+predictions at specific time points. For each patient in this new set,
+this consists of calculating the probability of observing an event of
+type 1 by 5 years. Here, we set <code>product.limit = FALSE</code>, to
+use the exponential approximation <span
+class="math inline">\(S(t)=exp(-H(t)_1 - H(t)_2)\)</span>, where <span
+class="math inline">\(H(t)_j\)</span> denotes the cumulative hazard for
+cause <span class="math inline">\(j\)</span> at time <span
+class="math inline">\(t\)</span>.</p>
+<p>Below, we show the predicted risk for the first 5 patients in the
+test dataset. We see how both fitters (<code>coxph</code> or
+<code>cph</code>) give the same result:</p>
+<pre class="r"><code>risk.coxph &lt;- predictRisk(csh_riskRegression,
+                          times = 5,
+                          newdata = hd_test, cause = 1,
+                          product.limit = FALSE)
+risk.coxph[1:5]
+#&gt; [1] 0.2990793 0.4231062 0.3337163 0.3216817 0.2279138
+
+
+risk.cph &lt;- predictRisk(csh_riskRegression.cph,
+                        times = 5,
+                        newdata = hd_test,
+                        cause = 1,
+                        product.limit = FALSE)
+risk.cph[1:5]
+#&gt; [1] 0.2990793 0.4231062 0.3337162 0.3216816 0.2279138</code></pre>
+<p>If instead we use the product limit estimator, we ensure <span
+class="math inline">\(\text{CIF}_1(t | X) + \text{CIF}_2(t|X) =
+1\)</span> and the output is slightly different:</p>
+<pre class="r"><code>risk.coxphPL &lt;- predictRisk(csh_riskRegression,
+                            times = 5,
+                            newdata = hd_test,
+                            cause = 1,
+                            product.limit = TRUE)
+risk.coxphPL[1:5]
+#&gt; [1] 0.2986879 0.4218109 0.3331601 0.3211892 0.2277556
+
+risk.cphPL  &lt;- predictRisk(csh_riskRegression.cph,
+                           times = 5,
+                           newdata = hd_test,
+                           cause = 1,
+                           product.limit = TRUE)
+risk.coxphPL[1:5]
+#&gt; [1] 0.2986879 0.4218109 0.3331601 0.3211892 0.2277556</code></pre>
+<p>Note that the product limit estimator is also employed when using
+<code>predictEventProb()</code> available in <code>pec</code>
+package.</p>
+<pre class="r"><code>require(pec)
+as.vector(predictEventProb(csh_riskRegression.cph,
+                           newdata = hd_test[1:5, ],
+                           cause = 1,
+                           time = 5))
+#&gt; [1] 0.2986878 0.4218109 0.3331600 0.3211891 0.2277556</code></pre>
+<p>Finally, note also that <code>riskRegression</code> permits to fit
+different regression models for each cause using Cox
+proportional-hazards. In the example below, we use all covariates for
+cause 1, and we employ only age, and sex for cause 2.</p>
+<pre class="r"><code># Different regression models for each cause.
+csh_riskRegression2 &lt;- CSC(list(Hist(time, status) ~ age + sex + trtgiven +
+                                            medwidsi + extranod + clinstg,
+                                Hist(time, status) ~ age + sex),
+                           data = hd_train)
+print(csh_riskRegression2)
+#&gt; CSC(formula = list(Hist(time, status) ~ age + sex + trtgiven + 
+#&gt;     medwidsi + extranod + clinstg, Hist(time, status) ~ age + 
+#&gt;     sex), data = hd_train)
+#&gt; 
+#&gt; Right-censored response of a competing.risks model
+#&gt; 
+#&gt; No.Observations: 692 
+#&gt; 
+#&gt; Pattern:
+#&gt;          
+#&gt; Cause     event right.censored
+#&gt;   1         233              0
+#&gt;   2         108              0
+#&gt;   unknown     0            351
+#&gt; 
+#&gt; 
+#&gt; ----------&gt; Cause:  1 
+#&gt; 
+#&gt; Call:
+#&gt; coxph(formula = survival::Surv(time, status) ~ age + sex + trtgiven + 
+#&gt;     medwidsi + extranod + clinstg, x = TRUE, y = TRUE)
+#&gt; 
+#&gt;   n= 692, number of events= 233 
+#&gt; 
+#&gt;                 coef exp(coef)  se(coef)      z Pr(&gt;|z|)    
+#&gt; age         0.015879  1.016006  0.004249  3.738 0.000186 ***
+#&gt; sexM        0.087491  1.091432  0.134759  0.649 0.516182    
+#&gt; trtgivenRT  0.713903  2.041946  0.194581  3.669 0.000244 ***
+#&gt; medwidsiN  -0.044301  0.956666  0.256368 -0.173 0.862807    
+#&gt; medwidsiS  -0.402680  0.668526  0.253404 -1.589 0.112041    
+#&gt; extranodY   0.326442  1.386027  0.239225  1.365 0.172384    
+#&gt; clinstg2    0.371257  1.449556  0.156389  2.374 0.017600 *  
+#&gt; ---
+#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+#&gt; 
+#&gt;            exp(coef) exp(-coef) lower .95 upper .95
+#&gt; age           1.0160     0.9842    1.0076     1.025
+#&gt; sexM          1.0914     0.9162    0.8381     1.421
+#&gt; trtgivenRT    2.0419     0.4897    1.3945     2.990
+#&gt; medwidsiN     0.9567     1.0453    0.5788     1.581
+#&gt; medwidsiS     0.6685     1.4958    0.4068     1.099
+#&gt; extranodY     1.3860     0.7215    0.8672     2.215
+#&gt; clinstg2      1.4496     0.6899    1.0669     1.969
+#&gt; 
+#&gt; Concordance= 0.61  (se = 0.02 )
+#&gt; Likelihood ratio test= 37.91  on 7 df,   p=3e-06
+#&gt; Wald test            = 38.21  on 7 df,   p=3e-06
+#&gt; Score (logrank) test = 38.95  on 7 df,   p=2e-06
+#&gt; 
+#&gt; 
+#&gt; 
+#&gt; ----------&gt; Cause:  2 
+#&gt; 
+#&gt; Call:
+#&gt; coxph(formula = survival::Surv(time, status) ~ age + sex, x = TRUE, 
+#&gt;     y = TRUE)
+#&gt; 
+#&gt;   n= 692, number of events= 108 
+#&gt; 
+#&gt;          coef exp(coef) se(coef)      z Pr(&gt;|z|)    
+#&gt; age  0.073799  1.076590 0.005933 12.439  &lt; 2e-16 ***
+#&gt; sexM 0.644987  1.905962 0.203404  3.171  0.00152 ** 
+#&gt; ---
+#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+#&gt; 
+#&gt;      exp(coef) exp(-coef) lower .95 upper .95
+#&gt; age      1.077     0.9289     1.064     1.089
+#&gt; sexM     1.906     0.5247     1.279     2.840
+#&gt; 
+#&gt; Concordance= 0.821  (se = 0.02 )
+#&gt; Likelihood ratio test= 155.1  on 2 df,   p=&lt;2e-16
+#&gt; Wald test            = 161.4  on 2 df,   p=&lt;2e-16
+#&gt; Score (logrank) test = 209.1  on 2 df,   p=&lt;2e-16</code></pre>
+</div>
+</div>
+<div id="sparse-regression" class="section level1">
+<h1>Sparse regression</h1>
+<div id="lasso---the-glmnet-package" class="section level2">
+<h2>Lasso - The <code>glmnet</code> package</h2>
+<p>The <code>glmnet()</code> function permits to fit different Cox
+sparse regression models through the argument <code>family="cox"</code>.
+It is possible to use lasso, ridge and elastic net regularization. Here,
+we focus on describing lasso.</p>
+<p>As in previous examples, the code below fits models for the first
+event type only.</p>
+<p>First, we employ <code>makeX()</code> to construct the design matrix
+with no intercept. Second, the response variable is defined using a
+<code>Surv</code> object. Finally, the argument <code>alpha = 1</code>
+indicates that a lasso penalty will be used. Note that, users can set
+<code>alpha = 0</code> to select a ridge penalty. If the value of
+<code>alpha</code> lies between 0 and 1, an elastic net penalty will be
+used instead.</p>
+<pre class="r"><code>require(glmnet)
+x &lt;- makeX(hd_train[, 1:6]) #Note that makeX() permits mean imputation for missing values
+
+lasso.fit &lt;- glmnet(x = x,
+                    y = Surv(hd_train$time, hd_train$status == 1),
+                    family = &quot;cox&quot;,
+                    # alpha=0 for ridge and  0&lt;alpha&lt;1 for elastic net
+                    alpha = 1)</code></pre>
+<p>The output of the fitted model shows degrees of freedom, deviance and
+<span class="math inline">\(\lambda\)</span> for the iterations.</p>
+<pre class="r"><code>print(lasso.fit)
+#&gt; 
+#&gt; Call:  glmnet(x = x, y = Surv(hd_train$time, hd_train$status == 1),      family = &quot;cox&quot;, alpha = 1) 
+#&gt; 
+#&gt;    Df %Dev   Lambda
+#&gt; 1   0 0.00 0.086820
+#&gt; 2   1 0.14 0.079100
+#&gt; 3   3 0.27 0.072080
+#&gt; 4   3 0.43 0.065670
+#&gt; 5   3 0.57 0.059840
+#&gt; 6   3 0.68 0.054520
+#&gt; 7   3 0.77 0.049680
+#&gt; 8   3 0.84 0.045270
+#&gt; 9   4 0.92 0.041240
+#&gt; 10  4 0.99 0.037580
+#&gt; 11  4 1.05 0.034240
+#&gt; 12  4 1.10 0.031200
+#&gt; 13  4 1.14 0.028430
+#&gt; 14  5 1.19 0.025900
+#&gt; 15  5 1.26 0.023600
+#&gt; 16  5 1.31 0.021510
+#&gt; 17  5 1.36 0.019590
+#&gt; 18  7 1.41 0.017850
+#&gt; 19  6 1.45 0.016270
+#&gt; 20  6 1.49 0.014820
+#&gt; 21  7 1.52 0.013510
+#&gt; 22  9 1.55 0.012310
+#&gt; 23  9 1.57 0.011210
+#&gt; 24  9 1.59 0.010220
+#&gt; 25  9 1.61 0.009309
+#&gt; 26  9 1.62 0.008482
+#&gt; 27  9 1.63 0.007729
+#&gt; 28  8 1.64 0.007042
+#&gt; 29  9 1.65 0.006416
+#&gt; 30  9 1.66 0.005846
+#&gt; 31  9 1.66 0.005327
+#&gt; 32  9 1.67 0.004854
+#&gt; 33  9 1.67 0.004423
+#&gt; 34  9 1.67 0.004030
+#&gt; 35  9 1.68 0.003672
+#&gt; 36 10 1.68 0.003345
+#&gt; 37 10 1.68 0.003048
+#&gt; 38 11 1.68 0.002777
+#&gt; 39 11 1.68 0.002531
+#&gt; 40 11 1.68 0.002306
+#&gt; 41 11 1.69 0.002101
+#&gt; 42 11 1.69 0.001914
+#&gt; 43 11 1.69 0.001744
+#&gt; 44 11 1.69 0.001589
+#&gt; 45 11 1.69 0.001448
+#&gt; 46 11 1.69 0.001320
+#&gt; 47 11 1.69 0.001202
+#&gt; 48 11 1.69 0.001095</code></pre>
+<p>In the plot below, each line corresponds to one of the covariates.
+The top x-axis indicates the number of non-zero coefficients for
+different values of <span class="math inline">\(\lambda\)</span> (bottom
+x-axis).</p>
+<pre class="r"><code>plot(lasso.fit, label = TRUE)</code></pre>
+<p><img src="CS_specification_files/figure-html/unnamed-chunk-19-1.png" width="768" /></p>
+<p>The estimated coefficients for specific <span
+class="math inline">\(\lambda\)</span> values can be obtained using
+<code>coef()</code>.</p>
+<pre class="r"><code>coef(lasso.fit, s = 0.06) # s:=\lambda
+#&gt; 12 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+#&gt;                         1
+#&gt; age          5.420682e-03
+#&gt; sexF         .           
+#&gt; sexM         .           
+#&gt; trtgivenCMT -8.912025e-02
+#&gt; trtgivenRT   3.669525e-15
+#&gt; medwidsiL    .           
+#&gt; medwidsiN    .           
+#&gt; medwidsiS    .           
+#&gt; extranodN    .           
+#&gt; extranodY    .           
+#&gt; clinstg1     .           
+#&gt; clinstg2     .</code></pre>
+<p>One can also employ k-fold cross-validation to select the optimal
+value of <span class="math inline">\(\lambda\)</span>. Below, we show
+how to do that using 10 folds and Harrel’s concordance index; however,
+one can also employ a deviance loss measure. Note, however, that none of
+these metrics account for competing events.</p>
+<pre class="r"><code>set.seed(1)
+lassoCV.fit &lt;- cv.glmnet(x = x,
+                         y = Surv(hd_train$time, hd_train$status == 1),
+                         family = &quot;cox&quot;,
+                         alpha = 1,              # this determines lasso fit
+                         nfolds = 10,
+                         type.measure = &quot;C&quot;)     # uses Harrel&#39;s C-index</code></pre>
+<pre class="r"><code>plot(lassoCV.fit)</code></pre>
+<p><img src="CS_specification_files/figure-html/unnamed-chunk-22-1.png" width="576" /></p>
+<p>The specific <span class="math inline">\(\lambda\)</span> values
+marked with the left and right vertical lines in the plot shown above,
+can be obtained with the following commands.</p>
+<pre class="r"><code>lassoCV.fit$lambda.min; lassoCV.fit$lambda.1se
+#&gt; [1] 0.00174434
+#&gt; [1] 0.03424211</code></pre>
+<p>The first value corresponds to the <span
+class="math inline">\(\lambda\)</span> value where the error reaches its
+minimum. The second value corresponds to 1 standard deviation of the
+minimum error. In this case, including only 2 covariates is within 1 sd
+of the minimum.</p>
+<p>The estimated coefficients for <span
+class="math inline">\(\lambda=\)</span> 0.0342421 are shown below, where
+we see that lasso selects age and treatment.</p>
+<pre class="r"><code>coef(lassoCV.fit, s = lassoCV.fit$lambda.1se)
+#&gt; 12 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+#&gt;                         1
+#&gt; age          9.630111e-03
+#&gt; sexF         .           
+#&gt; sexM         .           
+#&gt; trtgivenCMT -2.598995e-01
+#&gt; trtgivenRT   8.250908e-15
+#&gt; medwidsiL    .           
+#&gt; medwidsiN    .           
+#&gt; medwidsiS   -5.425280e-02
+#&gt; extranodN    .           
+#&gt; extranodY    .           
+#&gt; clinstg1     .           
+#&gt; clinstg2     .</code></pre>
+</div>
+<div id="cox-model-based-boosting---the-mboost-package"
+class="section level2">
+<h2>Cox model-based boosting - The <code>mboost</code> package</h2>
+<p>A cause-specific CPH model that employs model-based boosting is
+showcased here by using the <code>glmboost()</code> function. As with
+other approaches, one should first create the response variable using
+<code>Surv()</code>. Because <code>mboost</code> is an R package that
+can fit models beyond survival analysis, one should specify
+<code>family = CoxPH()</code>. The parameters of the boosting algorithm
+are set by the <code>control</code> argument. In the example below we
+have used 900 boosting iterations with the step-length (referred as
+<span class="math inline">\(\lambda\)</span> in the manuscript) set at
+0.2. In addition, we indicate that continuous variables have not been
+previously centered.</p>
+<p>As before, for illustration purposes, we only fit the model
+associated to the first event type.</p>
+<p>The output of the model indicates the estimated regression
+coefficients from which the estimated HR can be computed</p>
+<pre class="r"><code>require(mboost)
+
+csh_mboost &lt;- glmboost(Surv(time, status == 1) ~ age +
+                         sex +
+                         trtgiven +
+                         medwidsi +
+                         extranod +
+                         clinstg,
+                       data = hd,
+                       family = CoxPH(),
+                       control = boost_control(mstop = 900,
+                                               nu = 0.3,
+                                               trace = FALSE),
+                       center = FALSE)
+
+print(csh_mboost)
+#&gt; 
+#&gt;   Generalized Linear Models Fitted via Gradient Boosting
+#&gt; 
+#&gt; Call:
+#&gt; glmboost.formula(formula = Surv(time, status == 1) ~ age + sex +     trtgiven + medwidsi + extranod + clinstg, data = hd, family = CoxPH(),     center = FALSE, control = boost_control(mstop = 900, nu = 0.3,         trace = FALSE))
+#&gt; 
+#&gt; 
+#&gt;   Cox Partial Likelihood 
+#&gt; 
+#&gt; Loss function:  
+#&gt; 
+#&gt; Number of boosting iterations: mstop = 900 
+#&gt; Step size:  0.3 
+#&gt; Offset:  0 
+#&gt; 
+#&gt; Coefficients: 
+#&gt;         age        sexM  trtgivenRT   medwidsiN   medwidsiS   extranodY 
+#&gt;  0.01497159  0.03194228  0.67363265 -0.05801666 -0.36732603  0.29942487 
+#&gt;    clinstg2 
+#&gt;  0.40659267 
+#&gt; attr(,&quot;offset&quot;)
+#&gt; [1] 0
+
+knitr::kable(round(exp(coef(csh_mboost, off2int = TRUE)), 4),
+             col.names = c(&quot;HR&quot;))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">HR</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">age</td>
+<td align="right">1.0151</td>
+</tr>
+<tr class="even">
+<td align="left">sexM</td>
+<td align="right">1.0325</td>
+</tr>
+<tr class="odd">
+<td align="left">trtgivenRT</td>
+<td align="right">1.9613</td>
+</tr>
+<tr class="even">
+<td align="left">medwidsiN</td>
+<td align="right">0.9436</td>
+</tr>
+<tr class="odd">
+<td align="left">medwidsiS</td>
+<td align="right">0.6926</td>
+</tr>
+<tr class="even">
+<td align="left">extranodY</td>
+<td align="right">1.3491</td>
+</tr>
+<tr class="odd">
+<td align="left">clinstg2</td>
+<td align="right">1.5017</td>
+</tr>
+</tbody>
+</table>
+<p>A plot of the coefficients across boosting iterations is shown:</p>
+<pre class="r"><code>plot(csh_mboost, main = &quot;Coefficient paths&quot;, ylim = range(coef(csh_mboost)))</code></pre>
+<p><img src="CS_specification_files/figure-html/unnamed-chunk-25-1.png" width="768" /></p>
+<p>To do variable selection one can use the <code>varimp()</code>
+function. In the plot below we observe that age, treatment given,
+clinical stage and size of mediastinum involvement appear to be
+relevant.</p>
+<pre class="r"><code>plot(varimp(csh_mboost))</code></pre>
+<p><img src="CS_specification_files/figure-html/unnamed-chunk-26-1.png" width="576" /></p>
+<p><code>mboost</code> permits cross-validation for hyper-parameter
+selection; specifically, the number of boosting iterations. Here, we
+show how to do this using 25 bootstrap samples (default). Estimation is
+done sequentially:</p>
+<pre class="r"><code>set.seed(1)
+cv.boost &lt;- cvrisk(csh_mboost, papply = lapply)</code></pre>
+<pre class="r"><code>plot(cv.boost)</code></pre>
+<p><img src="CS_specification_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
+<pre class="r"><code>stop.B &lt;- mstop(cv.boost)  # can serve to obtain optimal stopping parameter
+stop.B 
+#&gt; [1] 543</code></pre>
+<p>The above output shows that 543 boosting iterations is enough. Once
+the number is obtained one can use <code>glmboost()</code> with the
+resulting number of boosting iterations.</p>
+</div>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Austin2016" class="csl-entry">
+Austin, Peter C., Douglas S. Lee, and Jason P. Fine. 2016.
+<span>“Introduction to the Analysis of Survival Data in the Presence of
+Competing Risks.”</span> <em>Circulation</em> 133 (6): 601–9. <a
+href="https://doi.org/10.1161/CIRCULATIONAHA.115.017719">https://doi.org/10.1161/CIRCULATIONAHA.115.017719</a>.
+</div>
+<div id="ref-harrell2017" class="csl-entry">
+Harrell, Frank E. 2017. <span>“Regression Modeling Strategies.”</span>
+<em>Bios</em> 330 (2018): 14.
+</div>
+</div>
+</div>
+<div id="session-info" class="section level1">
+<h1>Session Info</h1>
+<pre class="r"><code>sessionInfo()
+#&gt; R version 4.1.2 (2021-11-01)
+#&gt; Platform: x86_64-apple-darwin17.0 (64-bit)
+#&gt; Running under: macOS Big Sur 10.16
+#&gt; 
+#&gt; Matrix products: default
+#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
+#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
+#&gt; 
+#&gt; locale:
+#&gt; [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
+#&gt; 
+#&gt; attached base packages:
+#&gt; [1] parallel  stats     graphics  grDevices utils     datasets  methods  
+#&gt; [8] base     
+#&gt; 
+#&gt; other attached packages:
+#&gt;  [1] CFC_1.1.2                 pander_0.6.5             
+#&gt;  [3] mboost_2.9-7              stabs_0.6-4              
+#&gt;  [5] glmnet_4.1-4              Matrix_1.5-3             
+#&gt;  [7] pec_2022.05.04            prodlim_2019.11.13       
+#&gt;  [9] riskRegression_2022.11.21 rms_6.3-0                
+#&gt; [11] SparseM_1.81              Hmisc_4.7-2              
+#&gt; [13] ggplot2_3.4.0             Formula_1.2-4            
+#&gt; [15] lattice_0.20-45           survival_3.4-0           
+#&gt; [17] splitstackshape_1.4.8     readr_2.1.3              
+#&gt; 
+#&gt; loaded via a namespace (and not attached):
+#&gt;  [1] nlme_3.1-160        cmprsk_2.2-11       doParallel_1.0.17  
+#&gt;  [4] RColorBrewer_1.1-3  numDeriv_2016.8-1.1 tools_4.1.2        
+#&gt;  [7] backports_1.4.1     bslib_0.4.1         utf8_1.2.2         
+#&gt; [10] R6_2.5.1            rpart_4.1.19        DBI_1.1.3          
+#&gt; [13] colorspace_2.0-3    nnet_7.3-18         withr_2.5.0        
+#&gt; [16] tidyselect_1.2.0    gridExtra_2.3       compiler_4.1.2     
+#&gt; [19] cli_3.4.1           quantreg_5.94       htmlTable_2.4.1    
+#&gt; [22] sandwich_3.0-2      sass_0.4.4          scales_1.2.1       
+#&gt; [25] checkmate_2.1.0     nnls_1.4            polspline_1.1.22   
+#&gt; [28] mvtnorm_1.1-3       quadprog_1.5-8      stringr_1.4.1      
+#&gt; [31] digest_0.6.30       foreign_0.8-83      rmarkdown_2.18     
+#&gt; [34] base64enc_0.1-3     jpeg_0.1-9          pkgconfig_2.0.3    
+#&gt; [37] htmltools_0.5.3     parallelly_1.32.1   highr_0.9          
+#&gt; [40] fastmap_1.1.0       htmlwidgets_1.5.4   rlang_1.0.6        
+#&gt; [43] rstudioapi_0.14     shape_1.4.6         jquerylib_0.1.4    
+#&gt; [46] generics_0.1.3      zoo_1.8-11          jsonlite_1.8.3     
+#&gt; [49] dplyr_1.0.10        magrittr_2.0.3      interp_1.1-3       
+#&gt; [52] Rcpp_1.0.9          munsell_0.5.0       fansi_1.0.3        
+#&gt; [55] abind_1.4-5         partykit_1.2-16     lifecycle_1.0.3    
+#&gt; [58] stringi_1.7.8       multcomp_1.4-20     yaml_2.3.6         
+#&gt; [61] inum_1.0-4          MASS_7.3-58.1       grid_4.1.2         
+#&gt; [64] listenv_0.8.0       mets_1.3.1          deldir_1.0-6       
+#&gt; [67] splines_4.1.2       hms_1.1.2           timereg_2.0.4      
+#&gt; [70] knitr_1.41          pillar_1.8.1        future.apply_1.10.0
+#&gt; [73] codetools_0.2-18    glue_1.6.2          evaluate_0.18      
+#&gt; [76] latticeExtra_0.6-30 data.table_1.14.6   png_0.1-7          
+#&gt; [79] vctrs_0.5.1         tzdb_0.3.0          foreach_1.5.2      
+#&gt; [82] MatrixModels_0.5-1  gtable_0.3.1        future_1.29.0      
+#&gt; [85] assertthat_0.2.1    cachem_1.0.6        xfun_0.35          
+#&gt; [88] libcoin_1.0-9       tibble_3.1.8        iterators_1.0.14   
+#&gt; [91] cluster_2.1.4       lava_1.7.0          globals_0.16.2     
+#&gt; [94] TH.data_1.1-1       ellipsis_0.3.2</code></pre>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
