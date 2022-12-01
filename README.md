@@ -112,3 +112,11 @@ remotes::install_github('cran/binaryLogic')
 remotes::install_github('cran/DPWeibull')
 source("Docker/render.R")
 ```
+
+## Contributions
+
+| Author                    | Affiliation                                       | Contribution                                   |
+| ------------------------- |---------------------------------------------------|--------------------------                      |
+| [Karla Monterrubio-Gómez](https://github.com/KarlaMonterrubioG)| University of Edinburgh   | Author of .Rmd files              |
+| [Nathan Constantine-Cooke](https://github.com/nathansam)| University of Edinburgh                           | Review .Rmd files, author Docker image         |
+| [Catalina A. Vallejos](https://github.com/catavallejos)| University of Edinburgh, The Alan Turing Institute| Author/Reviewer .Rmd files                     |
