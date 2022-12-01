@@ -151,7 +151,7 @@ bart1 <- crisk2.bart(x.train = xtrain,
                      sparse = FALSE,          # set equal TRUE for variable selection 
                      type = 'pbart',
                      ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 100, keepevery = 10L, 
+                     ndpost = 500, nskip = 2500, keepevery = 10L, 
                      seed = 99)  
 ```
 
@@ -159,7 +159,58 @@ Note that the code shown above does not use multi-threading, but BART permits
 its usage by using `mc.crisk2.bart()` function instead of `crisk2.bart()`.
 
 Studying convergence diagnosis of the MCMC chains is key to ensure the 
-predictions are valid. In order to do that one needs to fit the model using the 
+predictions are valid. As BART being a Bayesian nonparametric approach, there
+are a large number of MCMC outputs for which convergence can be assessed (one
+per each subject-period pair). Here, we arbitrarily select 5 individuals and
+visualise convergence diagnostics associated to their associated estimates.
+
+Generally, convergence would be assessed on estimates generated for the 
+training data (e.g. `yhat.train` output in `surv.bart()` --- the single event 
+type BART survival model). However, this is not possible when using 
+`crisk2.bart()` as `yhat.train` is not part of its output. Here we explore
+two possible solutions.
+
+First, we can use the posterior predictive distribution for the test dataset. 
+The following code visualises MCMC draws obtained for `yhat.test` oftained for
+the first three individuals in the test set (first time-period only)
+
+```{r}
+n.times <- length(bart1$times)
+plot(bart1$yhat.test[ , 1], type = "l")
+plot(bart1$yhat.test[ , n.times + 1], type = "l")
+plot(bart1$yhat.test[ , 2*n.times + 1], type = "l")
+```
+
+We can use Geweke diagnostics to assess converge for selected individuals across
+all time-points. 
+
+```{r}
+# Select 10 random individuals
+set.seed(10)
+aux <- sample(seq_len(nrow(hd_test)), size = 5)
+
+# code adapted from the example in `demo("geweke.lung.surv.bart", package = "BART")`
+for(i in aux) {
+  # selects samples for individual i across all time-points
+  post.mcmc <- bart1$yhat.test[ , (i-1)*n.times + seq_len(n.times)]
+  # calculates the geweke diagnostic
+  z <- gewekediag(post.mcmc)$z
+  # to set the limits in the plot below
+  y <- max(c(4, abs(z)))
+
+  ## plot the z scores vs. time for each patient
+  if(i==aux[1]) plot(bart1$times, z, ylim=c(-y, y), type='l',
+                  xlab='t', ylab='z')
+      else lines(bart1$times, z, type='l')
+  lines(bart1$times, rep(1.96, n.times), type='l', lty=2)
+  lines(bart1$times, rep(-1.96, n.times), type='l', lty=2)
+}
+```
+
+
+**TODO: explain authors suggestion and change plot to use the same 5 individuals**
+
+In order to do that one needs to fit the model using the 
 train set as test set, by setting the argument `x.test = xtrain`. Then we can 
 use Geweke diagnostics to assess converge 
 
@@ -171,7 +222,7 @@ bart1.chains <- crisk2.bart(x.train = xtrain,
                      sparse = FALSE,          # set equal TRUE for variable selection 
                      type = 'pbart',
                      ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 100, keepevery = 10L, 
+                     ndpost = 500, nskip = 500, keepevery = 10L, 
                      seed = 99)  
 
 h <- bart1.chains$K
@@ -187,7 +238,7 @@ lines(bart1.chains$times, rep(-1.96, h), type='l', lty=2)
 
 Notice that the Geweke statistics exceed the $95\%$ limits several times, 
 suggesting the chains have not converged. Thus, the MCMC should be run for 
-longer thining to obtain valid estimates. 
+longer to obtain valid estimates (`nskip` should also be increased). 
 
 CIFs for the subjects in the test set can be obtained through `cif.test.mean()`. 
 This provides the posterior mean across MCMC samples. In addition, credible 
