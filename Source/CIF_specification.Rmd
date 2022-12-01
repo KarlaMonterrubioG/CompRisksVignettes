@@ -518,7 +518,7 @@ times.
 ```{r fig.dim=c(6,4)}
 par(mar = c(4, 4, 2, 0.1))
 
-pred_DDP <- predict(fit_DDP, newdata = as.data.frame(hd_test[c(1, 2), 2:7]))
+pred_DDP <- predict(fit_DDP, newdata = as.data.frame(hd_test[c(1, 2), 1:6]))
 ```
 
 Note that `pred_DDP` contains posterior samples for the 2 subjects at 
@@ -538,8 +538,12 @@ plot(pred_DDP$tpred,
 lines(pred_DDP$tpred, pred_DDP$Fpred[2, ], col="blue")
 legend("topright", legend = c("Patient 1", "Patient 2"),
        lty = c(1,1), col = c("red", "blue"))
+```
 
+Note that `DPWeibull` also provides a `plot` method that can generate similar 
+graphical summaries.
 
+```{r}
 plot(pred_DDP)
 ```
 
@@ -549,7 +553,7 @@ data set:
 
 ```{r}
 pred_DDP.t <- predict(fit_DDP, 
-                      newdata = as.data.frame(hd_test[, 2:7]), tpred = 5)
+                      newdata = as.data.frame(hd_test[, 1:6]), tpred = 5)
 pred_DDP.t$Fpred[1:5]
 ```
 
