@@ -11,7 +11,7 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2022-11-30" />
+<meta name="date" content="2022-12-01" />
 
 <title>Approaches based on CIF specification</title>
 
@@ -294,7 +294,7 @@ div.tocify {
 <h1 class="title toc-ignore">Approaches based on CIF specification</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2022-11-30</h4>
+<h4 class="date">2022-12-01</h4>
 
 </div>
 
@@ -380,8 +380,8 @@ partition our dataset into 80% for train and 20% for test.</p>
 <pre class="r"><code>library(splitstackshape)
 set.seed(2022)
 split_data &lt;- stratified(hd, c(&quot;status&quot;), 0.8, bothSets = TRUE)
-hd_train   &lt;- split_data$SAMP1
-hd_test    &lt;- split_data$SAMP2</code></pre>
+hd_train   &lt;- split_data$SAMP1[,-1]
+hd_test    &lt;- split_data$SAMP2[,-1]</code></pre>
 <p>Now, we explore the number of observations per status in both train
 and test set:</p>
 <pre class="r"><code>pander::pander(table(hd_train$status))</code></pre>
@@ -551,7 +551,7 @@ plot(CIF_hat[, 1],
      CIF_hat[, 2],
      type = &quot;l&quot;,
      col = &quot;red&quot;,
-     ylim = c(0, 0.5),
+     ylim = c(0, 0.6),
      xlab = &quot;Time (years)&quot;,
      ylab = &quot;Cumulative incidence&quot;)
 
@@ -758,7 +758,7 @@ plot(prediction.FG.prop$time,
      prediction.FG.prop$risk[1, ],
      type = &quot;l&quot;,
      col = &quot;red&quot;,
-     ylim = c(0, 0.5),
+     ylim = c(0, 0.6),
      xlab = &quot;Time (years)&quot;,
      ylab = &quot;Cumulative incidence&quot;)
 lines(prediction.FG.prop$time, prediction.FG.prop$risk[2, ], col=&quot;blue&quot;)
@@ -986,7 +986,7 @@ observed time points. Below we show estimated incidence for the first
 (red) and second (blue) patients in the tests set:</p>
 <pre class="r"><code>par(mar = c(4, 4, 2, 0.1))
 pred_DB &lt;- predict.timereg(fit_DB, 
-                           newdata = as.data.frame(hd_test[1:2,2:7]), se = 0)
+                           newdata = as.data.frame(hd_test[1:2,1:6]), se = 0)
 plot(pred_DB,
      multiple = 1,
      col = c(&quot;red&quot;, &quot;blue&quot;),
@@ -999,7 +999,7 @@ legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&q
 through the argument <code>times</code>. Absolute risk predictions at
 time <span class="math inline">\(t=5\)</span> for the first 5 patients
 are shown:</p>
-<pre class="r"><code>pred_DB.t &lt;- predict.timereg(fit_DB, newdata = hd_test[, 2:7], times = 5)
+<pre class="r"><code>pred_DB.t &lt;- predict.timereg(fit_DB, newdata = hd_test[, 1:6], times = 5)
 pred_DB.t$P1[1:5]
 #&gt; [1] 0.2874550 0.3983123 0.3151614 0.2977388 0.2162792</code></pre>
 <p><code>timereg</code> permits fitting the model time varying effects.
@@ -1190,7 +1190,7 @@ traceplot(as.mcmc(fit_DDP$alpharec1[, 1]))</code></pre>
 subjects in the test set at all observed event times.</p>
 <pre class="r"><code>par(mar = c(4, 4, 2, 0.1))
 
-pred_DDP &lt;- predict(fit_DDP, newdata = as.data.frame(hd_test[c(1, 2), 2:7]))</code></pre>
+pred_DDP &lt;- predict(fit_DDP, newdata = as.data.frame(hd_test[c(1, 2), 1:6]))</code></pre>
 <p>Note that <code>pred_DDP</code> contains posterior samples for the 2
 subjects at observed event times, as well as posterior estimated and
 credible intervals.</p>
@@ -1202,20 +1202,20 @@ credible intervals.</p>
      col = &quot;red&quot;,
      xlab = &quot;Time (years)&quot;,
      ylab = &quot;Cumulative incidence&quot;,
-     ylim = c(0, 0.5))
+     ylim = c(0, 0.6))
 lines(pred_DDP$tpred, pred_DDP$Fpred[2, ], col=&quot;blue&quot;)
 legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&quot;),
        lty = c(1,1), col = c(&quot;red&quot;, &quot;blue&quot;))</code></pre>
 <p><img src="CIF_specification_files/figure-html/unnamed-chunk-29-1.png" width="576" /></p>
-<pre class="r"><code>
-
-plot(pred_DDP)</code></pre>
-<p><img src="CIF_specification_files/figure-html/unnamed-chunk-29-2.png" width="576" /><img src="CIF_specification_files/figure-html/unnamed-chunk-29-3.png" width="576" /><img src="CIF_specification_files/figure-html/unnamed-chunk-29-4.png" width="576" /><img src="CIF_specification_files/figure-html/unnamed-chunk-29-5.png" width="576" /><img src="CIF_specification_files/figure-html/unnamed-chunk-29-6.png" width="576" /><img src="CIF_specification_files/figure-html/unnamed-chunk-29-7.png" width="576" /></p>
+<p>Note that <code>DPWeibull</code> also provides a <code>plot</code>
+method that can generate similar graphical summaries.</p>
+<pre class="r"><code>plot(pred_DDP)</code></pre>
+<p><img src="CIF_specification_files/figure-html/unnamed-chunk-30-1.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-30-2.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-30-3.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-30-4.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-30-5.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-30-6.png" width="672" /></p>
 <p>In addition, we can also make predictions at a specific time point,
 e.g. <span class="math inline">\(t=5\)</span>. Below, we show the
 estimated risk for the first 5 subjects in the test data set:</p>
 <pre class="r"><code>pred_DDP.t &lt;- predict(fit_DDP, 
-                      newdata = as.data.frame(hd_test[, 2:7]), tpred = 5)
+                      newdata = as.data.frame(hd_test[, 1:6]), tpred = 5)
 pred_DDP.t$Fpred[1:5]
 #&gt; [1] 0.2931222 0.3785346 0.3107608 0.3082350 0.2335271</code></pre>
 </div>
@@ -1278,41 +1278,39 @@ Perspective</em>. John Wiley &amp; Sons.
 #&gt; [13] readr_2.1.3              
 #&gt; 
 #&gt; loaded via a namespace (and not attached):
-#&gt;   [1] TH.data_1.1-1       colorspace_2.0-3    deldir_1.0-6       
-#&gt;   [4] ellipsis_0.3.2      evd_2.3-6.1         htmlTable_2.4.1    
-#&gt;   [7] base64enc_0.1-3     rstudioapi_0.14     listenv_0.8.0      
-#&gt;  [10] MatrixModels_0.5-1  bit64_4.0.5         fansi_1.0.3        
-#&gt;  [13] mvtnorm_1.1-3       codetools_0.2-18    splines_4.1.2      
-#&gt;  [16] cachem_1.0.6        knitr_1.41          Formula_1.2-4      
-#&gt;  [19] jsonlite_1.8.3      broom_1.0.1         cluster_2.1.4      
-#&gt;  [22] png_0.1-7           compiler_4.1.2      backports_1.4.1    
-#&gt;  [25] assertthat_0.2.1    Matrix_1.5-3        fastmap_1.1.0      
-#&gt;  [28] cli_3.4.1           htmltools_0.5.3     quantreg_5.94      
-#&gt;  [31] tools_4.1.2         gtable_0.3.1        glue_1.6.2         
-#&gt;  [34] dplyr_1.0.10        Rcpp_1.0.9          jquerylib_0.1.4    
-#&gt;  [37] vctrs_0.5.1         nlme_3.1-160        iterators_1.0.14   
-#&gt;  [40] xfun_0.35           stringr_1.4.1       globals_0.16.2     
-#&gt;  [43] lifecycle_1.0.3     future_1.29.0       polspline_1.1.22   
-#&gt;  [46] MASS_7.3-58.1       zoo_1.8-11          scales_1.2.1       
-#&gt;  [49] vroom_1.6.0         hms_1.1.2           parallel_4.1.2     
-#&gt;  [52] sandwich_3.0-2      SparseM_1.81        RColorBrewer_1.1-3 
-#&gt;  [55] yaml_2.3.6          gridExtra_2.3       ggplot2_3.4.0      
-#&gt;  [58] sass_0.4.4          rms_6.3-0           truncdist_1.0-2    
-#&gt;  [61] rpart_4.1.19        latticeExtra_0.6-30 stringi_1.7.8      
-#&gt;  [64] highr_0.9           foreach_1.5.2       checkmate_2.1.0    
-#&gt;  [67] lava_1.7.0          mets_1.3.1          rlang_1.0.6        
-#&gt;  [70] pkgconfig_2.0.3     evaluate_0.18       lattice_0.20-45    
-#&gt;  [73] purrr_0.3.5         htmlwidgets_1.5.4   bit_4.0.5          
-#&gt;  [76] tidyselect_1.2.0    parallelly_1.32.1   magrittr_2.0.3     
-#&gt;  [79] R6_2.5.1            generics_0.1.3      Hmisc_4.7-2        
-#&gt;  [82] multcomp_1.4-20     DBI_1.1.3           pillar_1.8.1       
-#&gt;  [85] foreign_0.8-83      nnet_7.3-18         tibble_3.1.8       
-#&gt;  [88] future.apply_1.10.0 crayon_1.5.2        interp_1.1-3       
-#&gt;  [91] utf8_1.2.2          tzdb_0.3.0          rmarkdown_2.18     
-#&gt;  [94] jpeg_0.1-9          grid_4.1.2          data.table_1.14.6  
-#&gt;  [97] binaryLogic_0.3.9   digest_0.6.30       tidyr_1.2.1        
-#&gt; [100] numDeriv_2016.8-1.1 stats4_4.1.2        munsell_0.5.0      
-#&gt; [103] bslib_0.4.1</code></pre>
+#&gt;  [1] nlme_3.1-160        rms_6.3-0           RColorBrewer_1.1-3 
+#&gt;  [4] evd_2.3-6.1         numDeriv_2016.8-1.1 tools_4.1.2        
+#&gt;  [7] backports_1.4.1     bslib_0.4.1         utf8_1.2.2         
+#&gt; [10] R6_2.5.1            rpart_4.1.19        Hmisc_4.7-2        
+#&gt; [13] DBI_1.1.3           colorspace_2.0-3    nnet_7.3-18        
+#&gt; [16] tidyselect_1.2.0    gridExtra_2.3       compiler_4.1.2     
+#&gt; [19] cli_3.4.1           quantreg_5.94       htmlTable_2.4.1    
+#&gt; [22] SparseM_1.81        sandwich_3.0-2      sass_0.4.4         
+#&gt; [25] scales_1.2.1        checkmate_2.1.0     polspline_1.1.22   
+#&gt; [28] mvtnorm_1.1-3       binaryLogic_0.3.9   stringr_1.4.1      
+#&gt; [31] digest_0.6.30       foreign_0.8-83      rmarkdown_2.18     
+#&gt; [34] base64enc_0.1-3     jpeg_0.1-9          pkgconfig_2.0.3    
+#&gt; [37] htmltools_0.5.3     parallelly_1.32.1   highr_0.9          
+#&gt; [40] fastmap_1.1.0       htmlwidgets_1.5.4   rlang_1.0.6        
+#&gt; [43] rstudioapi_0.14     jquerylib_0.1.4     generics_0.1.3     
+#&gt; [46] zoo_1.8-11          jsonlite_1.8.3      dplyr_1.0.10       
+#&gt; [49] magrittr_2.0.3      Formula_1.2-4       interp_1.1-3       
+#&gt; [52] Matrix_1.5-3        Rcpp_1.0.9          munsell_0.5.0      
+#&gt; [55] fansi_1.0.3         truncdist_1.0-2     lifecycle_1.0.3    
+#&gt; [58] stringi_1.7.8       multcomp_1.4-20     yaml_2.3.6         
+#&gt; [61] MASS_7.3-58.1       grid_4.1.2          parallel_4.1.2     
+#&gt; [64] listenv_0.8.0       mets_1.3.1          deldir_1.0-6       
+#&gt; [67] lattice_0.20-45     splines_4.1.2       hms_1.1.2          
+#&gt; [70] knitr_1.41          pillar_1.8.1        stats4_4.1.2       
+#&gt; [73] future.apply_1.10.0 codetools_0.2-18    glue_1.6.2         
+#&gt; [76] evaluate_0.18       latticeExtra_0.6-30 data.table_1.14.6  
+#&gt; [79] png_0.1-7           vctrs_0.5.1         tzdb_0.3.0         
+#&gt; [82] foreach_1.5.2       MatrixModels_0.5-1  tidyr_1.2.1        
+#&gt; [85] purrr_0.3.5         gtable_0.3.1        future_1.29.0      
+#&gt; [88] assertthat_0.2.1    cachem_1.0.6        ggplot2_3.4.0      
+#&gt; [91] xfun_0.35           broom_1.0.1         tibble_3.1.8       
+#&gt; [94] iterators_1.0.14    cluster_2.1.4       lava_1.7.0         
+#&gt; [97] globals_0.16.2      TH.data_1.1-1       ellipsis_0.3.2</code></pre>
 </div>
 
 

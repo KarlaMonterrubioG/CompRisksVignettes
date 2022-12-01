@@ -11,7 +11,7 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2022-11-30" />
+<meta name="date" content="2022-12-01" />
 
 <title>Approaches based on a proportional cause-specific hazard specification</title>
 
@@ -295,7 +295,7 @@ div.tocify {
 cause-specific hazard specification</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2022-11-30</h4>
+<h4 class="date">2022-12-01</h4>
 
 </div>
 
@@ -379,8 +379,8 @@ partition our data in 80% for train and 20% for test.</p>
 <pre class="r"><code>require(splitstackshape)
 set.seed(2022)
 split_data &lt;- stratified(hd, c(&quot;status&quot;), 0.8, bothSets = TRUE)
-hd_train   &lt;- as.data.frame(split_data$SAMP1[,-1])
-hd_test    &lt;- as.data.frame(split_data$SAMP2[,-1])</code></pre>
+hd_train   &lt;- split_data$SAMP1[,-1]
+hd_test    &lt;- split_data$SAMP2[,-1]</code></pre>
 <p>Now, we explore the number of observations per status in both train
 and test set:</p>
 <pre class="r"><code>pander::pander(table(hd_train$status))</code></pre>
@@ -752,7 +752,8 @@ above and are shown below:</p>
                                                    sex +
                                                    trtgiven +
                                                    medwidsi +
-                                                   extranod + clinstg,
+                                                   extranod + 
+                                                   clinstg,
                               data = hd_train,
                               surv.type = &quot;hazard&quot;,
                               fitter = &quot;cph&quot;)
@@ -783,9 +784,9 @@ print(csh_riskRegression.cph)
 #&gt;                         Model Tests    Discrimination    
 #&gt;                                               Indexes    
 #&gt;  Obs       692    LR chi2     37.91    R2       0.054    
-#&gt;  Events    233    d.f.            7    Dxy      0.219    
-#&gt;  Center 1.2434    Pr(&gt; chi2) 0.0000    g        0.474    
-#&gt;                   Score chi2  38.95    gr       1.606    
+#&gt;  Events    233    d.f.            7    R2(7,692)0.044    
+#&gt;  Center 1.2434    Pr(&gt; chi2) 0.0000    R2(7,233)0.124    
+#&gt;                   Score chi2  38.95    Dxy      0.219    
 #&gt;                   Pr(&gt; chi2) 0.0000                      
 #&gt;  
 #&gt;              Coef    S.E.   Wald Z Pr(&gt;|Z|)
@@ -809,9 +810,9 @@ print(csh_riskRegression.cph)
 #&gt;                         Model Tests    Discrimination    
 #&gt;                                               Indexes    
 #&gt;  Obs       692    LR chi2    159.59    R2       0.247    
-#&gt;  Events    108    d.f.            7    Dxy      0.631    
-#&gt;  Center 3.5568    Pr(&gt; chi2) 0.0000    g        1.400    
-#&gt;                   Score chi2 211.82    gr       4.055    
+#&gt;  Events    108    d.f.            7    R2(7,692)0.198    
+#&gt;  Center 3.5568    Pr(&gt; chi2) 0.0000    R2(7,108)0.757    
+#&gt;                   Score chi2 211.82    Dxy      0.631    
 #&gt;                   Pr(&gt; chi2) 0.0000                      
 #&gt;  
 #&gt;              Coef    S.E.   Wald Z Pr(&gt;|Z|)

@@ -92,8 +92,8 @@ dataset into 80% for train and 20% for test.
 library(splitstackshape)
 set.seed(2022)
 split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
-hd_train   <- split_data$SAMP1
-hd_test    <- split_data$SAMP2
+hd_train   <- split_data$SAMP1[,-1]
+hd_test    <- split_data$SAMP2[,-1]
 ```
 
 Now, we explore the number of observations per status in both train and test
@@ -108,9 +108,15 @@ pander::pander(table(hd_test$status))
 ```
 
 # BART
-BART has a well documented vignette (@sparapani2021). Here, we focus only on demonstrating its usage for a CR setting, which corresponds to Section 5.3 in @sparapani2021. In the following, we fit the model with the two different likelihood formulations to compare the obtained estimates.
+
+BART has a well documented vignette (@sparapani2021). Here, we focus only on 
+demonstrating its usage for a CR setting, which corresponds to Section 5.3 in 
+@sparapani2021. In the following, we fit the model with the two different 
+likelihood formulations to compare the obtained estimates.
  
-The first step is to recast the data creating dummy variables for all categorical covariates. This is done for both train and test sets:
+The first step is to recast the data creating dummy variables for all 
+categorical covariates. This is done for both train and test sets:
+
 ```{r}
 library(nnet)
 library(survival)
@@ -138,7 +144,6 @@ functionality is documented in the help file for the `crisk2.bart()` function.
 
 
 ```{r, results='hide'}
-
 bart1 <- crisk2.bart(x.train = xtrain, 
                      times = hd_train$time,   # needed if ytrain is not provided
                      delta = hd_train$status, # needed if ytrain is not provided
@@ -149,6 +154,7 @@ bart1 <- crisk2.bart(x.train = xtrain,
                      ndpost = 500, nskip = 100, keepevery = 10L, 
                      seed = 99)  
 ```
+
 Note that the code shown above does not use multi-threading, but BART permits 
 its usage by using `mc.crisk2.bart()` function instead of `crisk2.bart()`.
 
