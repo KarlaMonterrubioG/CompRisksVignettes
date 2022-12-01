@@ -150,7 +150,8 @@ to do bootstrapping with replacement.
 ```{r}
 library(randomForestSRC)
 
-rsf.lr <- rfsrc(Surv(time, status) ~ age + sex + trtgiven+ medwidsi+ extranod+clinstg, 
+rsf.lr <- rfsrc(Surv(time, status) ~ age + sex + trtgiven + 
+                  medwidsi + extranod + clinstg, 
                 data = hd_train,
                 ntree = 100,
                 splitrule = "logrank", 
@@ -180,9 +181,9 @@ plot(get.tree(rsf.lr, 5))
 ```
 
 Furthermore, we can visualize the results of the fitted model with 
-`plot.competing.risk()`. This command shows averaged out-of-bag ensemble for: CS cumulative hazard, 
-the CIF, and the conditional probability, stratified by event type. In the plot 
-below, the event of interest is shown in black.
+`plot.competing.risk()`. This command shows averaged out-of-bag ensemble for: 
+CS cumulative hazard, the CIF, and the conditional probability, stratified by 
+event type. In the plot below, the event of interest is shown in black.
 
 ```{r, fig.dim=c(8,6)}
 plot.competing.risk(rsf.lr)
@@ -198,25 +199,11 @@ plot.variable(rsf.lr, target = 1,
               sorted = TRUE)
 ```
 
-
-We can obtain both, in-bag and out-of-bag, estimates of the cause-specific 
-cumulative hazard function and the CIF. Below, we show out-of-bag-estimates for 
-the event of interest (relapse)
-
-```{r}
-obsv.times <- rsf.lr$time.interest  # unique event times
-
-#out-of-bag cause-specific cumulative hazard
-csh.oob <- rsf.lr$chf.oob[,,1]  # selects event type 1
-
-#out-of-bag CIF
-cif.oob <- rsf.lr$cif.oob[,,1]  # selects event type 1
-
-```
-`csh.oob` and `cif.oob` are arrays that contain in the rows estimates 
-corresponding to the `r nrow(hd_train)` subjects and in the columns the 
-`r length(obsv.times)` unique event times.
-
+The output of the `rfsrc()` is rich ans contains extensive information about the
+model fit. For example, we can obtain both, out-of-bag, estimates of the 
+cause-specific cumulative hazard function (see `rsf.lr$chf.oob`) and the CIF 
+(see `rsf.lr$cif.oob`) for each event type. These estimates are provided at the
+unique observed event times (see `rsf.lr$time.interest`). 
 
 In order to do variable selection, a variable importance measure for the event 
 of interest is shown below. The higher the value, the better. Negative values 
@@ -258,33 +245,37 @@ print(test.lr)
 The predicted CIF for patient 1 (red) and 2 (blue) in the test set is shown:   
 
 ```{r, fig.dim=c(6,4)}
-CIF.hat <- test.lr$cif[,,1]  # select event of interest k=1
-
 par(mar = c(4, 4, 2, 0.1))
 
 plot(test.lr$time.interest,
-     CIF.hat[1,],
+     test.lr$cif[1,,1],
      type = "l",
      col = "red",
-     ylim = c(0, 0.7),
+     ylim = c(0, 0.6),
      xlab = "Time (years)",
      ylab = "Cumulative incidence")
-lines(test.lr$time.interest,  CIF.hat[2,], col="blue")
+lines(test.lr$time.interest,   test.lr$cif[2,,1], col="blue")
 legend("topright", legend = c("Patient 1", "Patient 2"),
        lty = c(1,1), col = c("red", "blue"))
 ```
 
-The model permits to do predictions at observed unique event times. Below we show the predicted CIF for the first 5 patients in the test set at a specific time point $t=5$: 
+The model permits to do predictions at observed unique event times. Below we 
+show the predicted CIF for the first 5 patients in the test set at a specific 
+time point $t=5$: 
 
 ```{r}
-test.lr$cif[1:5,obsv.times==5,1]
+test.lr$cif[1:5, test.lr$time.interest==5, 1]
 ```
+
+Note that these predictions are substantially different from those obtained by
+other methods. 
 
 ## Modified Gray’s test splitting rule (logrankCR)
 
 ```{r}
 
-rsf.lrCR <- rfsrc(Surv(time, status) ~ age + sex + trtgiven+ medwidsi+ extranod+clinstg, 
+rsf.lrCR <- rfsrc(Surv(time, status) ~ age + sex + trtgiven + 
+                    medwidsi + extranod + clinstg, 
                 data = hd_train,
                 ntree = 100,
                 splitrule = "logrankCR", 
@@ -300,6 +291,7 @@ print(rsf.lrCR)
 ```
 
 As before fitted trees can be obtained with `get.tree`.
+
 ```{r}
 plot(get.tree(rsf.lrCR, 5))
 ```
@@ -320,23 +312,6 @@ of years lost due to the event specific cause.
 plot.variable(rsf.lrCR, target = 1,
               surv.type = "years.lost", 
               sorted = TRUE)
-```
-
-
-In-bag and out-of-bag estimates of the cause-specific cumulative hazard function 
-and the CIF. Below, we show out-of-bag-estimates for the event of interest 
-(relapse). `csh.oob` and `cif.oob` are array that contains in the rows estimates 
-corresponding to the $692$ subjects and in the columns the $136$ unique times.
-
-```{r}
-obsv.times <- rsf.lrCR$time.interest  # unique observed event times
-
-#out-of-bag cause-specific cumulative hazard
-csh.oob <- rsf.lrCR$chf.oob[,,1]  # selects event type 1
-
-#out-of-bag CIF
-cif.oob <- rsf.lrCR$cif.oob[,,1]  # selects event type 1
-
 ```
 
 In order to do variable selection, as variable importance measure for the event 
@@ -361,18 +336,17 @@ print(test.lrCR)
 The CIF for patient 1 and 2 in the test set is shown:   
 
 ```{r, fig.dim=c(6,4)}
-CIF.hat <- rsf.lrCR$cif[,,1]  # select event of interest k=1
-
 par(mar = c(4, 4, 2, 0.1))
 
 plot(test.lrCR$time.interest,
-     CIF.hat[1,],
+     test.lrCR$cif[1,,1], 
      type = "l",
      col = "red",
-     ylim = c(0, 0.7),
+     ylim = c(0, 0.6),
      xlab = "Time (years)",
      ylab = "Cumulative incidence")
-lines(test.lrCR$time.interest,  CIF.hat[2,], col="blue")
+lines(test.lrCR$time.interest,  test.lrCR$cif[2,,1], #CIF.hat[2,], 
+      col="blue")
 legend("topright", legend = c("Patient 1", "Patient 2"),
        lty = c(1,1), col = c("red", "blue"))
 ```
@@ -380,7 +354,7 @@ legend("topright", legend = c("Patient 1", "Patient 2"),
 
 Predicted CIF at $t=5$ for the first 5 subjects in the test set are shown:
 ```{r}
-test.lrCR$cif[1:5,obsv.times==5,1]
+test.lrCR$cif[1:5, test.lrCR$time.interest==5,1]
 ```
 
 
@@ -391,8 +365,8 @@ we save the predictions obtained in this vignette.
 
 ```{r save_pred}
 pred_Others <- data.frame("testID" = seq_len(nrow(hd_test)),
-                      "RF_logrank" = test.lr$cif[,obsv.times==5,1],
-                      "RF_logrankCR" = test.lrCR$cif[,obsv.times==5,1])
+                      "RF_logrank" = test.lr$cif[,test.lrCR$time.interest==5,1],
+                      "RF_logrankCR" = test.lrCR$cif[,test.lrCR$time.interest==5,1])
 write.csv(pred_Others, "../Predictions/pred_Others.csv", row.names = FALSE)
 ```
 
