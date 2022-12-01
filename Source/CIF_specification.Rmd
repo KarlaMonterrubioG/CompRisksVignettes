@@ -90,8 +90,8 @@ dataset into 80% for train and 20% for test.
 library(splitstackshape)
 set.seed(2022)
 split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
-hd_train   <- split_data$SAMP1
-hd_test    <- split_data$SAMP2
+hd_train   <- split_data$SAMP1[,-1]
+hd_test    <- split_data$SAMP2[,-1]
 ```
 
 Now, we explore the number of observations per status in both train and test
@@ -188,14 +188,15 @@ CIF_hat <- predict(object = FG_crr, cov1 = predictors_test)
 dim(CIF_hat)
 ```
 
-The first column in CIF_hat corresponds to the `r nrow(CIF_hat)` unique event times and the
-remaining `r nrow(CIF_hat)-1` columns are the estimated CIFs for each patient (given their 
-covariate values) at such event times. As an illustration, the following 
-code is used to plot the estimated CIF for events type 1 for two patients in the
-training dataset. The first patient is 37 years old, male, under 
-radiation treatment, no mediastinum involvement, no extranodal disease, and 
-in clinical stage 1. The second patient is 41 years old, male, under radiation, 
-no mediastinum involvement, no extranodal disease, and clinical stage 2. 
+The first column in CIF_hat corresponds to the `r nrow(CIF_hat)` unique event 
+times and the remaining `r nrow(CIF_hat)-1` columns are the estimated CIFs for 
+each patient (given their covariate values) at such event times. As an 
+illustration, the following code is used to plot the estimated CIF for events 
+type 1 for two patients in the training dataset. The first patient is 37 years 
+old, male, under radiation treatment, no mediastinum involvement, no extranodal 
+disease, and in clinical stage 1. The second patient is 41 years old, male, 
+under radiation, no mediastinum involvement, no extranodal disease, and clinical 
+stage 2. 
 
 ```{r, fig.dim=c(6,4)}
 par(mar = c(4, 4, 2, 0.1))
@@ -203,7 +204,7 @@ plot(CIF_hat[, 1],
      CIF_hat[, 2],
      type = "l",
      col = "red",
-     ylim = c(0, 0.5),
+     ylim = c(0, 0.6),
      xlab = "Time (years)",
      ylab = "Cumulative incidence")
 
@@ -284,7 +285,7 @@ plot(prediction.FG.prop$time,
      prediction.FG.prop$risk[1, ],
      type = "l",
      col = "red",
-     ylim = c(0, 0.5),
+     ylim = c(0, 0.6),
      xlab = "Time (years)",
      ylab = "Cumulative incidence")
 lines(prediction.FG.prop$time, prediction.FG.prop$risk[2, ], col="blue")
@@ -419,7 +420,7 @@ incidence for the first (red) and second (blue) patients in the tests set:
 ```{r fig.dim=c(6,4)}
 par(mar = c(4, 4, 2, 0.1))
 pred_DB <- predict.timereg(fit_DB, 
-                           newdata = as.data.frame(hd_test[1:2,2:7]), se = 0)
+                           newdata = as.data.frame(hd_test[1:2,1:6]), se = 0)
 plot(pred_DB,
      multiple = 1,
      col = c("red", "blue"),
@@ -434,7 +435,7 @@ argument `times`. Absolute risk predictions at time $t=5$ for the first 5
 patients are shown:
 
 ```{r}
-pred_DB.t <- predict.timereg(fit_DB, newdata = hd_test[, 2:7], times = 5)
+pred_DB.t <- predict.timereg(fit_DB, newdata = hd_test[, 1:6], times = 5)
 pred_DB.t$P1[1:5]
 ```
 
@@ -533,7 +534,7 @@ plot(pred_DDP$tpred,
      col = "red",
      xlab = "Time (years)",
      ylab = "Cumulative incidence",
-     ylim = c(0, 0.5))
+     ylim = c(0, 0.6))
 lines(pred_DDP$tpred, pred_DDP$Fpred[2, ], col="blue")
 legend("topright", legend = c("Patient 1", "Patient 2"),
        lty = c(1,1), col = c("red", "blue"))

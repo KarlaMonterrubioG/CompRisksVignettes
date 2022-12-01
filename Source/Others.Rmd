@@ -81,8 +81,10 @@ require(pander)
 pander::pander(table(hd$status))
 ```
 
-Thus, we have `r length(which(hd$status==0))` censored patients, `r length(which(hd$status==1))` with relapse, and `r length(which(hd$status==2))` who died. From
-now on, we assume that the event of interest is relapse, i.e. status=1.
+Thus, we have `r length(which(hd$status==0))` censored patients, 
+`r length(which(hd$status==1))` with relapse, and 
+`r length(which(hd$status==2))` who died. From
+now on, we assume that the event of interest is relapse, i.e. `status=1`.
 
 In order to create a test set, we use stratified sampling to partition our
 dataset into 80% for train and 20% for test.
