@@ -48,6 +48,8 @@ pred_All <- merge(pred_CIF, pred_Others, by = "testID")
 library(corrplot)
 pred_cor <- cor(pred_All[,-1])
 corrplot(pred_cor)
+
+plot(pred_All[,-1])
 ```
 
 

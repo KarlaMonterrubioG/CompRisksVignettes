@@ -125,15 +125,21 @@ hd_test <- as.data.frame(hd_test)
 
 As RSF permits, both, a cause-specific and a CIF formulation. The user should 
 first determine the type of analysis of interest, and pass it on the argument 
-`splitrule` in the fitter function `rfsrc()`. When the objective is to do a 
-cause-specific hazard analysis we must set `splitrule="logrank"` and the 
-argument `cause` should indicate the event type of interest. In contrast, if one 
-is interested on long term predictions, `splitrule="logrankCR"` is more 
-appropriate, as it considers the CIF. Furthermore, a composite splitting rule is 
-available and can be used to identify variables that are important for any cause.
+`splitrule` in the fitter function `rfsrc()`. When the objective is to do 
+identify which variables are informative for a cause-specific hazard analysis,
+focusing on a *specific* cause of interest, we must set `splitrule="logrank"`. 
+In contrast, if one is interested on long term predictions, 
+`splitrule = "logrankCR"` is more appropriate, as it considers the CIF. Below, 
+we will illustrate the use of both splitting rules. 
 
-Below, we fit both models:
-
+The argument `cause` should indicate the event type of interest to be used when
+applying the splitting rule. As described in the documentation of `rfsrc()`, 
+`cause` can either be specified as a single integer (`cause = 1` if the first 
+event type is of interest; `cause = 2` if the second event type is of interest) 
+or as a vector of non-negative weights associated to each event type (e.g. 
+`cause = c(1,0)` if the first event type is of interest). If `cause` is not 
+specified, the default is for the splitting rule to use an average across all 
+event types. 
 
 ## Generalized log-rank splitting rule (logrank)
 
@@ -188,22 +194,23 @@ event type. In the plot below, the event of interest is shown in black.
 ```{r, fig.dim=c(8,6)}
 plot.competing.risk(rsf.lr)
 ```
-
-In addition, we can visualize marginal effects according to the expected number 
-of years lost due to the event specific cause. Recall, that this measure is a 
-1-dimensional summary of the CIF.
-
-```{r, fig.dim=c(8,6)}
-plot.variable(rsf.lr, target = 1,
-              surv.type = "years.lost", 
-              sorted = TRUE)
-```
-
 The output of the `rfsrc()` is rich ans contains extensive information about the
 model fit. For example, we can obtain both, out-of-bag, estimates of the 
 cause-specific cumulative hazard function (see `rsf.lr$chf.oob`) and the CIF 
 (see `rsf.lr$cif.oob`) for each event type. These estimates are provided at the
 unique observed event times (see `rsf.lr$time.interest`). 
+
+In addition, we can visualize marginal effects for each variable in terms of 
+specific quantities of interest. For example, in terms of the cumulative hazard
+function of the event of interest (indicated below through `target`) at a given
+time point (e.g. `time = 5` years below). 
+
+```{r, fig.dim=c(8,6)}
+plot.variable(rsf.lr, target = 1, 
+              time = 5,
+              surv.type = "chf", 
+              sorted = TRUE)
+```
 
 In order to do variable selection, a variable importance measure for the event 
 of interest is shown below. The higher the value, the better. Negative values 
@@ -227,53 +234,18 @@ var.mindepth  <- var.select(rsf.lr,
 pander::pander(var.mindepth$varselect)
 ```
 
+Finally, whilst it is possible to obtain predictions for a test dataset using 
+the `predict()` function, we do not do this here as `splitrule = "logrankCR"`
+is instead recommended when the purpose of the analysis is to perform prediction. 
 
-In order to obtain predictions in the test set, we employ `predict()` function as 
-shown below. A summary of the object is shown with the function `print()`
-
-```{r}
-test.lr <- predict(rsf.lr, 
-                   newdata = hd_test,
-                   #VIM can also be obtained at this stage
-                   importance = "random",
-                   outcome = "test",
-                   csv = TRUE
-                   )
-print(test.lr)
-```
-
-The predicted CIF for patient 1 (red) and 2 (blue) in the test set is shown:   
-
-```{r, fig.dim=c(6,4)}
-par(mar = c(4, 4, 2, 0.1))
-
-plot(test.lr$time.interest,
-     test.lr$cif[1,,1],
-     type = "l",
-     col = "red",
-     ylim = c(0, 0.6),
-     xlab = "Time (years)",
-     ylab = "Cumulative incidence")
-lines(test.lr$time.interest,   test.lr$cif[2,,1], col="blue")
-legend("topright", legend = c("Patient 1", "Patient 2"),
-       lty = c(1,1), col = c("red", "blue"))
-```
-
-The model permits to do predictions at observed unique event times. Below we 
-show the predicted CIF for the first 5 patients in the test set at a specific 
-time point $t=5$: 
-
-```{r}
-test.lr$cif[1:5, test.lr$time.interest==5, 1]
-```
-
-Note that these predictions are substantially different from those obtained by
-other methods. 
 
 ## Modified Gray’s test splitting rule (logrankCR)
 
-```{r}
+In the code below, the settings of `rfsrc()` have been specified in the same
+way as in the previous section (except for `splitrule`). In particular, we use
+`cause = c(1,0)` to indicate that the first event type is of primary interest.
 
+```{r}
 rsf.lrCR <- rfsrc(Surv(time, status) ~ age + sex + trtgiven + 
                     medwidsi + extranod + clinstg, 
                 data = hd_train,
@@ -358,15 +330,71 @@ test.lrCR$cif[1:5, test.lrCR$time.interest==5,1]
 ```
 
 
+A similar analysis can be performed using an average between both event types
+as the target for the splitting rule. To do so, `cause` can be left unspecified
+or be set to `cause = c(0.5, 0.5)`. 
+
+```{r}
+rsf.lrCR.av <- rfsrc(Surv(time, status) ~ age + sex + trtgiven + 
+                    medwidsi + extranod + clinstg, 
+                data = hd_train,
+                ntree = 100,
+                splitrule = "logrankCR", 
+                bootstrap = "by.root",
+                samptype = "swr",        # sampling with replacement.
+                importance = "random",   # other choices available, e.g. permute
+                save.memory= TRUE,       # useful for big datasets
+                seed = 100
+                )
+
+print(rsf.lrCR.av)
+```
+
+Using this approach, predictions for the test dataset are obtained as follows:
+
+```{r}
+test.lrCR.av <- predict(rsf.lrCR.av, 
+                   newdata = hd_test,
+                   importance = "permute"  #VIM can also be obtained at this stage
+                   )
+print(test.lrCR.av)
+```
+
+As before, here we visualise the CIF for the first two patients in the test set:
+
+```{r, fig.dim=c(6,4)}
+par(mar = c(4, 4, 2, 0.1))
+
+plot(test.lrCR.av$time.interest,
+     test.lrCR.av$cif[1,,1], 
+     type = "l",
+     col = "red",
+     ylim = c(0, 0.6),
+     xlab = "Time (years)",
+     ylab = "Cumulative incidence")
+lines(test.lrCR.av$time.interest,  test.lrCR.av$cif[2,,1], #CIF.hat[2,], 
+      col="blue")
+legend("topright", legend = c("Patient 1", "Patient 2"),
+       lty = c(1,1), col = c("red", "blue"))
+```
+Finally, CIF estimates at $t=5$ for the first 5 subjects in the test 
+set are shown:
+
+```{r}
+test.lrCR.av$cif[1:5, test.lrCR.av$time.interest==5,1]
+```
+
+
 # Storing predictions
 
 In order to allow comparison with the predictions generated by other methods,
 we save the predictions obtained in this vignette.  
 
 ```{r save_pred}
-pred_Others <- data.frame("testID" = seq_len(nrow(hd_test)),
-                      "RF_logrank" = test.lr$cif[,test.lrCR$time.interest==5,1],
-                      "RF_logrankCR" = test.lrCR$cif[,test.lrCR$time.interest==5,1])
+pred_Others <- data.frame(
+  "testID" = seq_len(nrow(hd_test)),
+  "RF_logrankCR" = test.lrCR$cif[,test.lrCR$time.interest==5,1],
+  "RF_logrankCR.av" = test.lrCR.av$cif[,test.lrCR.av$time.interest==5,1])
 write.csv(pred_Others, "../Predictions/pred_Others.csv", row.names = FALSE)
 ```
 
