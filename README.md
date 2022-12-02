@@ -20,6 +20,47 @@ It includes R vignettes to illustrate the usage of the following methods:
 * Other methods
   + Random survival forests
 
+### Structure
+
+```
+.
+├── README.md                       
+├── Data                               # Example dataset
+│   └── HD                   
+│       └── hd.csv        
+├── Docker                             # Files for building/using Docker image
+│   ├── README.md
+│   ├── examples.sh
+│   ├── render
+│   └── render.R
+├── Predictions                        # Resulting predictions in test set
+│   ├── pred_CIF.csv
+│   ├── pred_CS.csv
+│   └── pred_Others.csv
+├── Source                             # Vignettes, includes Rmd and html files
+│   ├── CIF_specification.Rmd
+│   ├── CIF_specification.html
+│   ├── CS_specification.Rmd
+│   ├── CS_specification.html
+│   ├── Discrete_specification.Rmd
+│   ├── Discrete_specification.html
+│   ├── Others.Rmd
+│   ├── Others.html
+│   ├── Predictions.Rmd
+│   ├── head.html
+│   ├── index.Rmd
+│   ├── navbar.html
+│   ├── references.bib
+│   └── style.css
+├── docs
+│   └── .nojekill
+├── LICENSE
+├── Dockerfile
+└── Competing_risks.Rproj
+   
+
+```
+
 ## Usage
 
 ### Docker
