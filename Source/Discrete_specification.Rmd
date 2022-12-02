@@ -151,7 +151,7 @@ bart1 <- crisk2.bart(x.train = xtrain,
                      sparse = FALSE,          # set equal TRUE for variable selection 
                      type = 'pbart',
                      ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 2500, keepevery = 10L, 
+                     ndpost = 500, nskip = 10000, keepevery = 10L, 
                      seed = 99)  
 ```
 
@@ -176,21 +176,23 @@ the first three individuals in the test set (first time-period only)
 
 ```{r}
 n.times <- length(bart1$times)
-plot(bart1$yhat.test[ , 1], type = "l")
-plot(bart1$yhat.test[ , n.times + 1], type = "l")
-plot(bart1$yhat.test[ , 2*n.times + 1], type = "l")
+# Select 5 random individuals
+set.seed(10)
+aux <- sample(seq_len(nrow(hd_test)), size = 5)
+
+for(i in aux) {
+  plot(bart1$yhat.test[ , (i-1)*n.times + 1], type = "l")
+}
 ```
 
 We can use Geweke diagnostics to assess converge for selected individuals across
 all time-points. 
 
 ```{r}
-# Select 10 random individuals
-set.seed(10)
-aux <- sample(seq_len(nrow(hd_test)), size = 5)
-
 # code adapted from the example in `demo("geweke.lung.surv.bart", package = "BART")`
+mycol <- 0
 for(i in aux) {
+  mycol <- mycol + 1
   # selects samples for individual i across all time-points
   post.mcmc <- bart1$yhat.test[ , (i-1)*n.times + seq_len(n.times)]
   # calculates the geweke diagnostic
@@ -201,7 +203,7 @@ for(i in aux) {
   ## plot the z scores vs. time for each patient
   if(i==aux[1]) plot(bart1$times, z, ylim=c(-y, y), type='l',
                   xlab='t', ylab='z')
-      else lines(bart1$times, z, type='l')
+      else lines(bart1$times, z, type='l', col = mycol)
   lines(bart1$times, rep(1.96, n.times), type='l', lty=2)
   lines(bart1$times, rep(-1.96, n.times), type='l', lty=2)
 }
