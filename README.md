@@ -5,19 +5,19 @@ competing risks methods for survival analysis.
 
 It includes R vignettes to illustrate the usage of the following methods:
 
-* Cause-specific formulation
+* [Cause-specific formulation](https://github.com/KarlaMonterrubioG/Competing_risks/blob/main/Source/CS_specification.Rmd)
   + Cause-specific Cox PH
   + Sparse regression:
      - Lasso CPH
      - Cox boosting
-* CIF formulation
+* [CIF formulation](https://github.com/KarlaMonterrubioG/Competing_risks/blob/main/Source/CIF_specification.Rmd)
   + Fine-Gray
   + Pseudo-values
   + Direct binomial
   + Dependent Dirichlet processes
-* Discrete time formulation
+* [Discrete time formulation](https://github.com/KarlaMonterrubioG/Competing_risks/blob/main/Source/Discrete_specification.Rmd)
   + BART
-* Other methods
+* [Other methods](https://github.com/KarlaMonterrubioG/Competing_risks/blob/main/Source/Others.Rmd)
   + Random survival forests
 
 ### Structure
