@@ -11,7 +11,7 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2022-11-30" />
+<meta name="date" content="2022-12-01" />
 
 <title>Other methods</title>
 
@@ -298,7 +298,7 @@ div.tocify {
 <h1 class="title toc-ignore">Other methods</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2022-11-30</h4>
+<h4 class="date">2022-12-01</h4>
 
 </div>
 
@@ -377,7 +377,7 @@ pander::pander(table(hd$status))</code></pre>
 </table>
 <p>Thus, we have 439 censored patients, 291 with relapse, and 135 who
 died. From now on, we assume that the event of interest is relapse,
-i.e. status=1.</p>
+i.e. <code>status=1</code>.</p>
 <p>In order to create a test set, we use stratified sampling to
 partition our dataset into 80% for train and 20% for test.</p>
 <pre class="r"><code>library(splitstackshape)
@@ -447,14 +447,23 @@ hd_test &lt;- as.data.frame(hd_test)</code></pre>
 <p>As RSF permits, both, a cause-specific and a CIF formulation. The
 user should first determine the type of analysis of interest, and pass
 it on the argument <code>splitrule</code> in the fitter function
-<code>rfsrc()</code>. When the objective is to do a cause-specific
-hazard analysis we must set <code>splitrule="logrank"</code> and the
-argument <code>cause</code> should indicate the event type of interest.
-In contrast, if one is interested on long term predictions,
-<code>splitrule="logrankCR"</code> is more appropriate, as it considers
-the CIF. Furthermore, a composite splitting rule is available and can be
-used to identify variables that are important for any cause.</p>
-<p>Below, we fit both models:</p>
+<code>rfsrc()</code>. When the objective is to do identify which
+variables are informative for a cause-specific hazard analysis, focusing
+on a <em>specific</em> cause of interest, we must set
+<code>splitrule="logrank"</code>. In contrast, if one is interested on
+long term predictions, <code>splitrule = "logrankCR"</code> is more
+appropriate, as it considers the CIF. Below, we will illustrate the use
+of both splitting rules.</p>
+<p>The argument <code>cause</code> should indicate the event type of
+interest to be used when applying the splitting rule. As described in
+the documentation of <code>rfsrc()</code>, <code>cause</code> can either
+be specified as a single integer (<code>cause = 1</code> if the first
+event type is of interest; <code>cause = 2</code> if the second event
+type is of interest) or as a vector of non-negative weights associated
+to each event type (e.g.  <code>cause = c(1,0)</code> if the first event
+type is of interest). If <code>cause</code> is not specified, the
+default is for the splitting rule to use an average across all event
+types.</p>
 <div id="generalized-log-rank-splitting-rule-logrank"
 class="section level2">
 <h2>Generalized log-rank splitting rule (logrank)</h2>
@@ -471,13 +480,9 @@ Note that this can be computed after the model is fitted using the
 <code>bootstrap = by.rootand samptype = "swr"</code> to do bootstrapping
 with replacement.</p>
 <pre class="r"><code>library(randomForestSRC)
-#&gt; 
-#&gt;  randomForestSRC 3.1.1 
-#&gt;  
-#&gt;  Type rfsrc.news() to see new features, changes, and bug fixes. 
-#&gt; 
 
-rsf.lr &lt;- rfsrc(Surv(time, status) ~ age + sex + trtgiven+ medwidsi+ extranod+clinstg, 
+rsf.lr &lt;- rfsrc(Surv(time, status) ~ age + sex + trtgiven + 
+                  medwidsi + extranod + clinstg, 
                 data = hd_train,
                 ntree = 100,
                 splitrule = &quot;logrank&quot;, 
@@ -517,27 +522,24 @@ out-of-bag ensemble for: CS cumulative hazard, the CIF, and the
 conditional probability, stratified by event type. In the plot below,
 the event of interest is shown in black.</p>
 <pre class="r"><code>plot.competing.risk(rsf.lr)</code></pre>
-<p><img src="Others_files/figure-html/unnamed-chunk-11-1.png" width="768" /></p>
-<p>In addition, we can visualize marginal effects according to the
-expected number of years lost due to the event specific cause. Recall,
-that this measure is a 1-dimensional summary of the CIF.</p>
-<pre class="r"><code>plot.variable(rsf.lr, target = 1,
-              surv.type = &quot;years.lost&quot;, 
+<p><img src="Others_files/figure-html/unnamed-chunk-11-1.png" width="768" />
+The output of the <code>rfsrc()</code> is rich ans contains extensive
+information about the model fit. For example, we can obtain both,
+out-of-bag, estimates of the cause-specific cumulative hazard function
+(see <code>rsf.lr$chf.oob</code>) and the CIF (see
+<code>rsf.lr$cif.oob</code>) for each event type. These estimates are
+provided at the unique observed event times (see
+<code>rsf.lr$time.interest</code>).</p>
+<p>In addition, we can visualize marginal effects for each variable in
+terms of specific quantities of interest. For example, in terms of the
+cumulative hazard function of the event of interest (indicated below
+through <code>target</code>) at a given time point
+(e.g. <code>time = 5</code> years below).</p>
+<pre class="r"><code>plot.variable(rsf.lr, target = 1, 
+              time = 5,
+              surv.type = &quot;chf&quot;, 
               sorted = TRUE)</code></pre>
 <p><img src="Others_files/figure-html/unnamed-chunk-12-1.png" width="768" /></p>
-<p>We can obtain both, in-bag and out-of-bag, estimates of the
-cause-specific cumulative hazard function and the CIF. Below, we show
-out-of-bag-estimates for the event of interest (relapse)</p>
-<pre class="r"><code>obsv.times &lt;- rsf.lr$time.interest  # unique event times
-
-#out-of-bag cause-specific cumulative hazard
-csh.oob &lt;- rsf.lr$chf.oob[,,1]  # selects event type 1
-
-#out-of-bag CIF
-cif.oob &lt;- rsf.lr$cif.oob[,,1]  # selects event type 1</code></pre>
-<p><code>csh.oob</code> and <code>cif.oob</code> are arrays that contain
-in the rows estimates corresponding to the 692 subjects and in the
-columns the 136 unique event times.</p>
 <p>In order to do variable selection, a variable importance measure for
 the event of interest is shown below. The higher the value, the better.
 Negative values indicate no predictive ability.</p>
@@ -637,54 +639,21 @@ pander::pander(var.mindepth$varselect)</code></pre>
 </tr>
 </tbody>
 </table>
-<p>In order to obtain predictions in the test set, we employ
-<code>predict()</code> function as shown below. A summary of the object
-is shown with the function <code>print()</code></p>
-<pre class="r"><code>test.lr &lt;- predict(rsf.lr, 
-                   newdata = hd_test,
-                   #VIM can also be obtained at this stage
-                   importance = &quot;random&quot;,
-                   outcome = &quot;test&quot;,
-                   csv = TRUE
-                   )
-print(test.lr)
-#&gt;   Sample size of test (predict) data: 173
-#&gt;                 Number of grow trees: 100
-#&gt;   Average no. of grow terminal nodes: 47.97
-#&gt;          Total no. of grow variables: 6
-#&gt;        Resampling used to grow trees: swr
-#&gt;     Resample size used to grow trees: 692
-#&gt;                             Analysis: RSF
-#&gt;                               Family: surv-CR
-#&gt;          Requested performance error: 0.46889881, 0.29349398</code></pre>
-<p>The predicted CIF for patient 1 (red) and 2 (blue) in the test set is
-shown:</p>
-<pre class="r"><code>CIF.hat &lt;- test.lr$cif[,,1]  # select event of interest k=1
-
-par(mar = c(4, 4, 2, 0.1))
-
-plot(test.lr$time.interest,
-     CIF.hat[1,],
-     type = &quot;l&quot;,
-     col = &quot;red&quot;,
-     ylim = c(0, 0.7),
-     xlab = &quot;Time (years)&quot;,
-     ylab = &quot;Cumulative incidence&quot;)
-lines(test.lr$time.interest,  CIF.hat[2,], col=&quot;blue&quot;)
-legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&quot;),
-       lty = c(1,1), col = c(&quot;red&quot;, &quot;blue&quot;))</code></pre>
-<p><img src="Others_files/figure-html/unnamed-chunk-17-1.png" width="576" /></p>
-<p>The model permits to do predictions at observed unique event times.
-Below we show the predicted CIF for the first 5 patients in the test set
-at a specific time point <span class="math inline">\(t=5\)</span>:</p>
-<pre class="r"><code>test.lr$cif[1:5,obsv.times==5,1]
-#&gt; [1] 0.5135886 0.5268485 0.3649937 0.4337468 0.2491450</code></pre>
+<p>Finally, whilst it is possible to obtain predictions for a test
+dataset using the <code>predict()</code> function, we do not do this
+here as <code>splitrule = "logrankCR"</code> is instead recommended when
+the purpose of the analysis is to perform prediction.</p>
 </div>
 <div id="modified-grays-test-splitting-rule-logrankcr"
 class="section level2">
 <h2>Modified Gray’s test splitting rule (logrankCR)</h2>
-<pre class="r"><code>
-rsf.lrCR &lt;- rfsrc(Surv(time, status) ~ age + sex + trtgiven+ medwidsi+ extranod+clinstg, 
+<p>In the code below, the settings of <code>rfsrc()</code> have been
+specified in the same way as in the previous section (except for
+<code>splitrule</code>). In particular, we use
+<code>cause = c(1,0)</code> to indicate that the first event type is of
+primary interest.</p>
+<pre class="r"><code>rsf.lrCR &lt;- rfsrc(Surv(time, status) ~ age + sex + trtgiven + 
+                    medwidsi + extranod + clinstg, 
                 data = hd_train,
                 ntree = 100,
                 splitrule = &quot;logrankCR&quot;, 
@@ -721,27 +690,13 @@ print(rsf.lrCR)
 hazard, the CIF, and the conditional probability, stratified by event
 type. In the plot below, the event of interest is shown in black.</p>
 <pre class="r"><code>plot.competing.risk(rsf.lrCR)</code></pre>
-<p><img src="Others_files/figure-html/unnamed-chunk-21-1.png" width="768" /></p>
+<p><img src="Others_files/figure-html/unnamed-chunk-17-1.png" width="768" /></p>
 <p>In addition, we can visualize marginal effects according to the
 expected number of years lost due to the event specific cause.</p>
 <pre class="r"><code>plot.variable(rsf.lrCR, target = 1,
               surv.type = &quot;years.lost&quot;, 
               sorted = TRUE)</code></pre>
-<p><img src="Others_files/figure-html/unnamed-chunk-22-1.png" width="768" /></p>
-<p>In-bag and out-of-bag estimates of the cause-specific cumulative
-hazard function and the CIF. Below, we show out-of-bag-estimates for the
-event of interest (relapse). <code>csh.oob</code> and
-<code>cif.oob</code> are array that contains in the rows estimates
-corresponding to the <span class="math inline">\(692\)</span> subjects
-and in the columns the <span class="math inline">\(136\)</span> unique
-times.</p>
-<pre class="r"><code>obsv.times &lt;- rsf.lrCR$time.interest  # unique observed event times
-
-#out-of-bag cause-specific cumulative hazard
-csh.oob &lt;- rsf.lrCR$chf.oob[,,1]  # selects event type 1
-
-#out-of-bag CIF
-cif.oob &lt;- rsf.lrCR$cif.oob[,,1]  # selects event type 1</code></pre>
+<p><img src="Others_files/figure-html/unnamed-chunk-18-1.png" width="768" /></p>
 <p>In order to do variable selection, as variable importance measure for
 the event of interest is shown below. The higher the value, the better.
 Negative values indicate no predictive ability.</p>
@@ -766,34 +721,101 @@ print(test.lrCR)
 #&gt;                               Family: surv-CR
 #&gt;          Requested performance error: 0.38690476, 0.23518072</code></pre>
 <p>The CIF for patient 1 and 2 in the test set is shown:</p>
-<pre class="r"><code>CIF.hat &lt;- rsf.lrCR$cif[,,1]  # select event of interest k=1
-
-par(mar = c(4, 4, 2, 0.1))
+<pre class="r"><code>par(mar = c(4, 4, 2, 0.1))
 
 plot(test.lrCR$time.interest,
-     CIF.hat[1,],
+     test.lrCR$cif[1,,1], 
      type = &quot;l&quot;,
      col = &quot;red&quot;,
-     ylim = c(0, 0.7),
+     ylim = c(0, 0.6),
      xlab = &quot;Time (years)&quot;,
      ylab = &quot;Cumulative incidence&quot;)
-lines(test.lrCR$time.interest,  CIF.hat[2,], col=&quot;blue&quot;)
+lines(test.lrCR$time.interest,  test.lrCR$cif[2,,1], #CIF.hat[2,], 
+      col=&quot;blue&quot;)
 legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&quot;),
        lty = c(1,1), col = c(&quot;red&quot;, &quot;blue&quot;))</code></pre>
-<p><img src="Others_files/figure-html/unnamed-chunk-26-1.png" width="576" /></p>
+<p><img src="Others_files/figure-html/unnamed-chunk-21-1.png" width="576" /></p>
 <p>Predicted CIF at <span class="math inline">\(t=5\)</span> for the
 first 5 subjects in the test set are shown:</p>
-<pre class="r"><code>test.lrCR$cif[1:5,obsv.times==5,1]
+<pre class="r"><code>test.lrCR$cif[1:5, test.lrCR$time.interest==5,1]
 #&gt; [1] 0.2471439 0.4264480 0.3513243 0.1933283 0.3215940</code></pre>
+<p>A similar analysis can be performed using an average between both
+event types as the target for the splitting rule. To do so,
+<code>cause</code> can be left unspecified or be set to
+<code>cause = c(0.5, 0.5)</code>.</p>
+<pre class="r"><code>rsf.lrCR.av &lt;- rfsrc(Surv(time, status) ~ age + sex + trtgiven + 
+                    medwidsi + extranod + clinstg, 
+                data = hd_train,
+                ntree = 100,
+                splitrule = &quot;logrankCR&quot;, 
+                bootstrap = &quot;by.root&quot;,
+                samptype = &quot;swr&quot;,        # sampling with replacement.
+                importance = &quot;random&quot;,   # other choices available, e.g. permute
+                save.memory= TRUE,       # useful for big datasets
+                seed = 100
+                )
+
+print(rsf.lrCR.av)
+#&gt;                          Sample size: 692
+#&gt;                     Number of events: 233, 108
+#&gt;                      Number of trees: 100
+#&gt;            Forest terminal node size: 15
+#&gt;        Average no. of terminal nodes: 49.21
+#&gt; No. of variables tried at each split: 3
+#&gt;               Total no. of variables: 6
+#&gt;        Resampling used to grow trees: swr
+#&gt;     Resample size used to grow trees: 692
+#&gt;                             Analysis: RSF
+#&gt;                               Family: surv-CR
+#&gt;                       Splitting rule: logrankCR *random*
+#&gt;        Number of random split points: 10
+#&gt;    (OOB) Requested performance error: 0.43828167, 0.21863874</code></pre>
+<p>Using this approach, predictions for the test dataset are obtained as
+follows:</p>
+<pre class="r"><code>test.lrCR.av &lt;- predict(rsf.lrCR.av, 
+                   newdata = hd_test,
+                   importance = &quot;permute&quot;  #VIM can also be obtained at this stage
+                   )
+print(test.lrCR.av)
+#&gt;   Sample size of test (predict) data: 173
+#&gt;                 Number of grow trees: 100
+#&gt;   Average no. of grow terminal nodes: 49.21
+#&gt;          Total no. of grow variables: 6
+#&gt;        Resampling used to grow trees: swr
+#&gt;     Resample size used to grow trees: 692
+#&gt;                             Analysis: RSF
+#&gt;                               Family: surv-CR
+#&gt;          Requested performance error: 0.39114583, 0.24481928</code></pre>
+<p>As before, here we visualise the CIF for the first two patients in
+the test set:</p>
+<pre class="r"><code>par(mar = c(4, 4, 2, 0.1))
+
+plot(test.lrCR.av$time.interest,
+     test.lrCR.av$cif[1,,1], 
+     type = &quot;l&quot;,
+     col = &quot;red&quot;,
+     ylim = c(0, 0.6),
+     xlab = &quot;Time (years)&quot;,
+     ylab = &quot;Cumulative incidence&quot;)
+lines(test.lrCR.av$time.interest,  test.lrCR.av$cif[2,,1], #CIF.hat[2,], 
+      col=&quot;blue&quot;)
+legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&quot;),
+       lty = c(1,1), col = c(&quot;red&quot;, &quot;blue&quot;))</code></pre>
+<p><img src="Others_files/figure-html/unnamed-chunk-25-1.png" width="576" />
+Finally, CIF estimates at <span class="math inline">\(t=5\)</span> for
+the first 5 subjects in the test set are shown:</p>
+<pre class="r"><code>test.lrCR.av$cif[1:5, test.lrCR.av$time.interest==5,1]
+#&gt; [1] 0.2243883 0.4189461 0.2749960 0.1813040 0.3046402</code></pre>
 </div>
 </div>
 <div id="storing-predictions" class="section level1">
 <h1>Storing predictions</h1>
 <p>In order to allow comparison with the predictions generated by other
 methods, we save the predictions obtained in this vignette.</p>
-<pre class="r"><code>pred_Others &lt;- data.frame(&quot;testID&quot; = seq_len(nrow(hd_test)),
-                      &quot;RF_logrank&quot; = test.lr$cif[,obsv.times==5,1],
-                      &quot;RF_logrankCR&quot; = test.lrCR$cif[,obsv.times==5,1])
+<pre class="r"><code>pred_Others &lt;- data.frame(
+  &quot;testID&quot; = seq_len(nrow(hd_test)),
+  &quot;RF_logrankCR&quot; = test.lrCR$cif[,test.lrCR$time.interest==5,1],
+  &quot;RF_logrankCR.av&quot; = test.lrCR.av$cif[,test.lrCR.av$time.interest==5,1])
 write.csv(pred_Others, &quot;../Predictions/pred_Others.csv&quot;, row.names = FALSE)</code></pre>
 </div>
 <div id="references" class="section level1">
@@ -833,20 +855,19 @@ Perspective</em>. John Wiley &amp; Sons.
 #&gt; [4] readr_2.1.3          
 #&gt; 
 #&gt; loaded via a namespace (and not attached):
-#&gt;  [1] tidyselect_1.2.0   xfun_0.35          bslib_0.4.1        purrr_0.3.5       
-#&gt;  [5] vctrs_0.5.1        generics_0.1.3     htmltools_0.5.3    yaml_2.3.6        
-#&gt;  [9] utf8_1.2.2         rlang_1.0.6        jquerylib_0.1.4    pillar_1.8.1      
-#&gt; [13] glue_1.6.2         withr_2.5.0        DBI_1.1.3          bit64_4.0.5       
-#&gt; [17] RColorBrewer_1.1-3 lifecycle_1.0.3    stringr_1.4.1      data.tree_1.0.0   
-#&gt; [21] visNetwork_2.1.2   htmlwidgets_1.5.4  codetools_0.2-18   evaluate_0.18     
-#&gt; [25] knitr_1.41         tzdb_0.3.0         fastmap_1.1.0      DiagrammeR_1.0.9  
-#&gt; [29] parallel_4.1.2     fansi_1.0.3        highr_0.9          Rcpp_1.0.9        
-#&gt; [33] cachem_1.0.6       vroom_1.6.0        jsonlite_1.8.3     bit_4.0.5         
-#&gt; [37] hms_1.1.2          digest_0.6.30      stringi_1.7.8      dplyr_1.0.10      
-#&gt; [41] cli_3.4.1          tools_4.1.2        magrittr_2.0.3     sass_0.4.4        
-#&gt; [45] tibble_3.1.8       crayon_1.5.2       tidyr_1.2.1        pkgconfig_2.0.3   
-#&gt; [49] ellipsis_0.3.2     data.table_1.14.6  assertthat_0.2.1   rmarkdown_2.18    
-#&gt; [53] rstudioapi_0.14    R6_2.5.1           compiler_4.1.2</code></pre>
+#&gt;  [1] Rcpp_1.0.9         highr_0.9          RColorBrewer_1.1-3 bslib_0.4.1       
+#&gt;  [5] compiler_4.1.2     pillar_1.8.1       jquerylib_0.1.4    tools_4.1.2       
+#&gt;  [9] digest_0.6.30      jsonlite_1.8.3     evaluate_0.18      lifecycle_1.0.3   
+#&gt; [13] tibble_3.1.8       pkgconfig_2.0.3    rlang_1.0.6        DBI_1.1.3         
+#&gt; [17] cli_3.4.1          rstudioapi_0.14    parallel_4.1.2     yaml_2.3.6        
+#&gt; [21] xfun_0.35          fastmap_1.1.0      withr_2.5.0        dplyr_1.0.10      
+#&gt; [25] DiagrammeR_1.0.9   stringr_1.4.1      knitr_1.41         generics_0.1.3    
+#&gt; [29] htmlwidgets_1.5.4  vctrs_0.5.1        sass_0.4.4         hms_1.1.2         
+#&gt; [33] tidyselect_1.2.0   data.tree_1.0.0    glue_1.6.2         data.table_1.14.6 
+#&gt; [37] R6_2.5.1           fansi_1.0.3        rmarkdown_2.18     tidyr_1.2.1       
+#&gt; [41] purrr_0.3.5        tzdb_0.3.0         magrittr_2.0.3     codetools_0.2-18  
+#&gt; [45] ellipsis_0.3.2     htmltools_0.5.3    assertthat_0.2.1   utf8_1.2.2        
+#&gt; [49] stringi_1.7.8      visNetwork_2.1.2   cachem_1.0.6</code></pre>
 </div>
 
 

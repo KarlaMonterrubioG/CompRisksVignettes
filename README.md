@@ -5,20 +5,61 @@ competing risks methods for survival analysis.
 
 It includes R vignettes to illustrate the usage of the following methods:
 
-* Cause-specific formulation
+* [Cause-specific formulation](https://github.com/KarlaMonterrubioG/Competing_risks/blob/main/Source/CS_specification.Rmd)
   + Cause-specific Cox PH
   + Sparse regression:
      - Lasso CPH
      - Cox boosting
-* CIF formulation
+* [CIF formulation](https://github.com/KarlaMonterrubioG/Competing_risks/blob/main/Source/CIF_specification.Rmd)
   + Fine-Gray
   + Pseudo-values
   + Direct binomial
   + Dependent Dirichlet processes
-* Discrete time formulation
+* [Discrete time formulation](https://github.com/KarlaMonterrubioG/Competing_risks/blob/main/Source/Discrete_specification.Rmd)
   + BART
-* Other methods
+* [Other methods](https://github.com/KarlaMonterrubioG/Competing_risks/blob/main/Source/Others.Rmd)
   + Random survival forests
+
+### Structure
+
+```
+.
+├── README.md                       
+├── Data                               # Example dataset
+│   └── HD                   
+│       └── hd.csv        
+├── Docker                             # Files for building/using Docker image
+│   ├── README.md
+│   ├── examples.sh
+│   ├── render
+│   └── render.R
+├── Predictions                        # Resulting predictions in test set
+│   ├── pred_CIF.csv
+│   ├── pred_CS.csv
+│   └── pred_Others.csv
+├── Source                             # Vignettes, includes Rmd and html files
+│   ├── CIF_specification.Rmd
+│   ├── CIF_specification.html
+│   ├── CS_specification.Rmd
+│   ├── CS_specification.html
+│   ├── Discrete_specification.Rmd
+│   ├── Discrete_specification.html
+│   ├── Others.Rmd
+│   ├── Others.html
+│   ├── Predictions.Rmd
+│   ├── head.html
+│   ├── index.Rmd
+│   ├── navbar.html
+│   ├── references.bib
+│   └── style.css
+├── docs
+│   └── .nojekill
+├── LICENSE
+├── Dockerfile
+└── Competing_risks.Rproj
+   
+
+```
 
 ## Usage
 
@@ -112,3 +153,15 @@ remotes::install_github('cran/binaryLogic')
 remotes::install_github('cran/DPWeibull')
 source("Docker/render.R")
 ```
+
+## Contributions
+
+| Author                    | Affiliation                                       | Contribution                                       |
+| ------------------------- |---------------------------------------------------|--------------------------                          |
+| [Karla Monterrubio-Gómez](https://github.com/KarlaMonterrubioG)| University of Edinburgh   | Author of .Rmd files                  |
+| [Nathan Constantine-Cooke](https://github.com/nathansam)| University of Edinburgh | Review .Rmd files, author Docker image         |
+| [Catalina A. Vallejos](https://github.com/catavallejos)| University of Edinburgh, The Alan Turing Institute| Author/Reviewer .Rmd files |
+
+**We welcome contributions!**
+
+If you are interested in adding a method to the list, please create a PR adding the method to the corresponding vignette using the same example dataset.

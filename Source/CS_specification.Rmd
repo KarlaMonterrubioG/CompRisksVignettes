@@ -89,8 +89,8 @@ data in 80% for train and 20% for test.
 require(splitstackshape)
 set.seed(2022)
 split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
-hd_train   <- as.data.frame(split_data$SAMP1[,-1])
-hd_test    <- as.data.frame(split_data$SAMP2[,-1])
+hd_train   <- split_data$SAMP1[,-1]
+hd_test    <- split_data$SAMP2[,-1]
 ```
 
 Now, we explore the number of observations per status in both train and test
@@ -269,7 +269,8 @@ csh_riskRegression.cph <- CSC(Hist(time, status) ~ age +
                                                    sex +
                                                    trtgiven +
                                                    medwidsi +
-                                                   extranod + clinstg,
+                                                   extranod + 
+                                                   clinstg,
                               data = hd_train,
                               surv.type = "hazard",
                               fitter = "cph")
@@ -514,6 +515,7 @@ plot(cv.boost)
 stop.B <- mstop(cv.boost)  # can serve to obtain optimal stopping parameter
 stop.B 
 ```
+
 The above output shows that `r stop.B` boosting iterations is enough. Once the 
 number is obtained one can use `glmboost()` with the resulting number of 
 boosting iterations.
