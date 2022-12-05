@@ -217,7 +217,7 @@ specific time point beyond the unique time-points present in the training data.
 
 ## `riskRegression`
 
-This R package acts as a wrapper of the `crr()` function described above.
+The function `FGR()` in this R package acts as a wrapper of the `crr()` function described above.
 However, it permits directly specifying the model through the formula argument,
 where we use `Hist()` to obtain the the response variable. When the cause
 argument is not passed, the default is 1.
