@@ -83,8 +83,10 @@ require(pander)
 pander::pander(table(hd$status))
 ```
 
-Thus, we have `r length(which(hd$status==0))` censored patients, `r length(which(hd$status==1))` with relapse, and `r length(which(hd$status==2))`  who died. From
-now on, we assume that the event of interest is relapse, i.e. status=1.
+Thus, we have `r length(which(hd$status==0))` censored patients, 
+`r length(which(hd$status==1))` with relapse, and `r length(which(hd$status==2))`
+who died. From now on, we assume that the event of interest is relapse, 
+i.e. status=1.
 
 In order to create a test set, we use stratified sampling to partition our
 dataset into 80% for train and 20% for test.
@@ -93,8 +95,8 @@ dataset into 80% for train and 20% for test.
 library(splitstackshape)
 set.seed(2022)
 split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
-hd_train   <- split_data$SAMP1
-hd_test    <- split_data$SAMP2
+hd_train   <- split_data$SAMP1[,-1]
+hd_test    <- split_data$SAMP2[,-1]
 ```
 
 Now, we explore the number of observations per status in both train and test
@@ -109,9 +111,15 @@ pander::pander(table(hd_test$status))
 ```
 
 # BART
-BART has a well documented vignette (@sparapani2021). Here, we focus only on demonstrating its usage for a CR setting, which corresponds to Section 5.3 in @sparapani2021. In the following, we fit the model with the two different likelihood formulations to compare the obtained estimates.
+
+BART has a well documented vignette (@sparapani2021). Here, we focus only on 
+demonstrating its usage for a CR setting, which corresponds to Section 5.3 in 
+@sparapani2021. In the following, we fit the model with the two different 
+likelihood formulations to compare the obtained estimates.
  
-The first step is to recast the data creating dummy variables for all categorical covariates. This is done for both train and test sets:
+The first step is to recast the data creating dummy variables for all 
+categorical covariates. This is done for both train and test sets:
+
 ```{r}
 library(nnet)
 library(survival)
@@ -139,7 +147,6 @@ functionality is documented in the help file for the `crisk2.bart()` function.
 
 
 ```{r, results='hide'}
-
 bart1 <- crisk2.bart(x.train = xtrain, 
                      times = hd_train$time,   # needed if ytrain is not provided
                      delta = hd_train$status, # needed if ytrain is not provided
@@ -147,16 +154,74 @@ bart1 <- crisk2.bart(x.train = xtrain,
                      sparse = FALSE,          # set equal TRUE for variable selection 
                      type = 'pbart',
                      ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 100, keepevery = 10L, 
-                     seed = 99)  
+                     ndpost = 500, nskip = 500, keepevery = 10, 
+                     seed = 99)
 ```
+
 Note that the code shown above does not use multi-threading, but BART permits 
 its usage by using `mc.crisk2.bart()` function instead of `crisk2.bart()`.
 
 Studying convergence diagnosis of the MCMC chains is key to ensure the 
-predictions are valid. In order to do that one needs to fit the model using the 
-train set as test set, by setting the argument `x.test = xtrain`. Then we can 
-use Geweke diagnostics to assess converge 
+predictions are valid. For continuous outcomes, this can be done using the 
+standard deviation parameter ($\sigma$) that is estimated by BART via the 
+`wbart()` function. Convergence assessment is more challenging when using BART
+for survival outcomes. If there is a single event type and the model was fitted
+using `surv.bart()`, then convergence can be monitored using its `yhat.train`
+output. However, as `yhat.train` is high-dimensional (there is one column for
+each person-period pair), examples in the BART library suggest to randomly 
+select a subset of individuals and visualise convergence diagnostics associated 
+to their associated estimates. Here, we will randomly select 5 individuals.
+
+Generally, convergence would be assessed on estimates generated for the 
+training data. However, if there are multiple event types and `crisk2.bart()` 
+was used to fit the model, `yhat.train` is not present in the output provided
+by the current implementation (the same occurs for `crisk.bart()`). 
+Here we explore two possible strategies.
+
+First, we use the posterior predictive distribution for the test dataset which 
+was calculated based on MCMC draws generated for the training dataset. 
+The following code visualises MCMC draws obtained for `yhat.test` oftained for
+the first three individuals in the test set (first time-period only)
+
+```{r}
+n.times <- length(bart1$times)
+# Select 5 random individuals
+set.seed(10)
+aux <- sample(seq_len(nrow(hd_test)), size = 5)
+
+for(i in aux) {
+  plot(bart1$yhat.test[ , (i-1)*n.times + 1], type = "l")
+}
+```
+
+We can use Geweke diagnostics to assess converge across all time-points for our
+randomly selected individuals. 
+
+```{r}
+# code adapted from the example in `demo("geweke.lung.surv.bart", package = "BART")`
+mycol <- 0
+for(i in aux) {
+  mycol <- mycol + 1
+  # selects samples for individual i across all time-points
+  post.mcmc <- bart1$yhat.test[ , (i-1)*n.times + seq_len(n.times)]
+  # calculates the geweke diagnostic
+  z <- gewekediag(post.mcmc)$z
+  # to set the limits in the plot below
+  y <- max(c(4, abs(z)))
+
+  ## plot the z scores vs. time for each patient
+  if(i==aux[1]) plot(bart1$times, z, ylim=c(-y, y), type='l',
+                  xlab='t', ylab='z')
+      else lines(bart1$times, z, type='l', col = mycol)
+  lines(bart1$times, rep(1.96, n.times), type='l', lty=2)
+  lines(bart1$times, rep(-1.96, n.times), type='l', lty=2)
+}
+```
+
+Alternatively, when contacting the authors to ask their advice about this, they 
+suggested an alternative strategy. This requires fitting a new model, using 
+the training data as a test set (i.e. `x.test = xtrain`). The code required to
+this is provided below. 
 
 ```{r, results='hide'}
 bart1.chains <- crisk2.bart(x.train = xtrain, 
@@ -166,23 +231,55 @@ bart1.chains <- crisk2.bart(x.train = xtrain,
                      sparse = FALSE,          # set equal TRUE for variable selection 
                      type = 'pbart',
                      ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 100, keepevery = 10L, 
-                     seed = 99)  
-
-h <- bart1.chains$K
-samples <- bart1.chains$yhat.test[, 1:h]
-z <- gewekediag(samples)$z
-lim <- max(c(4, abs(z)))
-
-# z scores vs. time for patient 1
-plot(bart1.chains$times, z, ylim=c(-lim, lim), type='l',xlab='t', ylab='z')
-lines(bart1.chains$times, rep(1.96, h), type='l', lty=2)
-lines(bart1.chains$times, rep(-1.96, h), type='l', lty=2)
+                     ndpost = 500, nskip = 500, keepevery = 10, 
+                     seed = 99)
 ```
 
-Notice that the Geweke statistics exceed the $95\%$ limits several times, 
-suggesting the chains have not converged. Thus, the MCMC should be run for 
-longer thining to obtain valid estimates. 
+This, however, can be very time consuming --- particularly for large datasets or
+when the number of unique event times is large. Another option would be to use
+the `predict()` function. As seen below, this leads to similar numerical resuls
+(the bigger discrepancies are likely due to lack of convergence). 
+
+```{r}
+pre <- surv.pre.bart(x.train=xtrain, x.test=xtrain,
+                     times=hd_train$time, delta=hd_train$status)
+
+check <- predict(bart1, newdata=pre$tx.test, newdata2=pre$tx.test)
+
+smoothScatter(bart1.chains$surv.test.mean, check$surv.test.mean)
+abline(a = 0, b = 1, col = "red")
+```
+
+As before, the Geweke diagnostic criteria can be applied:
+
+```{r}
+# code adapted from the example in `demo("geweke.lung.surv.bart", package = "BART")`
+mycol <- 0
+for(i in aux) {
+  mycol <- mycol + 1
+  # selects samples for individual i across all time-points
+  post.mcmc <- bart1.chains$yhat.test[ , (i-1)*n.times + seq_len(n.times)]
+  # calculates the geweke diagnostic
+  z <- gewekediag(post.mcmc)$z
+  # to set the limits in the plot below
+  y <- max(c(4, abs(z)))
+
+  ## plot the z scores vs. time for each patient
+  if(i==aux[1]) plot(bart1.chains$times, z, ylim=c(-y, y), type='l',
+                  xlab='t', ylab='z')
+      else lines(bart1.chains$times, z, type='l', col = mycol)
+  lines(bart1.chains$times, rep(1.96, n.times), type='l', lty=2)
+  lines(bart1.chains$times, rep(-1.96, n.times), type='l', lty=2)
+}
+```
+
+In both cases, we notice that the Geweke statistics exceed the $95\%$ limits 
+several times, suggesting the chains have not converged. Thus, the MCMC should 
+be run for a longer number of iterations to obtain valid estimates. In practice,
+this means that `nskip` should be increased. However, to avoid long running
+times when compiling this vignette, this is left as an exercise to the reader.
+
+The remaining of this vignette will continue as if the sampler had converged. 
 
 CIFs for the subjects in the test set can be obtained through `cif.test.mean()`. 
 This provides the posterior mean across MCMC samples. In addition, credible 
@@ -212,7 +309,7 @@ plot(bart1$times,
      cif.pred[1,],
      type = "l",
      col = "red",
-     ylim = c(0, 0.9),
+     ylim = c(0, 0.6),
      xlab = "Time (years)",
      ylab = "Cumulative incidence")
 points(bart1$times,cif.025[1,], col = "red", type ='s', lwd = 1, lty = 2)
@@ -220,6 +317,8 @@ points(bart1$times,cif.975[1,], col = "red", type = 's', lwd = 1, lty = 2)
 lines(bart1$times,  cif.pred[2,], col="blue")
 points(bart1$times,cif.025[2,], col = "blue", type ='s', lwd = 1, lty = 2)
 points(bart1$times,cif.975[2,], col = "blue", type = 's', lwd = 1, lty = 2)
+legend("bottomright", legend = c("Patient 1", "Patient 2"),
+       lty = c(1,1), col = c("red", "blue"))
 ```
 
 Similar to other approaches, BART permits to do predictions of the CIF at
@@ -229,43 +328,22 @@ dataset. Below, we show results for the first 5 subjects in the test set.
 
 ```{r}
 BART.pred <- matrix(bart1$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )
-BART.pred[1:5,which(bart1$times == 5)]
+BART.pred[1:5, which(bart1$times == 5)]
 ```
 
-Note also that if the model is fitted with `x.test = xtrain` in order to assess convergence, one can do predictions afterwards by making a call to the `predict.crisk2bart()` function. 
-For instance:
+Note also that if a new test dataset is available, one can do predictions 
+afterwards by making a call to the `predict.crisk2bart()` function. For instance:
 
 ```{r}
 pre <- surv.pre.bart(x.train=xtrain, x.test=xtest, 
-                     times=hd_train$time, delta=hd_train$status)
-
-bart1.pred <- mc.crisk2.pwbart(pre$tx.test, pre$tx.test,
-                         bart1.chains$treedraws, bart1.chains$treedraws2)
-
-pre <- surv.pre.bart(x.train=xtrain, x.test=xtest, times=hd_train$time, 
+                     times=hd_train$time, 
                      delta =hd_train$status)
 
-bart1.pred <- predict(bart1.chains, newdata=pre$tx.test, newdata2=pre$tx.test)
+bart1.pred <- predict(bart1, newdata=pre$tx.test, newdata2=pre$tx.test)
 
-cif.pred <- matrix(bart1.pred$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )
-cif.025 <- apply(bart1.pred$cif.test, 2, quantile, probs = 0.025) 
-cif.025 <- matrix(cif.025, nrow=nrow(xtest), byrow = TRUE)
-cif.975 <- apply(bart1.pred$cif.test, 2, quantile, probs = 0.975) 
-cif.975 <- matrix(cif.975, nrow=nrow(xtest), byrow = TRUE)
-
-plot(bart1.chains$times,
-     cif.pred[1,],
-     type = "l",
-     col = "red",
-     ylim = c(0, .8),
-     xlab = "Time (years)",
-     ylab = "Cumulative incidence")
-points(bart1.chains$times,cif.025[1,], col = "red", type ='s', lwd = 1, lty = 2)
-points(bart1.chains$times,cif.975[1,], col = "red", type = 's', lwd = 1, lty = 2)
-lines(bart1.chains$times,  cif.pred[2,], col="blue")
-points(bart1.chains$times,cif.025[2,], col = "blue", type ='s', lwd = 1, lty = 2)
-points(bart1.chains$times,cif.975[2,], col = "blue", type = 's', lwd = 1, lty = 2)
-
+# Same results are obtained if the same test dataset is used
+cif.pred[1:4, 1:4]
+matrix(bart1.pred$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )[1:4, 1:4]
 ```
 
 ### DART
@@ -283,28 +361,34 @@ dart1 <- crisk2.bart(x.train = xtrain,
                      sparse = TRUE,          # set equal TRUE for variable selection 
                      type = 'pbart',
                      ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 200, keepevery = 10L, 
+                     ndpost = 500, nskip = 500, keepevery = 10, 
                      seed = 99)  
 ```
 
 The output of the function is the same as discussed in the previous section. 
-Therefore, the CIFs can be estimated as shown before.
+For simplicity, we have not evaluated convergence here, but the approach 
+described above could be applied. CIF estimates can also be obtained as shown
+before. 
 
-A plot that illustrates which variables to select is shown:
+Here, we illustrate the new functionality provided by DART in terms of variable
+selection. The plot below shows the estimated marginal posterior probabilities 
+of inclusion associated to each input covariates:
+
 ```{r, fig.dim=c(6,4)}
-P = ncol(xtrain)    # use to set thereshold probability for each covariate
-
-dart1$varprob.mean > 1/P
+dart1$varprob.mean[-1]
 
 plot(dart1$varprob.mean[-1], 
      ylab='Selection Probability', 
-     ylim=c(0, 1), 
-     pch = 1+45*(dart1$varprob.mean <= 1/P))
-lines(c(1, P+1), c(1/P, 1/P))
+     ylim=c(0, 1))
+P <- ncol(xtrain)    # use to set thereshold probability for each covariate
+abline(h = 1/P, lty = 2)
+
+dart1$varprob.mean[-1] > 1/P
 ```
 
-According to the plot above only age and treatment are relevant.
-
+According to the plot above only age and treatment are relevant (this assumes
+a $1/P$ threshold). However, note that these results should be interpreted with
+caution as convergence diagnostics have not been applied. 
 
 ## Model formulation 2
 

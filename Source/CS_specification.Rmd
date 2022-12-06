@@ -89,8 +89,8 @@ data in 80% for train and 20% for test.
 require(splitstackshape)
 set.seed(2022)
 split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
-hd_train   <- as.data.frame(split_data$SAMP1[,-1])
-hd_test    <- as.data.frame(split_data$SAMP2[,-1])
+hd_train   <- split_data$SAMP1[,-1]
+hd_test    <- split_data$SAMP2[,-1]
 ```
 
 Now, we explore the number of observations per status in both train and test
@@ -142,7 +142,11 @@ summary(csh_survival)
 The above output summarises the fitted model. First, it shows that out of the
 `r nrow(hd_train)` patients, `r sum(hd_train$status == 1)` experienced the event 
 of interest (relapse). Second, it shows the coefficients and hazard ratios 
-(`exp(coef)`) for each covariate, along with a significance test. The results suggest that age, treatment, and clinical stage are significantly associated with the hazard of relapse. For instance, being in clinical stage 2 increases the cause-specific hazard (rate) of relapse by `r round((exp(coef(csh_survival)[7]) - 1)*100,2)`%
+(`exp(coef)`) for each covariate, along with a significance test. The results 
+suggest that age, treatment, and clinical stage are significantly associated 
+with the hazard of relapse. For instance, being in clinical stage 2 increases 
+the cause-specific hazard (rate) of relapse by 
+`r round((exp(coef(csh_survival)[7]) - 1)*100,2)`%
 when compared to a patient in stage 1. It is important to emphasise that one 
 should be cautious when interpreting these covariate effects as this modelling 
 strategy only permits to do inference of the effects on the
@@ -152,10 +156,10 @@ index, which summaries the in-sample discriminative ability of the model (a
 value close to 1 is preferred), and  three tests to check if (overall) the model
 is significant.
  
-Note that naively estimating survival/risk probabilities from this model, will result
-in overestimation of the survival function, as competing risks are not taken
-into account. See the [riskRegression section](#the-riskregression-package) for
-a valid approach.
+Note that naively estimating survival/risk probabilities from this model, will 
+result in overestimation of the survival function, as competing risks are not 
+taken into account. See the [riskRegression section](#the-riskregression-package) 
+for a valid approach.
 
 ## The `rms` package
 
@@ -204,8 +208,8 @@ covariates, the HR are computed with respect to the lower and upper quartiles.
 For instance, from the output below we can infer that a 20-year increase in age
 (going from 23 to 43), increases the cause-specific hazard of relapse by 37.38%  .
 This is in contrast to the coefficients obtained by `print()`, which in this
-case corresponds to `exp(coef)`=`r round(exp(coef(csh_rms)[1]),2)` and whose interpretation refers to
-the effect on the hazard by 1-year increase. 
+case corresponds to `exp(coef)`=`r round(exp(coef(csh_rms)[1]),2)` and whose 
+interpretation refers to the effect on the hazard by 1-year increase. 
 
 ```{r}
 summary(csh_rms)
@@ -213,9 +217,10 @@ summary(csh_rms)
 
 Furthermore, one can manually define ranges in which we want to compute HR; for
 instance going from 30-40 years, i.e. a 10-year increase will result in a 
-increase in the cause-specific hazard of 17.21%, as shown below. Similarly, for discrete
-covariates, one can define the reference level with respect to which the HR are
-computed; for example, below we have changed the reference level for sex.
+increase in the cause-specific hazard of 17.21%, as shown below. Similarly, for 
+discrete covariates, one can define the reference level with respect to which 
+the HR are computed; for example, below we have changed the reference level for 
+sex.
 
 ```{r}
 summary(csh_rms, age = c(30, 40), sex = "F")
@@ -264,15 +269,16 @@ csh_riskRegression.cph <- CSC(Hist(time, status) ~ age +
                                                    sex +
                                                    trtgiven +
                                                    medwidsi +
-                                                   extranod + clinstg,
+                                                   extranod + 
+                                                   clinstg,
                               data = hd_train,
                               surv.type = "hazard",
                               fitter = "cph")
 print(csh_riskRegression.cph)
 ```
 
-Assume that we are interested in making risk predictions at time $t=5$ years for a
-new set of patients (i.e. the test dataset `hd_test`). As an illustration, we 
+Assume that we are interested in making risk predictions at time $t=5$ years for 
+a new set of patients (i.e. the test dataset `hd_test`). As an illustration, we 
 focus on predicting whether an event of type 1 will occur by that time (to 
 predict the occurrence of the second event type, use `cause = 2` in the code 
 below). The `riskRegression` package permits obtaining absolute risk predictions 
@@ -325,10 +331,11 @@ Note that the product limit estimator is also employed when using
 
 ```{r}
 require(pec)
-as.vector(predictEventProb(csh_riskRegression.cph,
-                           newdata = hd_test[1:5, ],
-                           cause = 1,
-                           time = 5))
+risk.pec <- predictEventProb(csh_riskRegression.cph,
+                             newdata = hd_test,
+                             cause = 1,
+                             time = 5)
+risk.pec[1:5]
 ```
 
 Finally, note also that `riskRegression` permits to fit different regression
@@ -343,7 +350,6 @@ csh_riskRegression2 <- CSC(list(Hist(time, status) ~ age + sex + trtgiven +
                            data = hd_train)
 print(csh_riskRegression2)
 ```
-
 
 # Sparse regression
 
@@ -372,8 +378,8 @@ lasso.fit <- glmnet(x = x,
                     alpha = 1)
 ```
 
-The output of the fitted model shows degrees of freedom, deviance and $\lambda$ for the
-iterations.
+The output of the fitted model shows degrees of freedom, deviance and $\lambda$ 
+for the iterations.
 
 ```{r}
 print(lasso.fit)
@@ -393,6 +399,13 @@ The estimated coefficients for specific $\lambda$ values can be obtained using
 ```{r}
 coef(lasso.fit, s = 0.06) # s:=\lambda
 ```
+
+Note that due to the lack of intercept in the design matrix, the interpretation
+of the regression coefficients differs from those presented in earlier sections.
+For example, two separate coefficients are reported for sex (one for males; one
+for females). Instead, previous models used females as a reference, reporting a
+single regression coefficient to quantify the difference between males and 
+females (in terms of the hazard). 
 
 
 One can also employ k-fold cross-validation to select the optimal value of
@@ -488,7 +501,9 @@ involvement appear to be relevant.
 plot(varimp(csh_mboost))
 ```
 
-`mboost` permits cross-validation for hyper-parameter selection; specifically, the number of boosting iterations. Here, we show how to do this using 25 bootstrap samples (default). Estimation is done sequentially:
+`mboost` permits cross-validation for hyper-parameter selection; specifically, 
+the number of boosting iterations. Here, we show how to do this using 25 
+bootstrap samples (default). Estimation is done sequentially:
 
 ```{r,  echo=T, results='hide'}
 set.seed(1)
@@ -500,8 +515,22 @@ plot(cv.boost)
 stop.B <- mstop(cv.boost)  # can serve to obtain optimal stopping parameter
 stop.B 
 ```
-The above output shows that `r stop.B` boosting iterations is enough. Once the number is obtained one can use `glmboost()` with the resulting number of boosting iterations.
 
+The above output shows that `r stop.B` boosting iterations is enough. Once the 
+number is obtained one can use `glmboost()` with the resulting number of 
+boosting iterations.
+
+# Storing predictions
+
+In order to allow comparison with the predictions generated by other methods,
+we save the predictions obtained in this vignette.  
+
+```{r save_pred}
+pred_CS <- data.frame("testID" = seq_len(nrow(hd_test)),
+                      "coxph_riskRegression" = risk.coxph,
+                      "coxphPL_riskRegression" = risk.coxphPL)
+write.csv(pred_CS, "../Predictions/pred_CS.csv", row.names = FALSE)
+```
 
 # References
 <div id="refs"></div>
