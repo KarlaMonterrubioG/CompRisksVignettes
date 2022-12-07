@@ -94,7 +94,7 @@ settings panel (Settings > Resources > Advanced)
 To pull (download) the image, run
 
 ``` bash
-docker image pull ghcr.io/karlamonterrubiog/competing_risks:latest
+docker image pull ghcr.io/karlamonterrubiog/comprisksvignettes:latest
 ```
 
 To render the html reports, run
@@ -104,7 +104,7 @@ $ docker container run \
   --mount type=bind,source="$(pwd)"/docs,target=/docs \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
-  ghcr.io/karlamonterrubiog/competing_risks ./render
+  ghcr.io/karlamonterrubiog/comprisksvignettes ./render
 ```
 
 which will then use the R markdown files in the [`Source`](Source) directory to
@@ -120,7 +120,7 @@ $ docker container run \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
   -e PASSWORD=password \
   -p 8787:8787 \
-  ghcr.io/karlamonterrubiog/competing_risks
+  ghcr.io/karlamonterrubiog/comprisksvignettes
 ```
 
 Replacing the lowercase "`password`" with an alternative if desired. You can
@@ -134,7 +134,7 @@ The Docker image is large (3.88GB), so you may wish to delete the image once you
 are finished:
 
 ``` bash
-docker image rm ghcr.io/karlamonterrubiog/competing_risks
+docker image rm ghcr.io/karlamonterrubiog/comprisksvignettes
 ```
 
 ### Using a local R install
