@@ -5,19 +5,19 @@ competing risks methods for survival analysis.
 
 It includes R vignettes to illustrate the usage of the following methods:
 
-* [Cause-specific formulation](https://github.com/KarlaMonterrubioG/Competing_risks/blob/main/Source/CS_specification.Rmd)
+* [Cause-specific formulation](https://github.com/KarlaMonterrubioG/CompRisksVignettes/blob/main/Source/CS_specification.Rmd)
   + Cause-specific Cox PH
   + Sparse regression:
      - Lasso CPH
      - Cox boosting
-* [CIF formulation](https://github.com/KarlaMonterrubioG/Competing_risks/blob/main/Source/CIF_specification.Rmd)
+* [CIF formulation](https://github.com/KarlaMonterrubioG/CompRisksVignettes/blob/main/Source/CIF_specification.Rmd)
   + Fine-Gray
   + Pseudo-values
   + Direct binomial
   + Dependent Dirichlet processes
-* [Discrete time formulation](https://github.com/KarlaMonterrubioG/Competing_risks/blob/main/Source/Discrete_specification.Rmd)
+* [Discrete time formulation](https://github.com/KarlaMonterrubioG/CompRisksVignettes/blob/main/Source/Discrete_specification.Rmd)
   + BART
-* [Other methods](https://github.com/KarlaMonterrubioG/Competing_risks/blob/main/Source/Others.Rmd)
+* [Other methods](https://github.com/KarlaMonterrubioG/CompRisksVignettes/blob/main/Source/Others.Rmd)
   + Random survival forests
 
 ### Structure
@@ -83,8 +83,8 @@ support to be enabled in the BIOS settings.
 To use the Docker image, clone this repository and go into the directory.
 
 ``` bash
-$ git clone https://github.com/KarlaMonterrubioG/Competing_risks.git
-$ cd Competing_risks
+$ git clone https://github.com/KarlaMonterrubioG/CompRisksVignettes.git
+$ cd CompRisksVignettes
 ```
 
 > **Note**: You may need to allocate more RAM to Docker if 8GB of RAM or less 
