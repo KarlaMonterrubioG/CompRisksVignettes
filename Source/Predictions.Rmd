@@ -41,17 +41,25 @@ $t=5$ that were obtained by different methods
 ```{r load_pred}
 pred_CIF <- read.csv("../Predictions/pred_CIF.csv")
 pred_Others <- read.csv("../Predictions/pred_Others.csv")
+pred_BART <- read.csv("../Predictions/pred_BART.csv")
 pred_All <- merge(pred_CIF, pred_Others, by = "testID")
+pred_All <- merge(pred_All, pred_BART, by = "testID")
 ```
 
-```{r cor_pred}
-library(corrplot)
-pred_cor <- cor(pred_All[,-1])
-corrplot(pred_cor)
+# Comparing predictions
 
-plot(pred_All[,-1])
+As shown below, all methods led to correlated predictions. As expected we 
+observe greater similarity between methods based on the CIF specification
+(Fine and Gray regression, direct binomial and DPWeibul). The three BART 
+variations also led to similar predictions (discrepancies may be due to lack
+of convergence). 
+
+```{r cor_pred, fig.height=8, fig.width=8}
+plot(pred_All[,-1], xlim = c(0, 0.65), ylim = c(0, 0.65))
 ```
 
+To evaluate the predictive performance for each methods, users can follow the
+examples provided by [van Geloven et al](https://github.com/survival-lumc/ValidationCompRisks).
 
 # References
 <div id="refs"></div>
