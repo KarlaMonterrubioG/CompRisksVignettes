@@ -1,9 +1,9 @@
 FROM rocker/rstudio:4.2.2
 
-LABEL "org.opencontainers.image.source"="https://github.com/karlamonterrubiog/competing_risks" \
+LABEL "org.opencontainers.image.source"="https://github.com/KarlaMonterrubioG/CompRisksVignettes" \
     "org.opencontainers.image.authors"="Nathan Constantine-Cooke <nathan.constantine-cooke@ed.ac.uk>" \
     "org.opencontainers.image.base.name"="rocker/rstudio:4.2.1" \
-    "org.opencontainers.image.description"="Docker image for the competing_risks repository" \
+    "org.opencontainers.image.description"="Docker image for the CompRisksVignettes repository" \
     "org.opencontainers.image.vendor"="University of Edinburgh"
 
 RUN apt-get update -qq && apt-get -y --no-install-recommends install \
