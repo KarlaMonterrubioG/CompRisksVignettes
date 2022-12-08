@@ -154,7 +154,7 @@ bart1 <- crisk2.bart(x.train = xtrain,
                      sparse = FALSE,          # set equal TRUE for variable selection 
                      type = 'pbart',
                      ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 500, keepevery = 10, 
+                     ndpost = 500, nskip = 500, keepevery = 5, 
                      seed = 99)
 ```
 
@@ -223,7 +223,7 @@ suggested an alternative strategy. This requires fitting a new model, using
 the training data as a test set (i.e. `x.test = xtrain`). The code required to
 this is provided below. 
 
-```{r, results='hide'}
+```{r, results='hide', eval = FALSE}
 bart1.chains <- crisk2.bart(x.train = xtrain, 
                      times = hd_train$time,   # needed if ytrain is not provided
                      delta = hd_train$status, # needed if ytrain is not provided
@@ -231,23 +231,27 @@ bart1.chains <- crisk2.bart(x.train = xtrain,
                      sparse = FALSE,          # set equal TRUE for variable selection 
                      type = 'pbart',
                      ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 500, keepevery = 10, 
+                     ndpost = 500, nskip = 500, keepevery = 5, 
                      seed = 99)
 ```
 
+Similar plots for the Geweke diagnostic criteria can be then generated using 
+the code above, replacing `bart1` by `bart1.chains`. 
+
 This, however, can be very time consuming --- particularly for large datasets or
-when the number of unique event times is large. Another option would be to use
-the `predict()` function. As seen below, this leads to similar numerical resuls
-(the bigger discrepancies are likely due to lack of convergence). 
+when the number of unique event times is large. Moreover, this would assess MCMC
+convergence in a different chain to what is contained in `bart1`. Another option 
+would be to use the `predict()` function, using the training dataset as test
+data. This allows us to obtain estimates (e.g. `surv.test.mean`) for
+individuals in the training set. 
 
-```{r}
-pre <- surv.pre.bart(x.train=xtrain, x.test=xtrain,
-                     times=hd_train$time, delta=hd_train$status)
-
-check <- predict(bart1, newdata=pre$tx.test, newdata2=pre$tx.test)
-
-smoothScatter(bart1.chains$surv.test.mean, check$surv.test.mean)
-abline(a = 0, b = 1, col = "red")
+```{r, cache.lazy = FALSE}
+# prepare the data to the format required by BART
+# The training data is used as test dataset
+pre <- surv.pre.bart(x.train = xtrain, x.test = xtrain,
+                     times = hd_train$time, delta = hd_train$status)
+# generate predictions using 
+pred.train <- predict(bart1, newdata = pre$tx.test, newdata2 = pre$tx.test)
 ```
 
 As before, the Geweke diagnostic criteria can be applied:
@@ -258,18 +262,18 @@ mycol <- 0
 for(i in aux) {
   mycol <- mycol + 1
   # selects samples for individual i across all time-points
-  post.mcmc <- bart1.chains$yhat.test[ , (i-1)*n.times + seq_len(n.times)]
+  post.mcmc <- pred.train$yhat.test[ , (i-1)*n.times + seq_len(n.times)]
   # calculates the geweke diagnostic
   z <- gewekediag(post.mcmc)$z
   # to set the limits in the plot below
   y <- max(c(4, abs(z)))
 
   ## plot the z scores vs. time for each patient
-  if(i==aux[1]) plot(bart1.chains$times, z, ylim=c(-y, y), type='l',
+  if(i==aux[1]) plot(pred.train$times, z, ylim=c(-y, y), type='l',
                   xlab='t', ylab='z')
-      else lines(bart1.chains$times, z, type='l', col = mycol)
-  lines(bart1.chains$times, rep(1.96, n.times), type='l', lty=2)
-  lines(bart1.chains$times, rep(-1.96, n.times), type='l', lty=2)
+      else lines(pred.train$times, z, type='l', col = mycol)
+  lines(pred.train$times, rep(1.96, n.times), type='l', lty=2)
+  lines(pred.train$times, rep(-1.96, n.times), type='l', lty=2)
 }
 ```
 
@@ -327,8 +331,8 @@ Note that predictions are only provided for time-points present in the training
 dataset. Below, we show results for the first 5 subjects in the test set.
 
 ```{r}
-BART.pred <- matrix(bart1$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )
-BART.pred[1:5, which(bart1$times == 5)]
+BART1.pred <- matrix(bart1$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )
+BART1.pred[1:5, which(bart1$times == 5)]
 ```
 
 Note also that if a new test dataset is available, one can do predictions 
@@ -361,7 +365,7 @@ dart1 <- crisk2.bart(x.train = xtrain,
                      sparse = TRUE,          # set equal TRUE for variable selection 
                      type = 'pbart',
                      ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 500, keepevery = 10, 
+                     ndpost = 500, nskip = 500, keepevery = 5, 
                      seed = 99)  
 ```
 
@@ -390,6 +394,15 @@ According to the plot above only age and treatment are relevant (this assumes
 a $1/P$ threshold). However, note that these results should be interpreted with
 caution as convergence diagnostics have not been applied. 
 
+
+As before, predictions of the CIF at $t=5$ years for the test dataset 
+(`hd_test`) can also be obtained.
+
+```{r}
+DART1.pred <- matrix(dart1$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )
+DART1.pred[1:5, which(dart1$times == 5)]
+```
+
 ## Model formulation 2
 
 This approach is discussed in Section 3.2 of @Bart2020 and fits also two 
@@ -400,47 +413,26 @@ the individual is still at risk and did not experience a type $k=1$ event.
 In this case, the model is fit with function `crisk.bart()`:
 
 ```{r, results='hide'}
-
 bart2 <- crisk.bart(x.train = xtrain, times = hd_train$time, 
                     delta=hd_train$status,
                     x.test = xtest, 
                     sparse=FALSE, 
                     type='pbart',
                     ntree = 30, numcut = 100, 
-                    ndpost = 500, nskip = 100, keepevery = 10L, 
+                    ndpost = 500, nskip = 500, keepevery = 5, 
                     seed=99)
 # Parallel computation of the model is available using mc.crisk.bart
 ```
 
-The output is the same as in model formulation 1. 
+The output is the same as in model formulation 1 and an analysis of convergence
+can be performed as before. For simplicity, this is excluded from this example.
 
-In order to study convergence diagnosis of the MCMC chains we use Geweke diagnostics. As in model formulation 1, we need to fit the model using the 
-train set as test set, by setting the argument `x.test = xtrain`, as shown below:
-
-```{r, results='hide'}
-bart2.chains <- crisk.bart(x.train = xtrain, 
-                     times = hd_train$time,   # needed if ytrain is not provided
-                     delta = hd_train$status, # needed if ytrain is not provided
-                     x.test = xtrain,         
-                     sparse = FALSE,          # set equal TRUE for variable selection 
-                     type = 'pbart',
-                     ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 100, keepevery = 10L, 
-                     seed = 99)  
-
-h <- bart2.chains$K
-samples <- bart2.chains$yhat.test[, 1:h]
-z <- gewekediag(samples)$z
-lim <- max(c(4, abs(z)))
-
-# z scores vs. time for patient 1
-plot(bart2.chains$times, z, ylim=c(-lim, lim), type='l',xlab='t', ylab='z')
-lines(bart2.chains$times, rep(1.96, h), type='l', lty=2)
-lines(bart2.chains$times, rep(-1.96, h), type='l', lty=2)
-```
+**NOTE: we have used a small number of iterations and the MCMC did not appear to
+converge. Therefore, the results shown below need to be interpreted with caution.**
 
 
-As before, we employ `cif.test.mean()` to obtain CIFs for the subjects in the test set along with 95% credible intervals.
+As before, we employ `cif.test.mean` to obtain CIFs for the subjects in the 
+test set along with 95% credible intervals.
 
 ```{r}
 cif2.pred <- matrix(bart2$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )
@@ -472,7 +464,9 @@ points(bart2$times,cif2.975[2,], col = "blue", type = 's', lwd = 1, lty = 2)
 ```
 
 
-Below, we show predictions for 5 subjects in a new dataset (e.g. `hd_test`) at a specific time point (e.g. $t=5$ years). Note that predictions are only provided for time-points present in the training set.
+Below, we show predictions for 5 subjects in a new dataset (e.g. `hd_test`) at 
+a specific time point (e.g. $t=5$ years). Note that predictions are only 
+provided for time-points present in the training set.
 
 ```{r}
 BART2.pred <- matrix(bart2$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )
@@ -480,17 +474,32 @@ BART2.pred[1:5, which(bart2$times == 5)]
 ```
 
 
-Note that the estimates of the 2 model formulations differ. The next plots compare CIFs for patient 1, under the 2 different models to show such differences:
-```{r}
+Note that the estimates of the 2 model formulations differ. The next plots 
+compare CIFs for patient 1, under the 2 different models to show such differences:
 
-plot(bart1$times,cif.pred[1,],lwd=2,type="l", col=2, ylim=c(0,1), 
+```{r}
+plot(bart1$times,cif.pred[1,],lwd=2,type="l", col="#009999", ylim=c(0,1), 
      main="Comparison of different formulations for test patient 1",
      xlab="Time", ylab="CIF(t)")
-lines(cif2.pred[2,], col=3,lwd=3)
+lines(bart1$times, cif2.pred[2,], col="#FFCC00",lwd=3)
       legend("topright", 
        legend=c("Formulation 1", "Formulation 2"),
        col=c("#009999", "#FFCC00"), lty=c(1,1))
 ```
+
+# Storing predictions
+
+In order to allow comparison with the predictions generated by other methods,
+we save the predictions obtained in this vignette.  
+
+```{r save_pred}
+pred_BART <- data.frame("testID" = seq_len(nrow(hd_test)),
+                      "crisk2.bart" = BART1.pred[, which(bart1$times == 5)],
+                      "crisk2.bart_dart" = DART1.pred[, which(dart1$times == 5)],
+                      "crisk.bart" = BART2.pred[, which(bart1$times == 5)])
+write.csv(pred_BART, "../Predictions/pred_BART.csv", row.names = FALSE)
+```
+
 
 # References
 

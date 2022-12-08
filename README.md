@@ -5,19 +5,19 @@ competing risks methods for survival analysis.
 
 It includes R vignettes to illustrate the usage of the following methods:
 
-* [Cause-specific formulation](https://github.com/KarlaMonterrubioG/Competing_risks/blob/main/Source/CS_specification.Rmd)
+* [Cause-specific formulation](https://github.com/KarlaMonterrubioG/CompRisksVignettes/blob/main/Source/CS_specification.Rmd)
   + Cause-specific Cox PH
   + Sparse regression:
      - Lasso CPH
      - Cox boosting
-* [CIF formulation](https://github.com/KarlaMonterrubioG/Competing_risks/blob/main/Source/CIF_specification.Rmd)
+* [CIF formulation](https://github.com/KarlaMonterrubioG/CompRisksVignettes/blob/main/Source/CIF_specification.Rmd)
   + Fine-Gray
   + Pseudo-values
   + Direct binomial
   + Dependent Dirichlet processes
-* [Discrete time formulation](https://github.com/KarlaMonterrubioG/Competing_risks/blob/main/Source/Discrete_specification.Rmd)
+* [Discrete time formulation](https://github.com/KarlaMonterrubioG/CompRisksVignettes/blob/main/Source/Discrete_specification.Rmd)
   + BART
-* [Other methods](https://github.com/KarlaMonterrubioG/Competing_risks/blob/main/Source/Others.Rmd)
+* [Other methods](https://github.com/KarlaMonterrubioG/CompRisksVignettes/blob/main/Source/Others.Rmd)
   + Random survival forests
 
 ### Structure
@@ -83,8 +83,8 @@ support to be enabled in the BIOS settings.
 To use the Docker image, clone this repository and go into the directory.
 
 ``` bash
-$ git clone https://github.com/KarlaMonterrubioG/Competing_risks.git
-$ cd Competing_risks
+$ git clone https://github.com/KarlaMonterrubioG/CompRisksVignettes.git
+$ cd CompRisksVignettes
 ```
 
 > **Note**: You may need to allocate more RAM to Docker if 8GB of RAM or less 
@@ -94,7 +94,7 @@ settings panel (Settings > Resources > Advanced)
 To pull (download) the image, run
 
 ``` bash
-docker image pull ghcr.io/karlamonterrubiog/competing_risks:latest
+docker image pull ghcr.io/karlamonterrubiog/comprisksvignettes:latest
 ```
 
 To render the html reports, run
@@ -104,7 +104,7 @@ $ docker container run \
   --mount type=bind,source="$(pwd)"/docs,target=/docs \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
-  ghcr.io/karlamonterrubiog/competing_risks ./render
+  ghcr.io/karlamonterrubiog/comprisksvignettes ./render
 ```
 
 which will then use the R markdown files in the [`Source`](Source) directory to
@@ -120,7 +120,7 @@ $ docker container run \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
   -e PASSWORD=password \
   -p 8787:8787 \
-  ghcr.io/karlamonterrubiog/competing_risks
+  ghcr.io/karlamonterrubiog/comprisksvignettes
 ```
 
 Replacing the lowercase "`password`" with an alternative if desired. You can
@@ -134,7 +134,7 @@ The Docker image is large (3.88GB), so you may wish to delete the image once you
 are finished:
 
 ``` bash
-docker image rm ghcr.io/karlamonterrubiog/competing_risks
+docker image rm ghcr.io/karlamonterrubiog/comprisksvignettes
 ```
 
 ### Using a local R install
