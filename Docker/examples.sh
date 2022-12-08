@@ -13,6 +13,7 @@ docker container run \
   --mount type=bind,source="$(pwd)"/docs,target=/docs \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
+  --mount type=bind,source="$(pwd)"/Predictions,target=/Predictions \
   ghcr.io/karlamonterrubiog/comprisksvignettes ./render
 
 open docs/CS_specification.html

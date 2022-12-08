@@ -529,7 +529,11 @@ we save the predictions obtained in this vignette.
 pred_CS <- data.frame("testID" = seq_len(nrow(hd_test)),
                       "coxph_riskRegression" = risk.coxph,
                       "coxphPL_riskRegression" = risk.coxphPL)
-write.csv(pred_CS, "../Predictions/pred_CS.csv", row.names = FALSE)
+if (file.exists("/.dockerenv")){ # running in docker
+  write.csv(pred_CS, "/Predictions/pred_CS.csv", row.names = FALSE)
+} else {
+  write.csv(pred_CS, "../Predictions/pred_CS.csv", row.names = FALSE)
+}
 ```
 
 # References

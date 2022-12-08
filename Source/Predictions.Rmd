@@ -39,9 +39,16 @@ $t=5$ that were obtained by different methods
 
 
 ```{r load_pred}
-pred_CIF <- read.csv("../Predictions/pred_CIF.csv")
-pred_Others <- read.csv("../Predictions/pred_Others.csv")
-pred_BART <- read.csv("../Predictions/pred_BART.csv")
+if (file.exists("/.dockerenv")){
+  pred_CIF <- read.csv("/Predictions/pred_CIF.csv")
+  pred_Others <- read.csv("/Predictions/pred_Others.csv")
+  pred_BART <- read.csv("/Predictions/pred_BART.csv")
+} else {
+  pred_CIF <- read.csv("../Predictions/pred_CIF.csv")
+  pred_Others <- read.csv("../Predictions/pred_Others.csv")
+  pred_BART <- read.csv("../Predictions/pred_BART.csv")
+}
+
 pred_All <- merge(pred_CIF, pred_Others, by = "testID")
 pred_All <- merge(pred_All, pred_BART, by = "testID")
 ```

@@ -497,7 +497,11 @@ pred_BART <- data.frame("testID" = seq_len(nrow(hd_test)),
                       "crisk2.bart" = BART1.pred[, which(bart1$times == 5)],
                       "crisk2.bart_dart" = DART1.pred[, which(dart1$times == 5)],
                       "crisk.bart" = BART2.pred[, which(bart1$times == 5)])
-write.csv(pred_BART, "../Predictions/pred_BART.csv", row.names = FALSE)
+if (file.exists("/.dockerenv")){ # running in docker
+  write.csv(pred_BART, "/Predictions/pred_BART.csv", row.names = FALSE)
+} else {
+  write.csv(pred_BART, "../Predictions/pred_BART.csv", row.names = FALSE)
+}
 ```
 
 

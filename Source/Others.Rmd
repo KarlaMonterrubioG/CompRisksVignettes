@@ -395,7 +395,11 @@ pred_Others <- data.frame(
   "testID" = seq_len(nrow(hd_test)),
   "RF_logrankCR" = test.lrCR$cif[,test.lrCR$time.interest==5,1],
   "RF_logrankCR.av" = test.lrCR.av$cif[,test.lrCR.av$time.interest==5,1])
-write.csv(pred_Others, "../Predictions/pred_Others.csv", row.names = FALSE)
+if (file.exists("/.dockerenv")){ # running in docker
+  write.csv(pred_Others, "/Predictions/pred_Others.csv", row.names = FALSE)
+} else {
+  write.csv(pred_Others, "../Predictions/pred_Others.csv", row.names = FALSE)
+}
 ```
 
 
