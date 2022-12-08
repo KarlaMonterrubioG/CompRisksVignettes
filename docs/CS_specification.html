@@ -11,7 +11,7 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2022-12-01" />
+<meta name="date" content="2022-12-08" />
 
 <title>Approaches based on a proportional cause-specific hazard specification</title>
 
@@ -275,6 +275,7 @@ div.tocify {
     <li><a href="CS_specification.html">Cause Specific</a></li>
     <li><a href="Discrete_specification.html">Discrete</a></li>
     <li><a href="Others.html">Other</a></li>
+    <li><a href="Predictions.html">Predictions</a></li>
     <li style="float:right"><a href="https://github.com/KarlaMonterrubioG/Competing_risks"><i style="font-size: 20px; padding-top: 0px; padding-bottom: 0px;" class="fa-brands fa-github"></i></a></li>
   </ul>
 </div>
@@ -295,7 +296,7 @@ div.tocify {
 cause-specific hazard specification</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2022-12-01</h4>
+<h4 class="date">2022-12-08</h4>
 
 </div>
 
@@ -559,9 +560,9 @@ print(csh_rms)
 #&gt;                         Model Tests    Discrimination    
 #&gt;                                               Indexes    
 #&gt;  Obs       692    LR chi2     37.91    R2       0.054    
-#&gt;  Events    233    d.f.            7    Dxy      0.219    
-#&gt;  Center 1.2434    Pr(&gt; chi2) 0.0000    g        0.474    
-#&gt;                   Score chi2  38.95    gr       1.606    
+#&gt;  Events    233    d.f.            7    R2(7,692)0.044    
+#&gt;  Center 1.2434    Pr(&gt; chi2) 0.0000    R2(7,233)0.124    
+#&gt;                   Score chi2  38.95    Dxy      0.219    
 #&gt;                   Pr(&gt; chi2) 0.0000                      
 #&gt;  
 #&gt;              Coef    S.E.   Wald Z Pr(&gt;|Z|)
@@ -1017,28 +1018,28 @@ lasso.fit &lt;- glmnet(x = x,
 #&gt; 13  4 1.14 0.028430
 #&gt; 14  5 1.19 0.025900
 #&gt; 15  5 1.26 0.023600
-#&gt; 16  5 1.31 0.021510
+#&gt; 16  6 1.31 0.021510
 #&gt; 17  5 1.36 0.019590
 #&gt; 18  7 1.41 0.017850
 #&gt; 19  6 1.45 0.016270
-#&gt; 20  6 1.49 0.014820
+#&gt; 20  7 1.49 0.014820
 #&gt; 21  7 1.52 0.013510
 #&gt; 22  9 1.55 0.012310
-#&gt; 23  9 1.57 0.011210
+#&gt; 23 10 1.57 0.011210
 #&gt; 24  9 1.59 0.010220
-#&gt; 25  9 1.61 0.009309
+#&gt; 25 10 1.61 0.009309
 #&gt; 26  9 1.62 0.008482
 #&gt; 27  9 1.63 0.007729
-#&gt; 28  8 1.64 0.007042
+#&gt; 28 10 1.64 0.007042
 #&gt; 29  9 1.65 0.006416
-#&gt; 30  9 1.66 0.005846
+#&gt; 30 10 1.66 0.005846
 #&gt; 31  9 1.66 0.005327
 #&gt; 32  9 1.67 0.004854
 #&gt; 33  9 1.67 0.004423
 #&gt; 34  9 1.67 0.004030
 #&gt; 35  9 1.68 0.003672
 #&gt; 36 10 1.68 0.003345
-#&gt; 37 10 1.68 0.003048
+#&gt; 37  9 1.68 0.003048
 #&gt; 38 11 1.68 0.002777
 #&gt; 39 11 1.68 0.002531
 #&gt; 40 11 1.68 0.002306
@@ -1048,14 +1049,14 @@ lasso.fit &lt;- glmnet(x = x,
 #&gt; 44 11 1.69 0.001589
 #&gt; 45 11 1.69 0.001448
 #&gt; 46 11 1.69 0.001320
-#&gt; 47 11 1.69 0.001202
-#&gt; 48 11 1.69 0.001095</code></pre>
+#&gt; 47 10 1.69 0.001202
+#&gt; 48 10 1.69 0.001095</code></pre>
 <p>In the plot below, each line corresponds to one of the covariates.
 The top x-axis indicates the number of non-zero coefficients for
 different values of <span class="math inline">\(\lambda\)</span> (bottom
 x-axis).</p>
 <pre class="r"><code>plot(lasso.fit, label = TRUE)</code></pre>
-<p><img src="CS_specification_files/figure-html/unnamed-chunk-19-1.png" width="768" /></p>
+<p><img src="/docs/CS_specification_files/figure-html/unnamed-chunk-19-1.png" width="768" /></p>
 <p>The estimated coefficients for specific <span
 class="math inline">\(\lambda\)</span> values can be obtained using
 <code>coef()</code>.</p>
@@ -1066,7 +1067,7 @@ class="math inline">\(\lambda\)</span> values can be obtained using
 #&gt; sexF         .           
 #&gt; sexM         .           
 #&gt; trtgivenCMT -8.912025e-02
-#&gt; trtgivenRT   3.669525e-15
+#&gt; trtgivenRT   4.549444e-15
 #&gt; medwidsiL    .           
 #&gt; medwidsiN    .           
 #&gt; medwidsiS    .           
@@ -1094,7 +1095,7 @@ lassoCV.fit &lt;- cv.glmnet(x = x,
                          nfolds = 10,
                          type.measure = &quot;C&quot;)     # uses Harrel&#39;s C-index</code></pre>
 <pre class="r"><code>plot(lassoCV.fit)</code></pre>
-<p><img src="CS_specification_files/figure-html/unnamed-chunk-22-1.png" width="576" /></p>
+<p><img src="/docs/CS_specification_files/figure-html/unnamed-chunk-22-1.png" width="576" /></p>
 <p>The specific <span class="math inline">\(\lambda\)</span> values
 marked with the left and right vertical lines in the plot shown above,
 can be obtained with the following commands.</p>
@@ -1116,7 +1117,7 @@ we see that lasso selects age and treatment.</p>
 #&gt; sexF         .           
 #&gt; sexM         .           
 #&gt; trtgivenCMT -2.598995e-01
-#&gt; trtgivenRT   8.250908e-15
+#&gt; trtgivenRT   1.000110e-14
 #&gt; medwidsiL    .           
 #&gt; medwidsiN    .           
 #&gt; medwidsiS   -5.425280e-02
@@ -1224,13 +1225,13 @@ knitr::kable(round(exp(coef(csh_mboost, off2int = TRUE)), 4),
 </table>
 <p>A plot of the coefficients across boosting iterations is shown:</p>
 <pre class="r"><code>plot(csh_mboost, main = &quot;Coefficient paths&quot;, ylim = range(coef(csh_mboost)))</code></pre>
-<p><img src="CS_specification_files/figure-html/unnamed-chunk-25-1.png" width="768" /></p>
+<p><img src="/docs/CS_specification_files/figure-html/unnamed-chunk-25-1.png" width="768" /></p>
 <p>To do variable selection one can use the <code>varimp()</code>
 function. In the plot below we observe that age, treatment given,
 clinical stage and size of mediastinum involvement appear to be
 relevant.</p>
 <pre class="r"><code>plot(varimp(csh_mboost))</code></pre>
-<p><img src="CS_specification_files/figure-html/unnamed-chunk-26-1.png" width="576" /></p>
+<p><img src="/docs/CS_specification_files/figure-html/unnamed-chunk-26-1.png" width="576" /></p>
 <p><code>mboost</code> permits cross-validation for hyper-parameter
 selection; specifically, the number of boosting iterations. Here, we
 show how to do this using 25 bootstrap samples (default). Estimation is
@@ -1238,7 +1239,7 @@ done sequentially:</p>
 <pre class="r"><code>set.seed(1)
 cv.boost &lt;- cvrisk(csh_mboost, papply = lapply)</code></pre>
 <pre class="r"><code>plot(cv.boost)</code></pre>
-<p><img src="CS_specification_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
+<p><img src="/docs/CS_specification_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
 <pre class="r"><code>stop.B &lt;- mstop(cv.boost)  # can serve to obtain optimal stopping parameter
 stop.B 
 #&gt; [1] 543</code></pre>
@@ -1254,7 +1255,11 @@ methods, we save the predictions obtained in this vignette.</p>
 <pre class="r"><code>pred_CS &lt;- data.frame(&quot;testID&quot; = seq_len(nrow(hd_test)),
                       &quot;coxph_riskRegression&quot; = risk.coxph,
                       &quot;coxphPL_riskRegression&quot; = risk.coxphPL)
-write.csv(pred_CS, &quot;../Predictions/pred_CS.csv&quot;, row.names = FALSE)</code></pre>
+if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
+  write.csv(pred_CS, &quot;/Predictions/pred_CS.csv&quot;, row.names = FALSE)
+} else {
+  write.csv(pred_CS, &quot;../Predictions/pred_CS.csv&quot;, row.names = FALSE)
+}</code></pre>
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>
@@ -1274,65 +1279,75 @@ Harrell, Frank E. 2017. <span>“Regression Modeling Strategies.”</span>
 <div id="session-info" class="section level1">
 <h1>Session Info</h1>
 <pre class="r"><code>sessionInfo()
-#&gt; R version 4.1.2 (2021-11-01)
-#&gt; Platform: x86_64-apple-darwin17.0 (64-bit)
-#&gt; Running under: macOS Big Sur 10.16
+#&gt; R version 4.2.2 (2022-10-31)
+#&gt; Platform: x86_64-pc-linux-gnu (64-bit)
+#&gt; Running under: Ubuntu 22.04.1 LTS
 #&gt; 
 #&gt; Matrix products: default
-#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
-#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
+#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
+#&gt; LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so
 #&gt; 
 #&gt; locale:
-#&gt; [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
+#&gt;  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+#&gt;  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+#&gt;  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+#&gt;  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+#&gt;  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+#&gt; [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 #&gt; 
 #&gt; attached base packages:
 #&gt; [1] parallel  stats     graphics  grDevices utils     datasets  methods  
 #&gt; [8] base     
 #&gt; 
 #&gt; other attached packages:
-#&gt;  [1] CFC_1.1.2                 pander_0.6.5             
-#&gt;  [3] mboost_2.9-7              stabs_0.6-4              
-#&gt;  [5] glmnet_4.1-4              Matrix_1.5-3             
-#&gt;  [7] pec_2022.05.04            prodlim_2019.11.13       
-#&gt;  [9] riskRegression_2022.11.21 rms_6.3-0                
-#&gt; [11] SparseM_1.81              Hmisc_4.7-2              
-#&gt; [13] ggplot2_3.4.0             Formula_1.2-4            
-#&gt; [15] lattice_0.20-45           survival_3.4-0           
-#&gt; [17] splitstackshape_1.4.8     readr_2.1.3              
+#&gt;  [1] mboost_2.9-7              stabs_0.6-4              
+#&gt;  [3] glmnet_4.1-4              Matrix_1.5-1             
+#&gt;  [5] pec_2022.05.04            rms_6.3-0                
+#&gt;  [7] SparseM_1.81              Hmisc_4.7-1              
+#&gt;  [9] ggplot2_3.4.0             Formula_1.2-4            
+#&gt; [11] lattice_0.20-45           coda_0.19-4              
+#&gt; [13] DPWeibull_1.8             timereg_2.0.4            
+#&gt; [15] pseudo_1.4.3              geepack_1.3.9            
+#&gt; [17] KMsurv_0.1-5              riskRegression_2022.09.23
+#&gt; [19] prodlim_2019.11.13        cmprsk_2.2-11            
+#&gt; [21] survival_3.4-0            splitstackshape_1.4.8    
+#&gt; [23] pander_0.6.5              readr_2.1.3              
 #&gt; 
 #&gt; loaded via a namespace (and not attached):
-#&gt;  [1] nlme_3.1-160        cmprsk_2.2-11       doParallel_1.0.17  
-#&gt;  [4] RColorBrewer_1.1-3  numDeriv_2016.8-1.1 tools_4.1.2        
-#&gt;  [7] backports_1.4.1     bslib_0.4.1         utf8_1.2.2         
-#&gt; [10] R6_2.5.1            rpart_4.1.19        DBI_1.1.3          
-#&gt; [13] colorspace_2.0-3    nnet_7.3-18         withr_2.5.0        
-#&gt; [16] tidyselect_1.2.0    gridExtra_2.3       compiler_4.1.2     
-#&gt; [19] cli_3.4.1           quantreg_5.94       htmlTable_2.4.1    
-#&gt; [22] sandwich_3.0-2      sass_0.4.4          scales_1.2.1       
-#&gt; [25] checkmate_2.1.0     nnls_1.4            polspline_1.1.22   
-#&gt; [28] mvtnorm_1.1-3       quadprog_1.5-8      stringr_1.4.1      
-#&gt; [31] digest_0.6.30       foreign_0.8-83      rmarkdown_2.18     
-#&gt; [34] base64enc_0.1-3     jpeg_0.1-9          pkgconfig_2.0.3    
-#&gt; [37] htmltools_0.5.3     parallelly_1.32.1   highr_0.9          
-#&gt; [40] fastmap_1.1.0       htmlwidgets_1.5.4   rlang_1.0.6        
-#&gt; [43] rstudioapi_0.14     shape_1.4.6         jquerylib_0.1.4    
-#&gt; [46] generics_0.1.3      zoo_1.8-11          jsonlite_1.8.3     
-#&gt; [49] dplyr_1.0.10        magrittr_2.0.3      interp_1.1-3       
-#&gt; [52] Rcpp_1.0.9          munsell_0.5.0       fansi_1.0.3        
-#&gt; [55] abind_1.4-5         partykit_1.2-16     lifecycle_1.0.3    
-#&gt; [58] stringi_1.7.8       multcomp_1.4-20     yaml_2.3.6         
-#&gt; [61] inum_1.0-4          MASS_7.3-58.1       grid_4.1.2         
-#&gt; [64] listenv_0.8.0       mets_1.3.1          deldir_1.0-6       
-#&gt; [67] splines_4.1.2       hms_1.1.2           timereg_2.0.4      
-#&gt; [70] knitr_1.41          pillar_1.8.1        future.apply_1.10.0
-#&gt; [73] codetools_0.2-18    glue_1.6.2          evaluate_0.18      
-#&gt; [76] latticeExtra_0.6-30 data.table_1.14.6   png_0.1-7          
-#&gt; [79] vctrs_0.5.1         tzdb_0.3.0          foreach_1.5.2      
-#&gt; [82] MatrixModels_0.5-1  gtable_0.3.1        future_1.29.0      
-#&gt; [85] assertthat_0.2.1    cachem_1.0.6        xfun_0.35          
-#&gt; [88] libcoin_1.0-9       tibble_3.1.8        iterators_1.0.14   
-#&gt; [91] cluster_2.1.4       lava_1.7.0          globals_0.16.2     
-#&gt; [94] TH.data_1.1-1       ellipsis_0.3.2</code></pre>
+#&gt;   [1] TH.data_1.1-1       colorspace_2.0-3    deldir_1.0-6       
+#&gt;   [4] ellipsis_0.3.2      evd_2.3-6.1         htmlTable_2.4.1    
+#&gt;   [7] base64enc_0.1-3     rstudioapi_0.14     listenv_0.8.0      
+#&gt;  [10] MatrixModels_0.5-1  bit64_4.0.5         fansi_1.0.3        
+#&gt;  [13] mvtnorm_1.1-3       codetools_0.2-18    splines_4.2.2      
+#&gt;  [16] cachem_1.0.6        libcoin_1.0-9       knitr_1.40         
+#&gt;  [19] jsonlite_1.8.3      broom_1.0.1         cluster_2.1.4      
+#&gt;  [22] png_0.1-7           compiler_4.2.2      backports_1.4.1    
+#&gt;  [25] assertthat_0.2.1    fastmap_1.1.0       cli_3.4.1          
+#&gt;  [28] htmltools_0.5.3     quantreg_5.94       tools_4.2.2        
+#&gt;  [31] partykit_1.2-16     gtable_0.3.1        glue_1.6.2         
+#&gt;  [34] dplyr_1.0.10        Rcpp_1.0.9          jquerylib_0.1.4    
+#&gt;  [37] vctrs_0.5.1         nlme_3.1-160        iterators_1.0.14   
+#&gt;  [40] inum_1.0-4          xfun_0.35           stringr_1.4.1      
+#&gt;  [43] globals_0.16.1      lifecycle_1.0.3     future_1.29.0      
+#&gt;  [46] polspline_1.1.20    MASS_7.3-58.1       zoo_1.8-11         
+#&gt;  [49] scales_1.2.1        vroom_1.6.0         hms_1.1.2          
+#&gt;  [52] sandwich_3.0-2      RColorBrewer_1.1-3  yaml_2.3.6         
+#&gt;  [55] gridExtra_2.3       sass_0.4.2          truncdist_1.0-2    
+#&gt;  [58] rpart_4.1.19        latticeExtra_0.6-30 stringi_1.7.8      
+#&gt;  [61] highr_0.9           foreach_1.5.2       checkmate_2.1.0    
+#&gt;  [64] shape_1.4.6         lava_1.7.0          mets_1.3.1         
+#&gt;  [67] rlang_1.0.6         pkgconfig_2.0.3     evaluate_0.18      
+#&gt;  [70] purrr_0.3.5         htmlwidgets_1.5.4   bit_4.0.5          
+#&gt;  [73] tidyselect_1.2.0    parallelly_1.32.1   magrittr_2.0.3     
+#&gt;  [76] R6_2.5.1            nnls_1.4            generics_0.1.3     
+#&gt;  [79] multcomp_1.4-20     DBI_1.1.3           withr_2.5.0        
+#&gt;  [82] pillar_1.8.1        foreign_0.8-83      nnet_7.3-18        
+#&gt;  [85] tibble_3.1.8        future.apply_1.10.0 crayon_1.5.2       
+#&gt;  [88] interp_1.1-3        utf8_1.2.2          tzdb_0.3.0         
+#&gt;  [91] rmarkdown_2.18      jpeg_0.1-9          grid_4.2.2         
+#&gt;  [94] data.table_1.14.6   binaryLogic_0.3.9   digest_0.6.30      
+#&gt;  [97] tidyr_1.2.1         numDeriv_2016.8-1.1 stats4_4.2.2       
+#&gt; [100] munsell_0.5.0       bslib_0.4.1         quadprog_1.5-8</code></pre>
 </div>
 
 

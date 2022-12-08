@@ -11,7 +11,7 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2022-12-01" />
+<meta name="date" content="2022-12-08" />
 
 <title>Approaches based on CIF specification</title>
 
@@ -275,6 +275,7 @@ div.tocify {
     <li><a href="CS_specification.html">Cause Specific</a></li>
     <li><a href="Discrete_specification.html">Discrete</a></li>
     <li><a href="Others.html">Other</a></li>
+    <li><a href="Predictions.html">Predictions</a></li>
     <li style="float:right"><a href="https://github.com/KarlaMonterrubioG/Competing_risks"><i style="font-size: 20px; padding-top: 0px; padding-bottom: 0px;" class="fa-brands fa-github"></i></a></li>
   </ul>
 </div>
@@ -294,7 +295,7 @@ div.tocify {
 <h1 class="title toc-ignore">Approaches based on CIF specification</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2022-12-01</h4>
+<h4 class="date">2022-12-08</h4>
 
 </div>
 
@@ -567,11 +568,11 @@ unique time-points present in the training data.</p>
 </div>
 <div id="riskregression" class="section level2">
 <h2><code>riskRegression</code></h2>
-<p>This R package acts as a wrapper of the <code>crr()</code> function
-described above. However, it permits directly specifying the model
-through the formula argument, where we use <code>Hist()</code> to obtain
-the the response variable. When the cause argument is not passed, the
-default is 1.</p>
+<p>The function <code>FGR()</code> in this R package acts as a wrapper
+of the <code>crr()</code> function described above. However, it permits
+directly specifying the model through the formula argument, where we use
+<code>Hist()</code> to obtain the the response variable. When the cause
+argument is not passed, the default is 1.</p>
 <p>Below we confirm that estimated coefficients are identical to those
 obtained with <code>cmprsk</code> package and the interpretation is the
 same.</p>
@@ -1086,86 +1087,86 @@ fit_DDP &lt;- dpweib(Hist(time, status) ~
 #&gt; $age
 #&gt;                            1/4 Observation Time 1/2 Observation Time
 #&gt; Time                               8.2869230769        17.4912820513
-#&gt; Estimated Log Hazard Ratio         0.0003380438         0.0002464215
-#&gt; Upper Credible Interval            0.0018195577         0.0058903863
-#&gt; Lower Credible Interval           -0.0018205100        -0.0031965669
+#&gt; Estimated Log Hazard Ratio         0.0004172509         0.0004640694
+#&gt; Upper Credible Interval            0.0020115003         0.0047651915
+#&gt; Lower Credible Interval           -0.0017523388        -0.0035342139
 #&gt;                            3/4 Observation Time Observation Time
-#&gt; Time                              26.6956410256     35.900000000
-#&gt; Estimated Log Hazard Ratio         0.0004508814      0.000551480
-#&gt; Upper Credible Interval            0.0069962877      0.005185981
-#&gt; Lower Credible Interval           -0.0039103809     -0.004638337
+#&gt; Time                               2.669564e+01    35.9000000000
+#&gt; Estimated Log Hazard Ratio        -1.448229e-05    -0.0003808703
+#&gt; Upper Credible Interval            3.525560e-03     0.0042317218
+#&gt; Lower Credible Interval           -5.616639e-03    -0.0056000151
 #&gt; 
 #&gt; $sexM
 #&gt;                            1/4 Observation Time 1/2 Observation Time
-#&gt; Time                                 8.28692308            17.491282
-#&gt; Estimated Log Hazard Ratio           0.03757504             0.396774
-#&gt; Upper Credible Interval              0.68192285             2.655139
-#&gt; Lower Credible Interval             -0.57069497            -1.273943
+#&gt; Time                                  8.2869231           17.4912821
+#&gt; Estimated Log Hazard Ratio            0.1159596            0.3459907
+#&gt; Upper Credible Interval               1.0890098            2.0308219
+#&gt; Lower Credible Interval              -0.5126865           -0.9300696
 #&gt;                            3/4 Observation Time Observation Time
-#&gt; Time                                  26.695641       35.9000000
-#&gt; Estimated Log Hazard Ratio             0.230925        0.1271191
-#&gt; Upper Credible Interval                2.875875        2.6579863
-#&gt; Lower Credible Interval               -1.609698       -2.2930750
+#&gt; Time                                  26.695641     35.900000000
+#&gt; Estimated Log Hazard Ratio             0.152436     -0.006830034
+#&gt; Upper Credible Interval                1.840943      1.961819483
+#&gt; Lower Credible Interval               -1.526062     -2.167756519
 #&gt; 
 #&gt; $trtgivenRT
 #&gt;                            1/4 Observation Time 1/2 Observation Time
 #&gt; Time                                  8.2869231           17.4912821
-#&gt; Estimated Log Hazard Ratio            0.4255656            0.6862159
-#&gt; Upper Credible Interval               1.5025027            3.0389268
-#&gt; Lower Credible Interval              -0.3159119           -1.0110657
+#&gt; Estimated Log Hazard Ratio            0.4618699            0.5245741
+#&gt; Upper Credible Interval               1.4427735            2.6601275
+#&gt; Lower Credible Interval              -0.3765932           -0.9832093
 #&gt;                            3/4 Observation Time Observation Time
 #&gt; Time                                 26.6956410       35.9000000
-#&gt; Estimated Log Hazard Ratio            0.8109971        0.7289966
-#&gt; Upper Credible Interval               4.6557493        5.5658513
-#&gt; Lower Credible Interval              -1.4274445       -1.2762517
+#&gt; Estimated Log Hazard Ratio            0.6021444        0.6348999
+#&gt; Upper Credible Interval               3.5993809        4.2470617
+#&gt; Lower Credible Interval              -1.1880780       -1.2104487
 #&gt; 
 #&gt; $medwidsiN
 #&gt;                            1/4 Observation Time 1/2 Observation Time
-#&gt; Time                                 8.28692308          17.49128205
-#&gt; Estimated Log Hazard Ratio          -0.03099757          -0.02143304
-#&gt; Upper Credible Interval              0.63660950           1.86018782
-#&gt; Lower Credible Interval             -0.97893186          -1.89722739
+#&gt; Time                                 8.28692308           17.4912821
+#&gt; Estimated Log Hazard Ratio           0.08059574            0.2329554
+#&gt; Upper Credible Interval              0.86075711            1.9705409
+#&gt; Lower Credible Interval             -0.85396199           -1.7402424
 #&gt;                            3/4 Observation Time Observation Time
-#&gt; Time                                26.69564103       35.9000000
-#&gt; Estimated Log Hazard Ratio           0.09014624        0.1365163
-#&gt; Upper Credible Interval              3.16775364        3.9081672
-#&gt; Lower Credible Interval             -1.80070446       -1.8135428
+#&gt; Time                                 26.6956410       35.9000000
+#&gt; Estimated Log Hazard Ratio            0.2241135        0.2506336
+#&gt; Upper Credible Interval               3.4325723        3.9663726
+#&gt; Lower Credible Interval              -1.3975985       -1.8635850
 #&gt; 
 #&gt; $medwidsiS
 #&gt;                            1/4 Observation Time 1/2 Observation Time
 #&gt; Time                                  8.2869231           17.4912821
-#&gt; Estimated Log Hazard Ratio           -0.1714246           -0.5070214
-#&gt; Upper Credible Interval               0.5454566            1.2067218
-#&gt; Lower Credible Interval              -1.1837935           -2.8839561
+#&gt; Estimated Log Hazard Ratio           -0.2093757           -0.2865607
+#&gt; Upper Credible Interval               0.4539965            1.0518932
+#&gt; Lower Credible Interval              -0.9666200           -2.1144225
 #&gt;                            3/4 Observation Time Observation Time
 #&gt; Time                                 26.6956410       35.9000000
-#&gt; Estimated Log Hazard Ratio           -0.4325532       -0.3142746
-#&gt; Upper Credible Interval               1.5553695        2.2687418
-#&gt; Lower Credible Interval              -2.7906437       -2.8853836
+#&gt; Estimated Log Hazard Ratio           -0.2380692       -0.1714291
+#&gt; Upper Credible Interval               1.5040166        1.9212202
+#&gt; Lower Credible Interval              -2.2039454       -2.4051696
 #&gt; 
 #&gt; $extranodY
 #&gt;                            1/4 Observation Time 1/2 Observation Time
-#&gt; Time                                  8.2869231           17.4912821
-#&gt; Estimated Log Hazard Ratio           -0.1758831           -0.2495774
-#&gt; Upper Credible Interval               0.5527547            1.7489073
-#&gt; Lower Credible Interval              -1.7021966           -2.2424684
+#&gt; Time                                  8.2869231          17.49128205
+#&gt; Estimated Log Hazard Ratio           -0.1342988          -0.05941606
+#&gt; Upper Credible Interval               0.6955927           1.60165595
+#&gt; Lower Credible Interval              -1.2198411          -2.12085573
 #&gt;                            3/4 Observation Time Observation Time
 #&gt; Time                                 26.6956410       35.9000000
-#&gt; Estimated Log Hazard Ratio           -0.1945156       -0.1597791
-#&gt; Upper Credible Interval               1.8459720        1.9245048
-#&gt; Lower Credible Interval              -3.3050354       -4.0826921
+#&gt; Estimated Log Hazard Ratio           -0.1045944       -0.1010323
+#&gt; Upper Credible Interval               1.9639112        1.8915353
+#&gt; Lower Credible Interval              -3.0939646       -3.1533099
 #&gt; 
 #&gt; $clinstg2
 #&gt;                            1/4 Observation Time 1/2 Observation Time
 #&gt; Time                                  8.2869231           17.4912821
-#&gt; Estimated Log Hazard Ratio            0.1338837            0.2788162
-#&gt; Upper Credible Interval               0.6904625            2.2895115
-#&gt; Lower Credible Interval              -0.4267233           -1.3259758
+#&gt; Estimated Log Hazard Ratio            0.2732544            0.4600549
+#&gt; Upper Credible Interval               1.1845732            2.3302996
+#&gt; Lower Credible Interval              -0.4107576           -1.2227745
 #&gt;                            3/4 Observation Time Observation Time
 #&gt; Time                                 26.6956410       35.9000000
-#&gt; Estimated Log Hazard Ratio            0.3455235        0.3214506
-#&gt; Upper Credible Interval               2.8648327        2.6368488
-#&gt; Lower Credible Interval              -1.2119832       -1.3831598
+#&gt; Estimated Log Hazard Ratio            0.4197288        0.3596915
+#&gt; Upper Credible Interval               2.4189993        2.8150588
+#&gt; Lower Credible Interval              -1.2251253       -1.1756535
 #&gt; 
 #&gt; attr(,&quot;class&quot;)
 #&gt; [1] &quot;summary.ddpcomp&quot;</code></pre>
@@ -1182,9 +1183,9 @@ iterations should be used.</p>
 <pre class="r"><code>library(coda)
 par(mar = c(4, 4, 2, 0.1))
 traceplot(as.mcmc(fit_DDP$alpharec1[, 1]))</code></pre>
-<p><img src="CIF_specification_files/figure-html/unnamed-chunk-27-1.png" width="480" /></p>
+<p><img src="/docs/CIF_specification_files/figure-html/unnamed-chunk-27-1.png" width="480" /></p>
 <pre class="r"><code>traceplot(as.mcmc(fit_DDP$lambda0rec1[, 1]))</code></pre>
-<p><img src="CIF_specification_files/figure-html/unnamed-chunk-27-2.png" width="480" /></p>
+<p><img src="/docs/CIF_specification_files/figure-html/unnamed-chunk-27-2.png" width="480" /></p>
 <p>Below, we illustrate how to do predictions with
 <code>DPWeibull</code>. First, we show how to estimate the CIF for two
 subjects in the test set at all observed event times.</p>
@@ -1217,7 +1218,7 @@ estimated risk for the first 5 subjects in the test data set:</p>
 <pre class="r"><code>pred_DDP.t &lt;- predict(fit_DDP, 
                       newdata = as.data.frame(hd_test[, 1:6]), tpred = 5)
 pred_DDP.t$Fpred[1:5]
-#&gt; [1] 0.2931222 0.3785346 0.3107608 0.3082350 0.2335271</code></pre>
+#&gt; [1] 0.3052537 0.4007065 0.3083052 0.3241462 0.2283712</code></pre>
 </div>
 <div id="storing-predictions" class="section level1">
 <h1>Storing predictions</h1>
@@ -1227,7 +1228,11 @@ methods, we save the predictions obtained in this vignette.</p>
                       &quot;FG_riskRegression&quot; = FG.prediction,
                       &quot;DirectBinomal&quot; = pred_DB.t$P1,
                       &quot;DPWeibull&quot; = pred_DDP.t$Fpred)
-write.csv(pred_CIF, &quot;../Predictions/pred_CIF.csv&quot;, row.names = FALSE)</code></pre>
+if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
+  write.csv(pred_CIF, &quot;/Predictions/pred_CIF.csv&quot;, row.names = FALSE)
+} else {
+  write.csv(pred_CIF, &quot;../Predictions/pred_CIF.csv&quot;, row.names = FALSE)
+}</code></pre>
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>
@@ -1254,16 +1259,21 @@ Perspective</em>. John Wiley &amp; Sons.
 <div id="session-info" class="section level1">
 <h1>Session Info</h1>
 <pre class="r"><code>sessionInfo()
-#&gt; R version 4.1.2 (2021-11-01)
-#&gt; Platform: x86_64-apple-darwin17.0 (64-bit)
-#&gt; Running under: macOS Big Sur 10.16
+#&gt; R version 4.2.2 (2022-10-31)
+#&gt; Platform: x86_64-pc-linux-gnu (64-bit)
+#&gt; Running under: Ubuntu 22.04.1 LTS
 #&gt; 
 #&gt; Matrix products: default
-#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
-#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
+#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
+#&gt; LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so
 #&gt; 
 #&gt; locale:
-#&gt; [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
+#&gt;  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+#&gt;  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+#&gt;  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+#&gt;  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+#&gt;  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+#&gt; [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 #&gt; 
 #&gt; attached base packages:
 #&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     
@@ -1272,45 +1282,45 @@ Perspective</em>. John Wiley &amp; Sons.
 #&gt;  [1] coda_0.19-4               DPWeibull_1.8            
 #&gt;  [3] timereg_2.0.4             pseudo_1.4.3             
 #&gt;  [5] geepack_1.3.9             KMsurv_0.1-5             
-#&gt;  [7] riskRegression_2022.11.21 prodlim_2019.11.13       
+#&gt;  [7] riskRegression_2022.11.28 prodlim_2019.11.13       
 #&gt;  [9] cmprsk_2.2-11             survival_3.4-0           
 #&gt; [11] splitstackshape_1.4.8     pander_0.6.5             
 #&gt; [13] readr_2.1.3              
 #&gt; 
 #&gt; loaded via a namespace (and not attached):
 #&gt;  [1] nlme_3.1-160        rms_6.3-0           RColorBrewer_1.1-3 
-#&gt;  [4] evd_2.3-6.1         numDeriv_2016.8-1.1 tools_4.1.2        
+#&gt;  [4] evd_2.3-6.1         numDeriv_2016.8-1.1 tools_4.2.2        
 #&gt;  [7] backports_1.4.1     bslib_0.4.1         utf8_1.2.2         
 #&gt; [10] R6_2.5.1            rpart_4.1.19        Hmisc_4.7-2        
 #&gt; [13] DBI_1.1.3           colorspace_2.0-3    nnet_7.3-18        
-#&gt; [16] tidyselect_1.2.0    gridExtra_2.3       compiler_4.1.2     
+#&gt; [16] tidyselect_1.2.0    gridExtra_2.3       compiler_4.2.2     
 #&gt; [19] cli_3.4.1           quantreg_5.94       htmlTable_2.4.1    
 #&gt; [22] SparseM_1.81        sandwich_3.0-2      sass_0.4.4         
 #&gt; [25] scales_1.2.1        checkmate_2.1.0     polspline_1.1.22   
-#&gt; [28] mvtnorm_1.1-3       binaryLogic_0.3.9   stringr_1.4.1      
+#&gt; [28] mvtnorm_1.1-3       binaryLogic_0.3.9   stringr_1.5.0      
 #&gt; [31] digest_0.6.30       foreign_0.8-83      rmarkdown_2.18     
-#&gt; [34] base64enc_0.1-3     jpeg_0.1-9          pkgconfig_2.0.3    
-#&gt; [37] htmltools_0.5.3     parallelly_1.32.1   highr_0.9          
-#&gt; [40] fastmap_1.1.0       htmlwidgets_1.5.4   rlang_1.0.6        
-#&gt; [43] rstudioapi_0.14     jquerylib_0.1.4     generics_0.1.3     
-#&gt; [46] zoo_1.8-11          jsonlite_1.8.3      dplyr_1.0.10       
-#&gt; [49] magrittr_2.0.3      Formula_1.2-4       interp_1.1-3       
-#&gt; [52] Matrix_1.5-3        Rcpp_1.0.9          munsell_0.5.0      
-#&gt; [55] fansi_1.0.3         truncdist_1.0-2     lifecycle_1.0.3    
-#&gt; [58] stringi_1.7.8       multcomp_1.4-20     yaml_2.3.6         
-#&gt; [61] MASS_7.3-58.1       grid_4.1.2          parallel_4.1.2     
-#&gt; [64] listenv_0.8.0       mets_1.3.1          deldir_1.0-6       
-#&gt; [67] lattice_0.20-45     splines_4.1.2       hms_1.1.2          
-#&gt; [70] knitr_1.41          pillar_1.8.1        stats4_4.1.2       
-#&gt; [73] future.apply_1.10.0 codetools_0.2-18    glue_1.6.2         
-#&gt; [76] evaluate_0.18       latticeExtra_0.6-30 data.table_1.14.6  
-#&gt; [79] png_0.1-7           vctrs_0.5.1         tzdb_0.3.0         
-#&gt; [82] foreach_1.5.2       MatrixModels_0.5-1  tidyr_1.2.1        
-#&gt; [85] purrr_0.3.5         gtable_0.3.1        future_1.29.0      
-#&gt; [88] assertthat_0.2.1    cachem_1.0.6        ggplot2_3.4.0      
-#&gt; [91] xfun_0.35           broom_1.0.1         tibble_3.1.8       
-#&gt; [94] iterators_1.0.14    cluster_2.1.4       lava_1.7.0         
-#&gt; [97] globals_0.16.2      TH.data_1.1-1       ellipsis_0.3.2</code></pre>
+#&gt; [34] base64enc_0.1-3     jpeg_0.1-10         pkgconfig_2.0.3    
+#&gt; [37] htmltools_0.5.3     parallelly_1.32.1   fastmap_1.1.0      
+#&gt; [40] htmlwidgets_1.5.4   rlang_1.0.6         rstudioapi_0.14    
+#&gt; [43] jquerylib_0.1.4     generics_0.1.3      zoo_1.8-11         
+#&gt; [46] jsonlite_1.8.3      dplyr_1.0.10        magrittr_2.0.3     
+#&gt; [49] Formula_1.2-4       interp_1.1-3        Matrix_1.5-1       
+#&gt; [52] Rcpp_1.0.9          munsell_0.5.0       fansi_1.0.3        
+#&gt; [55] truncdist_1.0-2     lifecycle_1.0.3     multcomp_1.4-20    
+#&gt; [58] stringi_1.7.8       yaml_2.3.6          MASS_7.3-58.1      
+#&gt; [61] grid_4.2.2          parallel_4.2.2      listenv_0.8.0      
+#&gt; [64] mets_1.3.1          deldir_1.0-6        lattice_0.20-45    
+#&gt; [67] splines_4.2.2       hms_1.1.2           knitr_1.41         
+#&gt; [70] pillar_1.8.1        stats4_4.2.2        future.apply_1.10.0
+#&gt; [73] codetools_0.2-18    glue_1.6.2          evaluate_0.18      
+#&gt; [76] latticeExtra_0.6-30 data.table_1.14.6   png_0.1-8          
+#&gt; [79] vctrs_0.5.1         tzdb_0.3.0          foreach_1.5.2      
+#&gt; [82] MatrixModels_0.5-1  tidyr_1.2.1         purrr_0.3.5        
+#&gt; [85] gtable_0.3.1        future_1.29.0       assertthat_0.2.1   
+#&gt; [88] cachem_1.0.6        ggplot2_3.4.0       xfun_0.35          
+#&gt; [91] broom_1.0.1         tibble_3.1.8        iterators_1.0.14   
+#&gt; [94] cluster_2.1.4       lava_1.7.0          globals_0.16.2     
+#&gt; [97] TH.data_1.1-1       ellipsis_0.3.2</code></pre>
 </div>
 
 

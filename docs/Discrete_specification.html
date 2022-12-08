@@ -11,7 +11,7 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2022-12-07" />
+<meta name="date" content="2022-12-08" />
 
 <title>Approaches based on a discrete survival times specification</title>
 
@@ -275,6 +275,7 @@ div.tocify {
     <li><a href="CS_specification.html">Cause Specific</a></li>
     <li><a href="Discrete_specification.html">Discrete</a></li>
     <li><a href="Others.html">Other</a></li>
+    <li><a href="Predictions.html">Predictions</a></li>
     <li style="float:right"><a href="https://github.com/KarlaMonterrubioG/Competing_risks"><i style="font-size: 20px; padding-top: 0px; padding-bottom: 0px;" class="fa-brands fa-github"></i></a></li>
   </ul>
 </div>
@@ -295,7 +296,7 @@ div.tocify {
 times specification</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2022-12-07</h4>
+<h4 class="date">2022-12-08</h4>
 
 </div>
 
@@ -348,7 +349,6 @@ hd$extranod &lt;- as.factor(hd$extranod)
 hd$clinstg  &lt;- as.factor(hd$clinstg)</code></pre>
 <p>Now, we explore the number of events for each event type:</p>
 <pre class="r"><code>require(pander)
-#&gt; Loading required package: pander
 pander::pander(table(hd$status))</code></pre>
 <table style="width:25%;">
 <colgroup>
@@ -789,7 +789,11 @@ methods, we save the predictions obtained in this vignette.</p>
                       &quot;crisk2.bart&quot; = BART1.pred[, which(bart1$times == 5)],
                       &quot;crisk2.bart_dart&quot; = DART1.pred[, which(dart1$times == 5)],
                       &quot;crisk.bart&quot; = BART2.pred[, which(bart1$times == 5)])
-write.csv(pred_BART, &quot;../Predictions/pred_BART.csv&quot;, row.names = FALSE)</code></pre>
+if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
+  write.csv(pred_BART, &quot;/Predictions/pred_BART.csv&quot;, row.names = FALSE)
+} else {
+  write.csv(pred_BART, &quot;../Predictions/pred_BART.csv&quot;, row.names = FALSE)
+}</code></pre>
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>
@@ -812,37 +816,77 @@ Bayesian Additive Regression Trees: The BART r Package.”</span>
 <div id="session-info" class="section level1">
 <h1>Session Info</h1>
 <pre class="r"><code>sessionInfo()
-#&gt; R version 4.1.2 (2021-11-01)
-#&gt; Platform: x86_64-apple-darwin17.0 (64-bit)
-#&gt; Running under: macOS Big Sur 10.16
+#&gt; R version 4.2.2 (2022-10-31)
+#&gt; Platform: x86_64-pc-linux-gnu (64-bit)
+#&gt; Running under: Ubuntu 22.04.1 LTS
 #&gt; 
 #&gt; Matrix products: default
-#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
-#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
+#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
+#&gt; LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so
 #&gt; 
 #&gt; locale:
-#&gt; [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
+#&gt;  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+#&gt;  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+#&gt;  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+#&gt;  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+#&gt;  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+#&gt; [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 #&gt; 
 #&gt; attached base packages:
-#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     
+#&gt; [1] parallel  stats     graphics  grDevices utils     datasets  methods  
+#&gt; [8] base     
 #&gt; 
 #&gt; other attached packages:
-#&gt; [1] BART_2.9              nlme_3.1-160          survival_3.4-0       
-#&gt; [4] nnet_7.3-18           splitstackshape_1.4.8 pander_0.6.5         
-#&gt; [7] readr_2.1.3          
+#&gt;  [1] BART_2.9                  nlme_3.1-160             
+#&gt;  [3] nnet_7.3-18               mboost_2.9-7             
+#&gt;  [5] stabs_0.6-4               glmnet_4.1-6             
+#&gt;  [7] Matrix_1.5-1              pec_2022.05.04           
+#&gt;  [9] rms_6.3-0                 SparseM_1.81             
+#&gt; [11] Hmisc_4.7-2               ggplot2_3.4.0            
+#&gt; [13] Formula_1.2-4             lattice_0.20-45          
+#&gt; [15] coda_0.19-4               DPWeibull_1.8            
+#&gt; [17] timereg_2.0.4             pseudo_1.4.3             
+#&gt; [19] geepack_1.3.9             KMsurv_0.1-5             
+#&gt; [21] riskRegression_2022.11.28 prodlim_2019.11.13       
+#&gt; [23] cmprsk_2.2-11             survival_3.4-0           
+#&gt; [25] splitstackshape_1.4.8     pander_0.6.5             
+#&gt; [27] readr_2.1.3              
 #&gt; 
 #&gt; loaded via a namespace (and not attached):
-#&gt;  [1] Rcpp_1.0.9        highr_0.9         bslib_0.4.1       compiler_4.1.2   
-#&gt;  [5] pillar_1.8.1      jquerylib_0.1.4   tools_4.1.2       digest_0.6.30    
-#&gt;  [9] lattice_0.20-45   jsonlite_1.8.3    evaluate_0.18     lifecycle_1.0.3  
-#&gt; [13] tibble_3.1.8      pkgconfig_2.0.3   rlang_1.0.6       Matrix_1.5-3     
-#&gt; [17] cli_3.4.1         rstudioapi_0.14   parallel_4.1.2    yaml_2.3.6       
-#&gt; [21] xfun_0.35         fastmap_1.1.0     stringr_1.4.1     knitr_1.41       
-#&gt; [25] vctrs_0.5.1       sass_0.4.4        hms_1.1.2         grid_4.1.2       
-#&gt; [29] glue_1.6.2        data.table_1.14.6 R6_2.5.1          fansi_1.0.3      
-#&gt; [33] rmarkdown_2.18    tzdb_0.3.0        magrittr_2.0.3    codetools_0.2-18 
-#&gt; [37] ellipsis_0.3.2    htmltools_0.5.3   splines_4.1.2     utf8_1.2.2       
-#&gt; [41] stringi_1.7.8     cachem_1.0.6</code></pre>
+#&gt;   [1] TH.data_1.1-1       colorspace_2.0-3    deldir_1.0-6       
+#&gt;   [4] ellipsis_0.3.2      evd_2.3-6.1         htmlTable_2.4.1    
+#&gt;   [7] base64enc_0.1-3     rstudioapi_0.14     listenv_0.8.0      
+#&gt;  [10] MatrixModels_0.5-1  bit64_4.0.5         fansi_1.0.3        
+#&gt;  [13] mvtnorm_1.1-3       codetools_0.2-18    splines_4.2.2      
+#&gt;  [16] cachem_1.0.6        libcoin_1.0-9       knitr_1.41         
+#&gt;  [19] jsonlite_1.8.3      broom_1.0.1         cluster_2.1.4      
+#&gt;  [22] png_0.1-8           compiler_4.2.2      backports_1.4.1    
+#&gt;  [25] assertthat_0.2.1    fastmap_1.1.0       cli_3.4.1          
+#&gt;  [28] htmltools_0.5.3     quantreg_5.94       tools_4.2.2        
+#&gt;  [31] partykit_1.2-16     gtable_0.3.1        glue_1.6.2         
+#&gt;  [34] dplyr_1.0.10        Rcpp_1.0.9          jquerylib_0.1.4    
+#&gt;  [37] vctrs_0.5.1         iterators_1.0.14    inum_1.0-4         
+#&gt;  [40] xfun_0.35           stringr_1.5.0       globals_0.16.2     
+#&gt;  [43] lifecycle_1.0.3     future_1.29.0       polspline_1.1.22   
+#&gt;  [46] MASS_7.3-58.1       zoo_1.8-11          scales_1.2.1       
+#&gt;  [49] vroom_1.6.0         hms_1.1.2           sandwich_3.0-2     
+#&gt;  [52] RColorBrewer_1.1-3  yaml_2.3.6          gridExtra_2.3      
+#&gt;  [55] sass_0.4.4          truncdist_1.0-2     rpart_4.1.19       
+#&gt;  [58] latticeExtra_0.6-30 stringi_1.7.8       highr_0.9          
+#&gt;  [61] foreach_1.5.2       checkmate_2.1.0     shape_1.4.6        
+#&gt;  [64] lava_1.7.0          mets_1.3.1          rlang_1.0.6        
+#&gt;  [67] pkgconfig_2.0.3     evaluate_0.18       purrr_0.3.5        
+#&gt;  [70] htmlwidgets_1.5.4   bit_4.0.5           tidyselect_1.2.0   
+#&gt;  [73] parallelly_1.32.1   magrittr_2.0.3      R6_2.5.1           
+#&gt;  [76] nnls_1.4            generics_0.1.3      multcomp_1.4-20    
+#&gt;  [79] DBI_1.1.3           pillar_1.8.1        foreign_0.8-83     
+#&gt;  [82] withr_2.5.0         tibble_3.1.8        future.apply_1.10.0
+#&gt;  [85] crayon_1.5.2        interp_1.1-3        utf8_1.2.2         
+#&gt;  [88] tzdb_0.3.0          rmarkdown_2.18      jpeg_0.1-10        
+#&gt;  [91] grid_4.2.2          data.table_1.14.6   binaryLogic_0.3.9  
+#&gt;  [94] digest_0.6.30       tidyr_1.2.1         numDeriv_2016.8-1.1
+#&gt;  [97] stats4_4.2.2        munsell_0.5.0       bslib_0.4.1        
+#&gt; [100] quadprog_1.5-8</code></pre>
 </div>
 
 

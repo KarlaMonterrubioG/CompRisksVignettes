@@ -11,7 +11,7 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2022-12-01" />
+<meta name="date" content="2022-12-08" />
 
 <title>Other methods</title>
 
@@ -279,6 +279,7 @@ div.tocify {
     <li><a href="CS_specification.html">Cause Specific</a></li>
     <li><a href="Discrete_specification.html">Discrete</a></li>
     <li><a href="Others.html">Other</a></li>
+    <li><a href="Predictions.html">Predictions</a></li>
     <li style="float:right"><a href="https://github.com/KarlaMonterrubioG/Competing_risks"><i style="font-size: 20px; padding-top: 0px; padding-bottom: 0px;" class="fa-brands fa-github"></i></a></li>
   </ul>
 </div>
@@ -298,7 +299,7 @@ div.tocify {
 <h1 class="title toc-ignore">Other methods</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2022-12-01</h4>
+<h4 class="date">2022-12-08</h4>
 
 </div>
 
@@ -544,8 +545,10 @@ through <code>target</code>) at a given time point
 the event of interest is shown below. The higher the value, the better.
 Negative values indicate no predictive ability.</p>
 <pre class="r"><code>rsf.lr$importance[,1]
-#&gt;          age          sex     trtgiven     medwidsi     extranod      clinstg 
-#&gt;  0.020174337 -0.001455005  0.016779088 -0.001703250 -0.003966918  0.001417083</code></pre>
+#&gt;           age           sex      trtgiven      medwidsi      extranod 
+#&gt;  0.0285543220  0.0006596211  0.0151098252 -0.0031222275 -0.0013923875 
+#&gt;       clinstg 
+#&gt;  0.0006119141</code></pre>
 <p>In addition, one can also use minimal depth variable selection. In
 this case, the smaller the value, the more predictive ability. The
 second column of the table below shows the results:</p>
@@ -576,12 +579,12 @@ second column of the table below shows the results:</p>
 #&gt; 
 #&gt; Top variables:
 #&gt;          depth vimp.event.1 vimp.event.2
-#&gt; age       0.74        0.020        0.214
-#&gt; medwidsi  1.56       -0.002        0.012
-#&gt; trtgiven  1.68        0.017       -0.006
-#&gt; extranod  2.65       -0.004       -0.008
-#&gt; clinstg   2.77        0.001       -0.006
-#&gt; sex       2.99       -0.001        0.011
+#&gt; age       0.74        0.029        0.216
+#&gt; medwidsi  1.56       -0.003        0.007
+#&gt; trtgiven  1.68        0.015       -0.003
+#&gt; extranod  2.65       -0.001       -0.009
+#&gt; clinstg   2.77        0.001       -0.005
+#&gt; sex       2.99        0.001        0.007
 #&gt; -----------------------------------------------------------
 
 pander::pander(var.mindepth$varselect)</code></pre>
@@ -604,38 +607,38 @@ pander::pander(var.mindepth$varselect)</code></pre>
 <tr class="odd">
 <td align="center"><strong>age</strong></td>
 <td align="center">0.74</td>
-<td align="center">0.02017</td>
-<td align="center">0.2135</td>
+<td align="center">0.02855</td>
+<td align="center">0.2159</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>medwidsi</strong></td>
 <td align="center">1.56</td>
-<td align="center">-0.001703</td>
-<td align="center">0.01225</td>
+<td align="center">-0.003122</td>
+<td align="center">0.006712</td>
 </tr>
 <tr class="odd">
 <td align="center"><strong>trtgiven</strong></td>
 <td align="center">1.68</td>
-<td align="center">0.01678</td>
-<td align="center">-0.006373</td>
+<td align="center">0.01511</td>
+<td align="center">-0.0031</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>extranod</strong></td>
 <td align="center">2.65</td>
-<td align="center">-0.003967</td>
-<td align="center">-0.008177</td>
+<td align="center">-0.001392</td>
+<td align="center">-0.008568</td>
 </tr>
 <tr class="odd">
 <td align="center"><strong>clinstg</strong></td>
 <td align="center">2.77</td>
-<td align="center">0.001417</td>
-<td align="center">-0.006344</td>
+<td align="center">0.0006119</td>
+<td align="center">-0.004628</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>sex</strong></td>
 <td align="center">2.99</td>
-<td align="center">-0.001455</td>
-<td align="center">0.01074</td>
+<td align="center">0.0006596</td>
+<td align="center">0.007498</td>
 </tr>
 </tbody>
 </table>
@@ -702,7 +705,7 @@ the event of interest is shown below. The higher the value, the better.
 Negative values indicate no predictive ability.</p>
 <pre class="r"><code>rsf.lrCR$importance[,1]
 #&gt;          age          sex     trtgiven     medwidsi     extranod      clinstg 
-#&gt;  0.016969667 -0.002039459  0.015975435 -0.004734901 -0.001124025  0.002350809</code></pre>
+#&gt;  0.014136209 -0.001138358  0.009816153 -0.008461710 -0.002342763  0.002965353</code></pre>
 <p>In order to obtain predictions in the test set, we employ
 <code>predict()</code> function as shown below. A summary of the object
 is shown with the function <code>print()</code></p>
@@ -816,7 +819,11 @@ methods, we save the predictions obtained in this vignette.</p>
   &quot;testID&quot; = seq_len(nrow(hd_test)),
   &quot;RF_logrankCR&quot; = test.lrCR$cif[,test.lrCR$time.interest==5,1],
   &quot;RF_logrankCR.av&quot; = test.lrCR.av$cif[,test.lrCR.av$time.interest==5,1])
-write.csv(pred_Others, &quot;../Predictions/pred_Others.csv&quot;, row.names = FALSE)</code></pre>
+if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
+  write.csv(pred_Others, &quot;/Predictions/pred_Others.csv&quot;, row.names = FALSE)
+} else {
+  write.csv(pred_Others, &quot;../Predictions/pred_Others.csv&quot;, row.names = FALSE)
+}</code></pre>
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>
@@ -836,38 +843,78 @@ Perspective</em>. John Wiley &amp; Sons.
 <div id="session-info" class="section level1">
 <h1>Session Info</h1>
 <pre class="r"><code>sessionInfo()
-#&gt; R version 4.1.2 (2021-11-01)
-#&gt; Platform: x86_64-apple-darwin17.0 (64-bit)
-#&gt; Running under: macOS Big Sur 10.16
+#&gt; R version 4.2.2 (2022-10-31)
+#&gt; Platform: x86_64-pc-linux-gnu (64-bit)
+#&gt; Running under: Ubuntu 22.04.1 LTS
 #&gt; 
 #&gt; Matrix products: default
-#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
-#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
+#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
+#&gt; LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so
 #&gt; 
 #&gt; locale:
-#&gt; [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
+#&gt;  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+#&gt;  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+#&gt;  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+#&gt;  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+#&gt;  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+#&gt; [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 #&gt; 
 #&gt; attached base packages:
-#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     
+#&gt; [1] parallel  stats     graphics  grDevices utils     datasets  methods  
+#&gt; [8] base     
 #&gt; 
 #&gt; other attached packages:
-#&gt; [1] randomForestSRC_3.1.1 splitstackshape_1.4.8 pander_0.6.5         
-#&gt; [4] readr_2.1.3          
+#&gt;  [1] randomForestSRC_3.1.1     BART_2.9                 
+#&gt;  [3] nlme_3.1-160              nnet_7.3-18              
+#&gt;  [5] mboost_2.9-7              stabs_0.6-4              
+#&gt;  [7] glmnet_4.1-6              Matrix_1.5-1             
+#&gt;  [9] pec_2022.05.04            rms_6.3-0                
+#&gt; [11] SparseM_1.81              Hmisc_4.7-2              
+#&gt; [13] ggplot2_3.4.0             Formula_1.2-4            
+#&gt; [15] lattice_0.20-45           coda_0.19-4              
+#&gt; [17] DPWeibull_1.8             timereg_2.0.4            
+#&gt; [19] pseudo_1.4.3              geepack_1.3.9            
+#&gt; [21] KMsurv_0.1-5              riskRegression_2022.11.28
+#&gt; [23] prodlim_2019.11.13        cmprsk_2.2-11            
+#&gt; [25] survival_3.4-0            splitstackshape_1.4.8    
+#&gt; [27] pander_0.6.5              readr_2.1.3              
 #&gt; 
 #&gt; loaded via a namespace (and not attached):
-#&gt;  [1] Rcpp_1.0.9         highr_0.9          RColorBrewer_1.1-3 bslib_0.4.1       
-#&gt;  [5] compiler_4.1.2     pillar_1.8.1       jquerylib_0.1.4    tools_4.1.2       
-#&gt;  [9] digest_0.6.30      jsonlite_1.8.3     evaluate_0.18      lifecycle_1.0.3   
-#&gt; [13] tibble_3.1.8       pkgconfig_2.0.3    rlang_1.0.6        DBI_1.1.3         
-#&gt; [17] cli_3.4.1          rstudioapi_0.14    parallel_4.1.2     yaml_2.3.6        
-#&gt; [21] xfun_0.35          fastmap_1.1.0      withr_2.5.0        dplyr_1.0.10      
-#&gt; [25] DiagrammeR_1.0.9   stringr_1.4.1      knitr_1.41         generics_0.1.3    
-#&gt; [29] htmlwidgets_1.5.4  vctrs_0.5.1        sass_0.4.4         hms_1.1.2         
-#&gt; [33] tidyselect_1.2.0   data.tree_1.0.0    glue_1.6.2         data.table_1.14.6 
-#&gt; [37] R6_2.5.1           fansi_1.0.3        rmarkdown_2.18     tidyr_1.2.1       
-#&gt; [41] purrr_0.3.5        tzdb_0.3.0         magrittr_2.0.3     codetools_0.2-18  
-#&gt; [45] ellipsis_0.3.2     htmltools_0.5.3    assertthat_0.2.1   utf8_1.2.2        
-#&gt; [49] stringi_1.7.8      visNetwork_2.1.2   cachem_1.0.6</code></pre>
+#&gt;   [1] TH.data_1.1-1       colorspace_2.0-3    deldir_1.0-6       
+#&gt;   [4] ellipsis_0.3.2      evd_2.3-6.1         htmlTable_2.4.1    
+#&gt;   [7] base64enc_0.1-3     rstudioapi_0.14     listenv_0.8.0      
+#&gt;  [10] MatrixModels_0.5-1  bit64_4.0.5         fansi_1.0.3        
+#&gt;  [13] mvtnorm_1.1-3       codetools_0.2-18    splines_4.2.2      
+#&gt;  [16] cachem_1.0.6        libcoin_1.0-9       knitr_1.41         
+#&gt;  [19] jsonlite_1.8.3      broom_1.0.1         cluster_2.1.4      
+#&gt;  [22] png_0.1-8           data.tree_1.0.0     DiagrammeR_1.0.9   
+#&gt;  [25] compiler_4.2.2      backports_1.4.1     assertthat_0.2.1   
+#&gt;  [28] fastmap_1.1.0       cli_3.4.1           visNetwork_2.1.2   
+#&gt;  [31] htmltools_0.5.3     quantreg_5.94       tools_4.2.2        
+#&gt;  [34] partykit_1.2-16     gtable_0.3.1        glue_1.6.2         
+#&gt;  [37] dplyr_1.0.10        Rcpp_1.0.9          jquerylib_0.1.4    
+#&gt;  [40] vctrs_0.5.1         iterators_1.0.14    inum_1.0-4         
+#&gt;  [43] xfun_0.35           stringr_1.5.0       globals_0.16.2     
+#&gt;  [46] lifecycle_1.0.3     future_1.29.0       polspline_1.1.22   
+#&gt;  [49] MASS_7.3-58.1       zoo_1.8-11          scales_1.2.1       
+#&gt;  [52] vroom_1.6.0         hms_1.1.2           sandwich_3.0-2     
+#&gt;  [55] RColorBrewer_1.1-3  yaml_2.3.6          gridExtra_2.3      
+#&gt;  [58] sass_0.4.4          truncdist_1.0-2     rpart_4.1.19       
+#&gt;  [61] latticeExtra_0.6-30 stringi_1.7.8       highr_0.9          
+#&gt;  [64] foreach_1.5.2       checkmate_2.1.0     shape_1.4.6        
+#&gt;  [67] lava_1.7.0          mets_1.3.1          rlang_1.0.6        
+#&gt;  [70] pkgconfig_2.0.3     evaluate_0.18       purrr_0.3.5        
+#&gt;  [73] htmlwidgets_1.5.4   bit_4.0.5           tidyselect_1.2.0   
+#&gt;  [76] parallelly_1.32.1   magrittr_2.0.3      R6_2.5.1           
+#&gt;  [79] nnls_1.4            generics_0.1.3      multcomp_1.4-20    
+#&gt;  [82] DBI_1.1.3           pillar_1.8.1        foreign_0.8-83     
+#&gt;  [85] withr_2.5.0         tibble_3.1.8        future.apply_1.10.0
+#&gt;  [88] crayon_1.5.2        interp_1.1-3        utf8_1.2.2         
+#&gt;  [91] tzdb_0.3.0          rmarkdown_2.18      jpeg_0.1-10        
+#&gt;  [94] grid_4.2.2          data.table_1.14.6   binaryLogic_0.3.9  
+#&gt;  [97] digest_0.6.30       tidyr_1.2.1         numDeriv_2016.8-1.1
+#&gt; [100] stats4_4.2.2        munsell_0.5.0       bslib_0.4.1        
+#&gt; [103] quadprog_1.5-8</code></pre>
 </div>
 
 
