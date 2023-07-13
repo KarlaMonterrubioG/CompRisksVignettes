@@ -5,19 +5,19 @@ competing risks methods for survival analysis.
 
 It includes R vignettes to illustrate the usage of the following methods:
 
-* [Cause-specific formulation](https://github.com/KarlaMonterrubioG/CompRisksVignettes/blob/main/Source/CS_specification.Rmd)
+* [Cause-specific formulation](https://github.com/KarlaMonterrubioG/vallejosgroup/blob/main/Source/CS_specification.Rmd)
   + Cause-specific Cox PH
   + Sparse regression:
      - Lasso CPH
      - Cox boosting
-* [CIF formulation](https://github.com/KarlaMonterrubioG/CompRisksVignettes/blob/main/Source/CIF_specification.Rmd)
+* [CIF formulation](https://github.com/vallejosgroup/CompRisksVignettes/blob/main/Source/CIF_specification.Rmd)
   + Fine-Gray
   + Pseudo-values
   + Direct binomial
   + Dependent Dirichlet processes
-* [Discrete time formulation](https://github.com/KarlaMonterrubioG/CompRisksVignettes/blob/main/Source/Discrete_specification.Rmd)
+* [Discrete time formulation](https://github.com/vallejosgroup/CompRisksVignettes/blob/main/Source/Discrete_specification.Rmd)
   + BART
-* [Other methods](https://github.com/KarlaMonterrubioG/CompRisksVignettes/blob/main/Source/Others.Rmd)
+* [Other methods](https://github.com/vallejosgroup/CompRisksVignettes/blob/main/Source/Others.Rmd)
   + Random survival forests
 
 ### Structure
@@ -83,7 +83,7 @@ support to be enabled in the BIOS settings.
 To use the Docker image, clone this repository and go into the directory.
 
 ``` bash
-$ git clone https://github.com/KarlaMonterrubioG/CompRisksVignettes.git
+$ git clone https://github.com/vallejosgroup/CompRisksVignettes.git
 $ cd CompRisksVignettes
 ```
 
@@ -94,7 +94,7 @@ settings panel (Settings > Resources > Advanced)
 To pull (download) the image, run
 
 ``` bash
-docker image pull ghcr.io/karlamonterrubiog/comprisksvignettes:latest
+docker image pull ghcr.io/vallejosgroup/comprisksvignettes:latest
 ```
 
 To render the html reports, run
@@ -104,7 +104,7 @@ $ docker container run \
   --mount type=bind,source="$(pwd)"/docs,target=/docs \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
-  ghcr.io/karlamonterrubiog/comprisksvignettes ./render
+  ghcr.io/vallejosgroup/comprisksvignettes ./render
 ```
 
 which will then use the R markdown files in the [`Source`](Source) directory to
@@ -120,7 +120,7 @@ $ docker container run \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
   -e PASSWORD=password \
   -p 8787:8787 \
-  ghcr.io/karlamonterrubiog/comprisksvignettes
+  ghcr.io/vallejosgroup/comprisksvignettes
 ```
 
 Replacing the lowercase "`password`" with an alternative if desired. You can
@@ -134,7 +134,7 @@ The Docker image is large (3.88GB), so you may wish to delete the image once you
 are finished:
 
 ``` bash
-docker image rm ghcr.io/karlamonterrubiog/comprisksvignettes
+docker image rm ghcr.io/vallejosgroup/comprisksvignettes
 ```
 
 ### Using a local R install

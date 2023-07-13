@@ -1,8 +1,8 @@
-FROM rocker/rstudio:4.2.2
+FROM rocker/rstudio:4.3.1
 
-LABEL "org.opencontainers.image.source"="https://github.com/KarlaMonterrubioG/CompRisksVignettes" \
+LABEL "org.opencontainers.image.source"="https://github.com/vallejosgroup/CompRisksVignettes" \
     "org.opencontainers.image.authors"="Nathan Constantine-Cooke <nathan.constantine-cooke@ed.ac.uk>" \
-    "org.opencontainers.image.base.name"="rocker/rstudio:4.2.1" \
+    "org.opencontainers.image.base.name"="rocker/rstudio:4.3.1" \
     "org.opencontainers.image.description"="Docker image for the CompRisksVignettes repository" \
     "org.opencontainers.image.vendor"="University of Edinburgh"
 
@@ -33,6 +33,7 @@ RUN apt-get update -qq && apt-get -y --no-install-recommends install \
   pandoc \
   pandoc-citeproc \
   libgit2-dev \
+  cmake \
   # Remove unneeded files to decrease image size
   && rm -rf /var/lib/apt/lists/*
 

@@ -11,11 +11,11 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2022-12-08" />
+<meta name="date" content="2023-07-13" />
 
 <title>Approaches based on a discrete survival times specification</title>
 
-<script src="Discrete_specification_files/header-attrs-2.18/header-attrs.js"></script>
+<script src="Discrete_specification_files/header-attrs-2.23/header-attrs.js"></script>
 <script src="Discrete_specification_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="Discrete_specification_files/bootstrap-3.3.5/css/simplex.min.css" rel="stylesheet" />
@@ -31,7 +31,7 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
-<script src="Discrete_specification_files/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<script src="Discrete_specification_files/jqueryui-1.13.2/jquery-ui.min.js"></script>
 <link href="Discrete_specification_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="Discrete_specification_files/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="Discrete_specification_files/navigation-1.1/tabsets.js"></script>
@@ -276,7 +276,7 @@ div.tocify {
     <li><a href="Discrete_specification.html">Discrete</a></li>
     <li><a href="Others.html">Other</a></li>
     <li><a href="Predictions.html">Predictions</a></li>
-    <li style="float:right"><a href="https://github.com/KarlaMonterrubioG/Competing_risks"><i style="font-size: 20px; padding-top: 0px; padding-bottom: 0px;" class="fa-brands fa-github"></i></a></li>
+    <li style="float:right"><a href="https://github.com/VallejosGroup/CompRisksVignettes"><i style="font-size: 20px; padding-top: 0px; padding-bottom: 0px;" class="fa-brands fa-github"></i></a></li>
   </ul>
 </div>
 
@@ -296,7 +296,7 @@ div.tocify {
 times specification</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2022-12-08</h4>
+<h4 class="date">2023-07-13</h4>
 
 </div>
 
@@ -432,11 +432,10 @@ and test set:</p>
 <h1>BART</h1>
 <p>BART has a well documented vignette (<span
 class="citation">Sparapani, Spanbauer, and McCulloch (<a
-href="#ref-sparapani2021" role="doc-biblioref">2021</a>)</span>). Here,
-we focus only on demonstrating its usage for a CR setting, which
-corresponds to Section 5.3 in <span class="citation">Sparapani,
-Spanbauer, and McCulloch (<a href="#ref-sparapani2021"
-role="doc-biblioref">2021</a>)</span>. In the following, we fit the
+href="#ref-sparapani2021">2021</a>)</span>). Here, we focus only on
+demonstrating its usage for a CR setting, which corresponds to Section
+5.3 in <span class="citation">Sparapani, Spanbauer, and McCulloch (<a
+href="#ref-sparapani2021">2021</a>)</span>. In the following, we fit the
 model with the two different likelihood formulations to compare the
 obtained estimates.</p>
 <p>The first step is to recast the data creating dummy variables for all
@@ -711,8 +710,8 @@ DART1.pred[1:5, which(dart1$times == 5)]
 <div id="model-formulation-2" class="section level2">
 <h2>Model formulation 2</h2>
 <p>This approach is discussed in Section 3.2 of <span
-class="citation">Sparapani et al. (<a href="#ref-Bart2020"
-role="doc-biblioref">2020</a>)</span> and fits also two separate BART
+class="citation">Sparapani et al. (<a
+href="#ref-Bart2020">2020</a>)</span> and fits also two separate BART
 probit models. The first model, corresponds to the conditional
 probability of a cause <span class="math inline">\(k=1\)</span> event at
 a given time. The second, models the conditional probability of an event
@@ -816,13 +815,13 @@ Bayesian Additive Regression Trees: The BART r Package.”</span>
 <div id="session-info" class="section level1">
 <h1>Session Info</h1>
 <pre class="r"><code>sessionInfo()
-#&gt; R version 4.2.2 (2022-10-31)
-#&gt; Platform: x86_64-pc-linux-gnu (64-bit)
-#&gt; Running under: Ubuntu 22.04.1 LTS
+#&gt; R version 4.3.1 (2023-06-16)
+#&gt; Platform: aarch64-unknown-linux-gnu (64-bit)
+#&gt; Running under: Ubuntu 22.04.2 LTS
 #&gt; 
 #&gt; Matrix products: default
-#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
-#&gt; LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so
+#&gt; BLAS:   /usr/lib/aarch64-linux-gnu/openblas-pthread/libblas.so.3 
+#&gt; LAPACK: /usr/lib/aarch64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0
 #&gt; 
 #&gt; locale:
 #&gt;  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
@@ -832,61 +831,60 @@ Bayesian Additive Regression Trees: The BART r Package.”</span>
 #&gt;  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
 #&gt; [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 #&gt; 
+#&gt; time zone: Etc/UTC
+#&gt; tzcode source: system (glibc)
+#&gt; 
 #&gt; attached base packages:
 #&gt; [1] parallel  stats     graphics  grDevices utils     datasets  methods  
 #&gt; [8] base     
 #&gt; 
 #&gt; other attached packages:
-#&gt;  [1] BART_2.9                  nlme_3.1-160             
-#&gt;  [3] nnet_7.3-18               mboost_2.9-7             
-#&gt;  [5] stabs_0.6-4               glmnet_4.1-6             
-#&gt;  [7] Matrix_1.5-1              pec_2022.05.04           
-#&gt;  [9] rms_6.3-0                 SparseM_1.81             
-#&gt; [11] Hmisc_4.7-2               ggplot2_3.4.0            
-#&gt; [13] Formula_1.2-4             lattice_0.20-45          
-#&gt; [15] coda_0.19-4               DPWeibull_1.8            
-#&gt; [17] timereg_2.0.4             pseudo_1.4.3             
-#&gt; [19] geepack_1.3.9             KMsurv_0.1-5             
-#&gt; [21] riskRegression_2022.11.28 prodlim_2019.11.13       
-#&gt; [23] cmprsk_2.2-11             survival_3.4-0           
-#&gt; [25] splitstackshape_1.4.8     pander_0.6.5             
-#&gt; [27] readr_2.1.3              
+#&gt;  [1] BART_2.9.4                nlme_3.1-162             
+#&gt;  [3] nnet_7.3-19               mboost_2.9-7             
+#&gt;  [5] stabs_0.6-4               glmnet_4.1-7             
+#&gt;  [7] Matrix_1.6-0              pec_2023.04.12           
+#&gt;  [9] rms_6.7-0                 Hmisc_5.1-0              
+#&gt; [11] coda_0.19-4               DPWeibull_1.8            
+#&gt; [13] timereg_2.0.5             pseudo_1.4.3             
+#&gt; [15] geepack_1.3.9             KMsurv_0.1-5             
+#&gt; [17] riskRegression_2023.03.22 prodlim_2023.03.31       
+#&gt; [19] cmprsk_2.2-11             survival_3.5-5           
+#&gt; [21] splitstackshape_1.4.8     pander_0.6.5             
+#&gt; [23] readr_2.1.4              
 #&gt; 
 #&gt; loaded via a namespace (and not attached):
-#&gt;   [1] TH.data_1.1-1       colorspace_2.0-3    deldir_1.0-6       
-#&gt;   [4] ellipsis_0.3.2      evd_2.3-6.1         htmlTable_2.4.1    
-#&gt;   [7] base64enc_0.1-3     rstudioapi_0.14     listenv_0.8.0      
-#&gt;  [10] MatrixModels_0.5-1  bit64_4.0.5         fansi_1.0.3        
-#&gt;  [13] mvtnorm_1.1-3       codetools_0.2-18    splines_4.2.2      
-#&gt;  [16] cachem_1.0.6        libcoin_1.0-9       knitr_1.41         
-#&gt;  [19] jsonlite_1.8.3      broom_1.0.1         cluster_2.1.4      
-#&gt;  [22] png_0.1-8           compiler_4.2.2      backports_1.4.1    
-#&gt;  [25] assertthat_0.2.1    fastmap_1.1.0       cli_3.4.1          
-#&gt;  [28] htmltools_0.5.3     quantreg_5.94       tools_4.2.2        
-#&gt;  [31] partykit_1.2-16     gtable_0.3.1        glue_1.6.2         
-#&gt;  [34] dplyr_1.0.10        Rcpp_1.0.9          jquerylib_0.1.4    
-#&gt;  [37] vctrs_0.5.1         iterators_1.0.14    inum_1.0-4         
-#&gt;  [40] xfun_0.35           stringr_1.5.0       globals_0.16.2     
-#&gt;  [43] lifecycle_1.0.3     future_1.29.0       polspline_1.1.22   
-#&gt;  [46] MASS_7.3-58.1       zoo_1.8-11          scales_1.2.1       
-#&gt;  [49] vroom_1.6.0         hms_1.1.2           sandwich_3.0-2     
-#&gt;  [52] RColorBrewer_1.1-3  yaml_2.3.6          gridExtra_2.3      
-#&gt;  [55] sass_0.4.4          truncdist_1.0-2     rpart_4.1.19       
-#&gt;  [58] latticeExtra_0.6-30 stringi_1.7.8       highr_0.9          
-#&gt;  [61] foreach_1.5.2       checkmate_2.1.0     shape_1.4.6        
-#&gt;  [64] lava_1.7.0          mets_1.3.1          rlang_1.0.6        
-#&gt;  [67] pkgconfig_2.0.3     evaluate_0.18       purrr_0.3.5        
-#&gt;  [70] htmlwidgets_1.5.4   bit_4.0.5           tidyselect_1.2.0   
-#&gt;  [73] parallelly_1.32.1   magrittr_2.0.3      R6_2.5.1           
-#&gt;  [76] nnls_1.4            generics_0.1.3      multcomp_1.4-20    
-#&gt;  [79] DBI_1.1.3           pillar_1.8.1        foreign_0.8-83     
-#&gt;  [82] withr_2.5.0         tibble_3.1.8        future.apply_1.10.0
-#&gt;  [85] crayon_1.5.2        interp_1.1-3        utf8_1.2.2         
-#&gt;  [88] tzdb_0.3.0          rmarkdown_2.18      jpeg_0.1-10        
-#&gt;  [91] grid_4.2.2          data.table_1.14.6   binaryLogic_0.3.9  
-#&gt;  [94] digest_0.6.30       tidyr_1.2.1         numDeriv_2016.8-1.1
-#&gt;  [97] stats4_4.2.2        munsell_0.5.0       bslib_0.4.1        
-#&gt; [100] quadprog_1.5-8</code></pre>
+#&gt;  [1] gridExtra_2.3       sandwich_3.0-2      rlang_1.1.1        
+#&gt;  [4] magrittr_2.0.3      multcomp_1.4-25     polspline_1.1.23   
+#&gt;  [7] compiler_4.3.1      vctrs_0.6.3         quadprog_1.5-8     
+#&gt; [10] quantreg_5.95       stringr_1.5.0       shape_1.4.6        
+#&gt; [13] pkgconfig_2.0.3     crayon_1.5.2        fastmap_1.1.1      
+#&gt; [16] backports_1.4.1     inum_1.0-5          utf8_1.2.3         
+#&gt; [19] rmarkdown_2.23      tzdb_0.4.0          MatrixModels_0.5-2 
+#&gt; [22] purrr_1.0.1         bit_4.0.5           xfun_0.39          
+#&gt; [25] cachem_1.0.8        jsonlite_1.8.7      highr_0.10         
+#&gt; [28] broom_1.0.5         cluster_2.1.4       R6_2.5.1           
+#&gt; [31] bslib_0.5.0         stringi_1.7.12      parallelly_1.36.0  
+#&gt; [34] rpart_4.1.19        jquerylib_0.1.4     numDeriv_2016.8-1.1
+#&gt; [37] Rcpp_1.0.11         iterators_1.0.14    knitr_1.43         
+#&gt; [40] future.apply_1.11.0 zoo_1.8-12          base64enc_0.1-3    
+#&gt; [43] nnls_1.4            splines_4.3.1       tidyselect_1.2.0   
+#&gt; [46] rstudioapi_0.15.0   yaml_2.3.7          partykit_1.2-20    
+#&gt; [49] codetools_0.2-19    listenv_0.9.0       lattice_0.21-8     
+#&gt; [52] tibble_3.2.1        evaluate_0.21       foreign_0.8-84     
+#&gt; [55] future_1.33.0       pillar_1.9.0        checkmate_2.2.0    
+#&gt; [58] foreach_1.5.2       stats4_4.3.1        generics_0.1.3     
+#&gt; [61] vroom_1.6.3         hms_1.1.3           ggplot2_3.4.2      
+#&gt; [64] munsell_0.5.0       scales_1.2.1        globals_0.16.2     
+#&gt; [67] binaryLogic_0.3.9   glue_1.6.2          tools_4.3.1        
+#&gt; [70] data.table_1.14.8   SparseM_1.81        mvtnorm_1.2-2      
+#&gt; [73] grid_4.3.1          tidyr_1.3.0         libcoin_1.0-9      
+#&gt; [76] truncdist_1.0-2     colorspace_2.1-0    htmlTable_2.4.1    
+#&gt; [79] Formula_1.2-5       cli_3.6.1           evd_2.3-6.1        
+#&gt; [82] fansi_1.0.4         lava_1.7.2.1        mets_1.3.2         
+#&gt; [85] dplyr_1.1.2         gtable_0.3.3        sass_0.4.6         
+#&gt; [88] digest_0.6.33       TH.data_1.1-2       htmlwidgets_1.6.2  
+#&gt; [91] htmltools_0.5.5     lifecycle_1.0.3     bit64_4.0.5        
+#&gt; [94] MASS_7.3-60</code></pre>
 </div>
 
 
