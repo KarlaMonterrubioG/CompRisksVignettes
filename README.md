@@ -20,7 +20,7 @@ It includes R vignettes to illustrate the usage of the following methods:
 * [Other methods](https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/Others.Rmd)
   + Random survival forests
 
-### Structure
+## Structure
 
 ```
 .
@@ -75,10 +75,14 @@ image should automatically be downloaded for your platform.
 
 **Instructions**
 
-If you have not done so already, [install Docker](https://www.docker.com). If
-you are using a Windows computer, you will most likely need support for Windows
+If you have not done so already, [install Docker](https://www.docker.com):
+
+- **If you are using a Windows computer**, you will most likely need support for Windows
 Subsystem for Linux 2 (WSL2) which requires BIOS-level hardware virtualisation
-support to be enabled in the BIOS settings. 
+support to be enabled in the BIOS settings.
+
+- **If you are using a Mac computer**, appropriate versions for the Intel or Apple
+Silicon chips are available [here](https://docs.docker.com/desktop/install/mac-install/). 
 
 To use the Docker image, clone this repository and go into the directory.
 
@@ -151,7 +155,7 @@ are finished:
 docker image rm ghcr.io/vallejosgroup/comprisksvignettes
 ```
 
-### Using a local R install
+## Using a local R install
 
 If you wish/have to avoid using Docker, you can instead run the below R code
 from the top-level directory of this repository which should install all
