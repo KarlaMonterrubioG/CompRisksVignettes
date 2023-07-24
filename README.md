@@ -83,8 +83,8 @@ support to be enabled in the BIOS settings.
 To use the Docker image, clone this repository and go into the directory.
 
 ``` bash
-$ git clone https://github.com/VallejosGroup/CompRisksVignettes.git
-$ cd CompRisksVignettes
+git clone https://github.com/VallejosGroup/CompRisksVignettes.git
+cd CompRisksVignettes
 ```
 
 > **Note**: You may need to allocate more RAM to Docker if 8GB of RAM or less 
@@ -97,24 +97,20 @@ To pull (download) the image, run
 docker image pull ghcr.io/VallejosGroup/comprisksvignettes:latest
 ```
 
-To render the html reports, run
+There are two ways to use the docker image:
+
+1. **Interactive**:
+
+This will run an Rstudio session inside the docker container with all packages 
+required available. This can be used to run our vignettes interactively and may
+be used when performing your own analysis. For example, this may be helpful when
+applying the same methods to different data or when running a systematic benchmark
+across methods (which may also include new methods). 
+
+To do this, you can run:
 
 ``` bash
-$ docker container run \
-  --mount type=bind,source="$(pwd)"/docs,target=/docs \
-  --mount type=bind,source="$(pwd)"/Source,target=/Source \
-  --mount type=bind,source="$(pwd)"/Data,target=/Data \
-  ghcr.io/VallejosGroup/comprisksvignettes ./render
-```
-
-which will then use the R markdown files in the [`Source`](Source) directory to
-render HTML files to the [`docs`](docs) directory using the Docker image.
-
-If you would prefer to instead open an Rstudio session inside the docker
-container with all packages required available, you can run
-
-``` bash
-$ docker container run \
+docker container run \
   --mount type=bind,source="$(pwd)"/docs,target=/docs \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
@@ -126,7 +122,25 @@ $ docker container run \
 Replacing the lowercase "`password`" with an alternative if desired. You can
 then browse to `localhost:8787` in a web browser to get an Rstudio session. The
 login username should be "rstudio" and the password will be "password" (unless
-you have changed it)
+you have changed it).
+
+2. **Non-interactive**:
+
+This can be used to reproduce our results by rendering the html reports. 
+To render the html reports, run
+
+``` bash
+docker container run \
+  --mount type=bind,source="$(pwd)"/docs,target=/docs \
+  --mount type=bind,source="$(pwd)"/Source,target=/Source \
+  --mount type=bind,source="$(pwd)"/Data,target=/Data \
+  ghcr.io/VallejosGroup/comprisksvignettes ./render
+```
+
+which will then use the R markdown files in the [`Source`](Source) directory to
+render HTML files to the [`docs`](docs) directory using the Docker image.
+
+
 
 **Cleanup**
 
