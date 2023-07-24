@@ -94,7 +94,7 @@ settings panel (Settings > Resources > Advanced)
 To pull (download) the image, run
 
 ``` bash
-docker image pull ghcr.io/VallejosGroup/comprisksvignettes:latest
+docker image pull ghcr.io/vallejosgroup/comprisksvignettes:latest
 ```
 
 There are two ways to use the docker image:
@@ -116,7 +116,7 @@ docker container run \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
   -e PASSWORD=password \
   -p 8787:8787 \
-  ghcr.io/VallejosGroup/comprisksvignettes
+  ghcr.io/vallejosgroup/comprisksvignettes
 ```
 
 Replacing the lowercase "`password`" with an alternative if desired. You can
@@ -134,7 +134,7 @@ docker container run \
   --mount type=bind,source="$(pwd)"/docs,target=/docs \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
-  ghcr.io/VallejosGroup/comprisksvignettes ./render
+  ghcr.io/vallejosgroup/comprisksvignettes ./render
 ```
 
 which will then use the R markdown files in the [`Source`](Source) directory to
@@ -148,7 +148,7 @@ The Docker image is large (3.88GB), so you may wish to delete the image once you
 are finished:
 
 ``` bash
-docker image rm ghcr.io/VallejosGroup/comprisksvignettes
+docker image rm ghcr.io/vallejosgroup/comprisksvignettes
 ```
 
 ### Using a local R install
