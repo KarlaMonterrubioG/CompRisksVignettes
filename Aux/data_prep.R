@@ -18,7 +18,7 @@ split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
 hd_train   <- split_data$SAMP1
 hd_test    <- split_data$SAMP2
 
-cat("The sourced script has been used to load and pre-process the data.\n",
-    "The latter converts appropriate variables into factors.\n",
-    "Additionally, we randomly split the data into training and testing sets, \n",
-    "enabling us to evaluate out-of-sample predictive performance when comparing different approaches.")
+message("The sourced script has been used to load and pre-process the data.\n",
+        "The latter converts appropriate variables into factors.\n",
+        "Additionally, we randomly split the data into training and testing sets, \n",
+        "enabling us to evaluate out-of-sample predictive performance when comparing different approaches.")
