@@ -33,75 +33,20 @@ knitr::opts_chunk$set(
 
 # Data
 
-In order to demonstrate methods using a proportional cause-specific hazard
-specification, we employ publicly available data. 
-
 The dataset used here corresponds to the Hodgkin’s disease (HD) study described
-in Pintilie, 2006. The dataset comprises 865 patients diagnosed with early stage
-(I or II) HD, and which were treated either with radiation (RT) or with
-radiation and chemotherapy (CMT).
-
-The recorded data includes:
-
-* age: Age (years)
-* sex: Sex, F=female and M=Male.
-* trtgiven: Treatment given, RT=Radiation, CMT=Chemotherapy and radiation
-* medwidsi: Size of mediastinum involvement, N=No, S=Small, L=Large
-* extranod: Extranodal disease, Y=Extranodal disease, N= Nodal disease
-* clinstg: Clinical stage, 1=Stage I, 2=Stage II
-* time: time to failure (years) calculated from the date of diagnosis
-* status: 0=censoring, 1=relapse and 2=death.
-
-We now load and display the structure of the HD dataset:
-
-```{r, message = FALSE, warning = FALSE}
-require(readr)
-hd <- data.frame(read_csv("../Data/HD/hd.csv",
-                          col_types = cols(X1 = col_skip())))
-str(hd)
-```
-
-To procede with the analysis, it is important to change the data type of sex,
-trtgiven, medwidsi, and extranod from `character` to `factor`. Similarly, we
-convert clinstg from `numeric` to `factor`.
+in Pintilie, 2006. Pre-processed data is loaded by sourcing the following R script:
 
 ```{r}
-  hd$sex      <- as.factor(hd$sex)
-  hd$trtgiven <- as.factor(hd$trtgiven)
-  hd$medwidsi <- as.factor(hd$medwidsi)
-  hd$extranod <- as.factor(hd$extranod)
-  hd$clinstg  <- as.factor(hd$clinstg)
+source("../Aux/data_prep.R")
 ```
 
-Now, we explore the number of events for each event type:
+The latter creates three data objects:
 
-```{r, message=FALSE}
-require(pander)
-pander::pander(table(hd$status))
-```
+- `hd`: all the samples in the original data
+- `hd_train`: a random sample of the data to be used as a training set
+- `hd_test`: a random sample of the data to be used as a testing set
 
-Thus, we have `r length(which(hd$status==0))` censored patients, `r length(which(hd$status==1))` with relapse and `r length(which(hd$status==2))` who died. From now on, we assume that the event of interest is relapse, i.e. `status=1`.
-
-In order to create a test set, we use stratified sampling to partition our
-data in 80% for train and 20% for test.
-
-```{r}
-require(splitstackshape)
-set.seed(2022)
-split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
-hd_train   <- split_data$SAMP1[,-1]
-hd_test    <- split_data$SAMP2[,-1]
-```
-
-Now, we explore the number of observations per status in both train and test
-set:
-
-```{r}
-pander::pander(table(hd_train$status))
-```
-```{r}
-pander::pander(table(hd_test$status))
-```
+Details about data pre-processing steps can be found at: 
 
 
 # Cause-specific Cox Proportional-Hazards
