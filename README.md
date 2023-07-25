@@ -1,4 +1,4 @@
-**NOTE: this repository is no longer maintained. The up-to-date version is now available [here](https://github.com/VallejosGroup/CompRisksVignettes)**
+# **NOTE: this repository is no longer maintained. The up-to-date version is now available [here](https://github.com/VallejosGroup/CompRisksVignettes)**
 
 # Competing risks
 
