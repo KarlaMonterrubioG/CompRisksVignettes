@@ -15,8 +15,8 @@ hd$clinstg  <- as.factor(hd$clinstg)
 require(splitstackshape)
 set.seed(2022)
 split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
-hd_train   <- split_data$SAMP1[,-1]
-hd_test    <- split_data$SAMP2[,-1]
+hd_train   <- split_data$SAMP1
+hd_test    <- split_data$SAMP2
 
 cat("The sourced script has been used to load and pre-process the data.\n",
     "The latter converts appropriate variables into factors.\n",

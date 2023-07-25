@@ -31,7 +31,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Data
+# Introduction
 
 The dataset used here corresponds to the Hodgkin’s disease (HD) study described
 in Pintilie, 2006. Pre-processed data is loaded by sourcing the following R script:
@@ -46,8 +46,11 @@ The latter creates three data objects:
 - `hd_train`: a random sample of the data to be used as a training set
 - `hd_test`: a random sample of the data to be used as a testing set
 
-Details about data pre-processing steps can be found at: 
+Details about data pre-processing steps can be found [here](https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/DataPreparation.Rmd)
 
+
+The following sections illustrate the usage of different methods defined using 
+a cause-specific hazards formulation. 
 
 # Cause-specific Cox Proportional-Hazards
 
@@ -68,6 +71,11 @@ events of type 1. To do this, in the code below, we have set `status==1` in the
 second argument of `Surv()` to indicate that we are interested in event type 1. 
 This setting will treat the other status values as censored observations. The 
 cause-specific model for the second event type can be fitted using `status==2`.
+
+```{r}
+hd <- data.frame(read_csv("../Data/HD/hd.csv",
+                          col_types = cols(X1 = col_skip())))
+```
 
 ```{r, message = FALSE}
 require(survival)
@@ -302,9 +310,10 @@ print(csh_riskRegression2)
 
 The `glmnet()` function permits to fit different Cox sparse regression models
 through the argument `family="cox"`. It is possible to use lasso, ridge and
-elastic net regularization. Here, we focus on describing lasso. 
+elastic net regularization. Here, we used lasso.
 
-As in previous examples, the code below fits models for the first event type only.
+As in previous examples, the code below fits a cause-specific proportional 
+hazards model for the first event type only.
 
 First, we employ `makeX()` to construct the design matrix with no intercept.
 Second, the response variable is defined using a `Surv` object. Finally, the
@@ -323,8 +332,8 @@ lasso.fit <- glmnet(x = x,
                     alpha = 1)
 ```
 
-The output of the fitted model shows degrees of freedom, deviance and $\lambda$ 
-for the iterations.
+The output of the fitted model shows degrees of freedom and deviance for different
+values of $\lambda$.
 
 ```{r}
 print(lasso.fit)
@@ -339,24 +348,22 @@ plot(lasso.fit, label = TRUE)
 ```
 
 The estimated coefficients for specific $\lambda$ values can be obtained using
-`coef()`. 
+`coef()`. For example, for $\lambda = 0.06$:
 
 ```{r}
 coef(lasso.fit, s = 0.06) # s:=\lambda
 ```
 
-Note that due to the lack of intercept in the design matrix, the interpretation
-of the regression coefficients differs from those presented in earlier sections.
-For example, two separate coefficients are reported for sex (one for males; one
-for females). Instead, previous models used females as a reference, reporting a
-single regression coefficient to quantify the difference between males and 
-females (in terms of the hazard). 
-
+Note that the interpretation of the regression coefficients slightly differs 
+from those presented in earlier sections. For example, two separate coefficients 
+are reported for sex (one for males; one for females). Instead, previous models
+used females as a reference, reporting a single regression coefficient to 
+quantify the difference between males and females (in terms of the hazard). 
 
 One can also employ k-fold cross-validation to select the optimal value of
 $\lambda$. Below, we show how to do that using 10 folds and Harrel's concordance
-index; however, one can also employ a deviance loss measure. Note, however,
-that none of these metrics account for competing events. 
+index (one can also employ a deviance loss measure). Note, however, that none of 
+these metrics account for competing events. 
 
 ```{r}
 set.seed(1)
@@ -380,29 +387,42 @@ the plot shown above, can be obtained with the following commands.
 lassoCV.fit$lambda.min; lassoCV.fit$lambda.1se
 ```
 
-The first value corresponds to the $\lambda$ value where the error reaches its
-minimum. The second value corresponds to 1 standard deviation of the minimum
-error. In this case, including only 2 covariates is within 1 sd of the minimum.
+The first value (`lambda.min`) corresponds to the $\lambda$ value for which the 
+cross-validation performance is best, i.e. it leads to the highest C-index in 
+this example. In principle, `lambda.min` can be used as an optimal choice. In
+such case, the final model includes all covariates (only the coefficient 
+associated to `medwidsiN` is shrunk to be exactly equal to zero):
 
-The estimated coefficients for $\lambda=$ `r lassoCV.fit$lambda.1se` are
-shown below, where we see that lasso selects age and treatment.
+```{r}
+coef(lassoCV.fit, s = lassoCV.fit$lambda.min)
+```
+
+Note that, for these data, several values of $\lambda$ (leading to models with 
+varying levels of sparsity) result in similar cross-validated performance. 
+Hence, choosing `lambda.min` may not be appropriate. An alternative, more
+parsimonious, choice can be selected by using `lambda.1se` @hastie2009elements. 
+In such case, `lambda.1se` represents the highest value of $\lambda$ (i.e. the 
+strongest regularisation) such that the chosen performance metric (C-index here) 
+is within 1 standard deviation of the one associated to `lambda.1se`. In this 
+example, the selected model only contains 3 covariates (`age`, `trtgiven` and
+`medwidsi`):
 
 ```{r}
 coef(lassoCV.fit, s = lassoCV.fit$lambda.1se)
 ```
 
-
 ## Cox model-based boosting - The `mboost` package
  
 A cause-specific CPH model that employs model-based boosting is showcased here
 by using the `glmboost()` function. As with other approaches, one should first
-create the response variable using `Surv()`. Because `mboost` is an R package
-that can fit models beyond survival analysis, one should specify
-`family = CoxPH()`. The parameters of the boosting algorithm are set by the
-`control` argument. In the example below we have used 900 boosting
-iterations with the step-length (referred as $\lambda$ in the manuscript) set at
-0.2. In addition, we indicate that continuous variables have not been previously
-centered. 
+create the response variable using `Surv()`. 
+
+Because `mboost` is an R package that can fit models beyond survival analysis, 
+one should specify `family = CoxPH()`. The parameters of the boosting algorithm 
+are then set by the `control` argument. In the example below we have used 900 
+boosting iterations with the step-length (referred as $\lambda$ in the 
+manuscript) set at 0.2. In addition, we indicate that continuous variables have 
+not been previously centered. 
 
 As before, for illustration purposes, we only fit the model associated to the 
 first event type.
@@ -440,7 +460,7 @@ plot(csh_mboost, main = "Coefficient paths", ylim = range(coef(csh_mboost)))
 
 To do variable selection one can use the `varimp()` function. In the plot below
 we observe that age, treatment given, clinical stage and size of mediastinum
-involvement appear to be relevant.
+involvement appear to be the most relevant covariates.
 
 ```{r, fig.width = 6, fig.height = 4}
 plot(varimp(csh_mboost))
@@ -463,7 +483,37 @@ stop.B
 
 The above output shows that `r stop.B` boosting iterations is enough. Once the 
 number is obtained one can use `glmboost()` with the resulting number of 
-boosting iterations.
+boosting iterations:
+
+```{r}
+csh_mboost_best <- glmboost(Surv(time, status == 1) ~ age +
+                         sex +
+                         trtgiven +
+                         medwidsi +
+                         extranod +
+                         clinstg,
+                       data = hd,
+                       family = CoxPH(),
+                       control = boost_control(mstop = stop.B,
+                                               nu = 0.3,
+                                               trace = FALSE),
+                       center = FALSE)
+```
+
+# Comparison 1: estimation
+
+First, we compare estimated regression coefficients obtained above.
+
+```{r}
+library(broom)
+
+# Method 1: csh_survival
+coef.csh_survival <- summary(csh_survival)$coefficients[,c(1,3)]
+# Method 2: csh_rms
+coef.csh_rms <- 
+aux1 <- data.frame(variable = rownames(summary(csh_survival)))
+
+```
 
 # Storing predictions
 
