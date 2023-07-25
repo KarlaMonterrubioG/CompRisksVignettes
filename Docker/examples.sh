@@ -11,6 +11,7 @@ docker buildx build . -t ghcr.io/vallejosgroup/comprisksvignettes:latest --platf
 # Should pull image from Github Container Registry if not available locally
 docker container run \
   --mount type=bind,source="$(pwd)"/docs,target=/docs \
+  --mount type=bind,source="$(pwd)"/Aux,target=/Aux \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
   --mount type=bind,source="$(pwd)"/Predictions,target=/Predictions \
@@ -21,6 +22,7 @@ open docs/CS_specification.html
 # Run image with Rstudio Server
 docker container run \
   --mount type=bind,source="$(pwd)"/docs,target=/docs \
+  --mount type=bind,source="$(pwd)"/Aux,target=/Aux \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
   -e PASSWORD=password \

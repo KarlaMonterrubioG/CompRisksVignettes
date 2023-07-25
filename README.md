@@ -118,6 +118,7 @@ docker container run \
   --mount type=bind,source="$(pwd)"/docs,target=/docs \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
+  --mount type=bind,source="$(pwd)"/Aux,target=/Aux \
   -e PASSWORD=password \
   -p 8787:8787 \
   ghcr.io/vallejosgroup/comprisksvignettes
@@ -138,6 +139,7 @@ docker container run \
   --mount type=bind,source="$(pwd)"/docs,target=/docs \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
+  --mount type=bind,source="$(pwd)"/Aux,target=/Aux \
   ghcr.io/vallejosgroup/comprisksvignettes ./render
 ```
 
