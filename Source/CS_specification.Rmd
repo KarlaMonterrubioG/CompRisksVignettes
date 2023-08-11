@@ -305,15 +305,18 @@ elastic net regularization. Here, we used lasso.
 As in previous examples, the code below fits a cause-specific proportional 
 hazards model for the first event type only.
 
-First, we employ `makeX()` to construct the design matrix with no intercept.
-Second, the response variable is defined using a `Surv` object. Finally, the
-argument `alpha = 1` indicates that a lasso penalty will be used. Note that, 
-users can set `alpha = 0` to select a ridge penalty. If the value of `alpha` 
-lies between 0 and 1, an elastic net penalty will be used instead. 
+First, as `glmnet` cannot directly handle factor variables, we extract the
+design matrix used in previous models (with re-codes factor variables into
+dummy binary variables). Second, the response variable is defined using a 
+`Surv` object. Finally, the argument `alpha = 1` indicates that a lasso penalty 
+will be used. Note that, users can set `alpha = 0` to select a ridge penalty. 
+If the value of `alpha` lies between 0 and 1, an elastic net penalty will be 
+used instead. 
 
 ```{r}
 require(glmnet)
-x <- makeX(hd_train[, 1:6]) #Note that makeX() permits mean imputation for missing values
+
+x <- model.matrix(csh_survival) 
 
 lasso.fit <- glmnet(x = x,
                     y = Surv(hd_train$time, hd_train$status == 1),
@@ -344,11 +347,8 @@ The estimated coefficients for specific $\lambda$ values can be obtained using
 coef(lasso.fit, s = 0.06) # s:=\lambda
 ```
 
-Note that the interpretation of the regression coefficients slightly differs 
-from those presented in earlier sections. For example, two separate coefficients 
-are reported for sex (one for males; one for females). Instead, previous models
-used females as a reference, reporting a single regression coefficient to 
-quantify the difference between males and females (in terms of the hazard). 
+Note that the interpretation of the regression coefficients is similar to those 
+presented in earlier sections.  
 
 One can also employ k-fold cross-validation to select the optimal value of
 $\lambda$. Below, we show how to do that using 10 folds and Harrel's concordance
@@ -409,10 +409,10 @@ create the response variable using `Surv()`.
 
 Because `mboost` is an R package that can fit models beyond survival analysis, 
 one should specify `family = CoxPH()`. The parameters of the boosting algorithm 
-are then set by the `control` argument. In the example below we have used 900 
+are then set by the `control` argument. In the example below we have used 1000 
 boosting iterations with the step-length (referred as $\lambda$ in the 
-manuscript) set at 0.2. In addition, we indicate that continuous variables have 
-not been previously centered. 
+manuscript; `nu` in the code below) set at 0.3. In addition, we indicate that 
+continuous variables have not been previously centered. 
 
 As before, for illustration purposes, we only fit the model associated to the 
 first event type.
@@ -429,20 +429,13 @@ csh_mboost <- glmboost(Surv(time, status == 1) ~ age +
                          medwidsi +
                          extranod +
                          clinstg,
-                       data = hd,
+                       data = hd_train,
                        family = CoxPH(),
-                       control = boost_control(mstop = 900,
-                                               nu = 0.3,
-                                               trace = FALSE),
+                       control = boost_control(mstop = 1000,
+                                               nu = 0.3),
                        center = FALSE)
 
 print(csh_mboost)
-
-knitr::kable(round(exp(coef(csh_mboost, off2int = TRUE)), 4),
-             col.names = c("HR"))
-
-
-
 ```
 
 A plot of the coefficients across boosting iterations is shown:
@@ -461,15 +454,14 @@ plot(varimp(csh_mboost))
 
 `mboost` permits cross-validation for hyper-parameter selection; specifically, 
 the number of boosting iterations. Here, we show how to do this using 25 
-bootstrap samples (default). Estimation is done sequentially:
+bootstrap samples (default). Note that the value of the second hyper-parameter, 
+`nu`, is not critical as long as it is sufficiently large. As such 
+cross-validation for `nu` is not generally necessary.  
 
 ```{r,  echo=T, results='hide'}
 set.seed(1)
 cv.boost <- cvrisk(csh_mboost, papply = lapply)
 ```
-
-
-
 
 The next plot shows how the (negative) cross-validated likelihood (cvl) 
 [@verweij1993cross] changes as the number of boosting iterations increases. 
@@ -496,16 +488,15 @@ stop.B <- mstop(cv.boost)  # can serve to obtain optimal stopping parameter
 stop.B 
 ```
 
-Note, however, that the cvl shown above is a relatively flat function of the
-number of boosting iterations towards the end of the range. As such, similar to 
-the use of `lambda.1se` in penalised regression (see previous section), it may 
+In some cases, cvl may be a relatively flat function of the number of boosting 
+iterations (within certain range). In those cases, similar to the use of 
+`lambda.1se` in penalised regression (see previous section), it may 
 also be possible to select a more parsimonious model with similar 
-cross-validated error. For example, 600 and 700 boosting iterations lead to 
-similar (to 3 decimal points) as 899 iterations (`stop.B`).
+cross-validated error. For example, 250 boosting iterations lead to 
+similar (to 3 decimal points) as 292 iterations (`stop.B`).
 
 ```{r}
-mean.cvl[600+1]
-mean.cvl[700+1]
+mean.cvl[250+1]
 mean.cvl[stop.B+1]
 ```
 
@@ -513,37 +504,36 @@ Once the number of boosting iterations has been selected, the associated
 regression coefficients can be directly obtained from the model object.
 
 ```{r}
-coef(csh_mboost[600])
-coef(csh_mboost[700])
+coef(csh_mboost[250])
 coef(csh_mboost[stop.B])
 ```
 
 Note, if the plots above suggest that cvl has not yet achieved stable values,
 a larger number of boosting iterations may be required. The latter can be 
 obtained through the fitted model, without the need to re-run the initial 
-iterations. For example, the following code returns a model with 1000 boosting
+iterations. For example, the following code returns a model with 1200 boosting
 iterations:
 
 ```{r}
-csh_mboost[1000]
+csh_mboost[2000]
 ```
 
 
 # Comparison 1: estimation
 
-First, we compare estimated regression coefficients obtained above.
+First, we compare estimated regression coefficients obtained above. As the 
+estimates obtained for the cause-specific Cox PH were the same regardless of the 
+choice of R library (`survival`, `rms` o `riskRegression`), we only store one
+of them (the ones for `survival`)
 
 ```{r}
-library(broom)
-
-
-
-
 # Method 1: csh_survival
-coef.csh_survival <- summary(csh_survival)$coefficients[,c(1,3)] # tidy(csh_survival)
-# Method 2: csh_rms
-coef.csh_rms <- cbind(coef(csh_rms), sqrt(diag(vcov(csh_rms))))
-
+coef.csh_survival <- summary(csh_survival)$coefficients[,c(1,3)]
+# Method 2: penalised cause-specific Cox
+coef(lassoCV.fit, s = lassoCV.fit$lambda.min)
+coef(lassoCV.fit, s = lassoCV.fit$lambda.1se)
+# Method 3: boosting
+coef(csh_mboost[stop.B])
 ```
 
 # Storing predictions
