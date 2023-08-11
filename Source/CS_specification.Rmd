@@ -34,13 +34,8 @@ knitr::opts_chunk$set(
 # Introduction
 
 The dataset used here corresponds to the Hodgkin’s disease (HD) study described
-in Pintilie, 2006. Pre-processed data is loaded by sourcing the following R script:
-
-```{r}
-source("../Aux/data_prep.R")
-```
-
-The latter creates three data objects:
+in Pintilie, 2006. The data was loaded and pre-processed using the script that
+is sourced below. The latter creates three data objects:
 
 - `hd`: all the samples in the original data
 - `hd_train`: a random sample of the data to be used as a training set
@@ -48,6 +43,9 @@ The latter creates three data objects:
 
 Details about data pre-processing steps can be found [here](https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/DataPreparation.Rmd)
 
+```{r}
+source("../Aux/data_prep.R")
+```
 
 The following sections illustrate the usage of different methods defined using 
 a cause-specific hazards formulation. 
@@ -72,11 +70,6 @@ second argument of `Surv()` to indicate that we are interested in event type 1.
 This setting will treat the other status values as censored observations. The 
 cause-specific model for the second event type can be fitted using `status==2`.
 
-```{r}
-hd <- data.frame(read_csv("../Data/HD/hd.csv",
-                          col_types = cols(X1 = col_skip())))
-```
-
 ```{r, message = FALSE}
 require(survival)
 csh_survival <- coxph(Surv(time, status == 1) ~ age +
@@ -95,25 +88,22 @@ summary(csh_survival)
 The above output summarises the fitted model. First, it shows that out of the
 `r nrow(hd_train)` patients, `r sum(hd_train$status == 1)` experienced the event 
 of interest (relapse). Second, it shows the coefficients and hazard ratios 
-(`exp(coef)`) for each covariate, along with a significance test. The results 
-suggest that age, treatment, and clinical stage are significantly associated 
-with the hazard of relapse. For instance, being in clinical stage 2 increases 
-the cause-specific hazard (rate) of relapse by 
-`r round((exp(coef(csh_survival)[7]) - 1)*100,2)`%
-when compared to a patient in stage 1. It is important to emphasise that one 
-should be cautious when interpreting these covariate effects as this modelling 
-strategy only permits to do inference of the effects on the
-hazard but not on the prognosis or survival (see more details in @Austin2016).
-Finally, the output also reports model fitness statistics. The concordance
-index, which summaries the in-sample discriminative ability of the model (a
-value close to 1 is preferred), and  three tests to check if (overall) the model
-is significant.
+(`exp(coef)`) for each covariate, along with the results of a marginal 
+significance test. The results suggest that age, treatment, and clinical stage 
+are significantly associated with the hazard of relapse. For instance, being in 
+clinical stage 2 increases the cause-specific hazard (rate) of relapse by 
+`r round((exp(coef(csh_survival)[7]) - 1)*100,2)`% when compared to a patient in 
+stage 1. It is important to emphasise that one should be cautious when 
+interpreting these covariate effects as this modelling strategy only permits to 
+do inference of the effects on the hazard but not on the prognosis or survival 
+(see more details in @Austin2016). Naively estimating survival/risk probabilities 
+from this model, will result in overestimation of the survival function, as 
+competing risks are not taken into account. See the [riskRegression section](#the-riskregression-package) for a valid approach.
+Finally, the output also reports model fitness statistics, including the 
+concordance index, which summaries the in-sample discriminative ability of the 
+model (a value close to 1 is preferred).b Note, however, that none of these 
+metrics account for competing events. 
  
-Note that naively estimating survival/risk probabilities from this model, will 
-result in overestimation of the survival function, as competing risks are not 
-taken into account. See the [riskRegression section](#the-riskregression-package) 
-for a valid approach.
-
 ## The `rms` package
 
 Another package that permits to fit the model is `rms`. This package provides
@@ -400,7 +390,7 @@ coef(lassoCV.fit, s = lassoCV.fit$lambda.min)
 Note that, for these data, several values of $\lambda$ (leading to models with 
 varying levels of sparsity) result in similar cross-validated performance. 
 Hence, choosing `lambda.min` may not be appropriate. An alternative, more
-parsimonious, choice can be selected by using `lambda.1se` @hastie2009elements. 
+parsimonious, choice can be selected by using `lambda.1se` [@hastie2009elements]. 
 In such case, `lambda.1se` represents the highest value of $\lambda$ (i.e. the 
 strongest regularisation) such that the chosen performance metric (C-index here) 
 is within 1 standard deviation of the one associated to `lambda.1se`. In this 
@@ -450,6 +440,9 @@ print(csh_mboost)
 
 knitr::kable(round(exp(coef(csh_mboost, off2int = TRUE)), 4),
              col.names = c("HR"))
+
+
+
 ```
 
 A plot of the coefficients across boosting iterations is shown:
@@ -475,30 +468,66 @@ set.seed(1)
 cv.boost <- cvrisk(csh_mboost, papply = lapply)
 ```
 
+
+
+
+The next plot shows how the (negative) cross-validated likelihood (cvl) 
+[@verweij1993cross] changes as the number of boosting iterations increases. 
+Light grey lines represent each of the 25 boostrap samples. The black line shows 
+average values across all boostrap samples.
+
 ```{r}
 plot(cv.boost)
+```
+
+To better visualise the behavior of cvl, we also plot the black line alone 
+(i.e. the mean of cvl across boostrap samples):
+
+```{r}
+mean.cvl <- colMeans(cv.boost)
+plot(mean.cvl, ylab = "cvl", xlab = "Number of boosting iterations", type = "l")
+```
+
+The function `mstop` can be used to identify the optimal number of boosting
+iteration. As a default, this is chosen to minimize the negative cvl. 
+
+```{r}
 stop.B <- mstop(cv.boost)  # can serve to obtain optimal stopping parameter
 stop.B 
 ```
 
-The above output shows that `r stop.B` boosting iterations is enough. Once the 
-number is obtained one can use `glmboost()` with the resulting number of 
-boosting iterations:
+Note, however, that the cvl shown above is a relatively flat function of the
+number of boosting iterations towards the end of the range. As such, similar to 
+the use of `lambda.1se` in penalised regression (see previous section), it may 
+also be possible to select a more parsimonious model with similar 
+cross-validated error. For example, 600 and 700 boosting iterations lead to 
+similar (to 3 decimal points) as 899 iterations (`stop.B`).
 
 ```{r}
-csh_mboost_best <- glmboost(Surv(time, status == 1) ~ age +
-                         sex +
-                         trtgiven +
-                         medwidsi +
-                         extranod +
-                         clinstg,
-                       data = hd,
-                       family = CoxPH(),
-                       control = boost_control(mstop = stop.B,
-                                               nu = 0.3,
-                                               trace = FALSE),
-                       center = FALSE)
+mean.cvl[600+1]
+mean.cvl[700+1]
+mean.cvl[stop.B+1]
 ```
+
+Once the number of boosting iterations has been selected, the associated 
+regression coefficients can be directly obtained from the model object.
+
+```{r}
+coef(csh_mboost[600])
+coef(csh_mboost[700])
+coef(csh_mboost[stop.B])
+```
+
+Note, if the plots above suggest that cvl has not yet achieved stable values,
+a larger number of boosting iterations may be required. The latter can be 
+obtained through the fitted model, without the need to re-run the initial 
+iterations. For example, the following code returns a model with 1000 boosting
+iterations:
+
+```{r}
+csh_mboost[1000]
+```
+
 
 # Comparison 1: estimation
 
@@ -507,11 +536,13 @@ First, we compare estimated regression coefficients obtained above.
 ```{r}
 library(broom)
 
+
+
+
 # Method 1: csh_survival
-coef.csh_survival <- summary(csh_survival)$coefficients[,c(1,3)]
+coef.csh_survival <- summary(csh_survival)$coefficients[,c(1,3)] # tidy(csh_survival)
 # Method 2: csh_rms
-coef.csh_rms <- 
-aux1 <- data.frame(variable = rownames(summary(csh_survival)))
+coef.csh_rms <- cbind(coef(csh_rms), sqrt(diag(vcov(csh_rms))))
 
 ```
 
