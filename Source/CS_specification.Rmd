@@ -417,9 +417,6 @@ continuous variables have not been previously centered.
 As before, for illustration purposes, we only fit the model associated to the 
 first event type.
 
-The output of the model indicates the estimated regression coefficients from
-which the estimated HR can be computed
-
 ```{r mboost, message = FALSE}
 require(mboost)
 
@@ -456,7 +453,7 @@ plot(varimp(csh_mboost))
 the number of boosting iterations. Here, we show how to do this using 25 
 bootstrap samples (default). Note that the value of the second hyper-parameter, 
 `nu`, is not critical as long as it is sufficiently large. As such 
-cross-validation for `nu` is not generally necessary.  
+cross-validation for `nu` is not generally recommended.  
 
 ```{r,  echo=T, results='hide'}
 set.seed(1)
@@ -472,20 +469,21 @@ average values across all boostrap samples.
 plot(cv.boost)
 ```
 
-To better visualise the behavior of cvl, we also plot the black line alone 
-(i.e. the mean of cvl across boostrap samples):
-
-```{r}
-mean.cvl <- colMeans(cv.boost)
-plot(mean.cvl, ylab = "cvl", xlab = "Number of boosting iterations", type = "l")
-```
-
 The function `mstop` can be used to identify the optimal number of boosting
 iteration. As a default, this is chosen to minimize the negative cvl. 
 
 ```{r}
 stop.B <- mstop(cv.boost)  # can serve to obtain optimal stopping parameter
 stop.B 
+```
+
+To better visualise the behavior of cvl, we also plot the black line alone 
+(i.e. the mean of cvl across boostrap samples):
+
+```{r}
+mean.cvl <- colMeans(cv.boost)
+plot(mean.cvl, ylab = "cvl", xlab = "Number of boosting iterations", type = "l")
+abline(v = stop.B, col = "red")
 ```
 
 In some cases, cvl may be a relatively flat function of the number of boosting 
@@ -515,7 +513,7 @@ iterations. For example, the following code returns a model with 1200 boosting
 iterations:
 
 ```{r}
-csh_mboost[2000]
+csh_mboost[1200]
 ```
 
 
@@ -527,13 +525,56 @@ choice of R library (`survival`, `rms` o `riskRegression`), we only store one
 of them (the ones for `survival`)
 
 ```{r}
-# Method 1: csh_survival
-coef.csh_survival <- summary(csh_survival)$coefficients[,c(1,3)]
-# Method 2: penalised cause-specific Cox
-coef(lassoCV.fit, s = lassoCV.fit$lambda.min)
-coef(lassoCV.fit, s = lassoCV.fit$lambda.1se)
-# Method 3: boosting
-coef(csh_mboost[stop.B])
+# Adds zeros for the results of mboost as only non-zero coefficients are returned
+coef_boost_250 <- coef(csh_mboost[250])
+coef_boost_250 <- c(coef_boost_250[1], 0, coef_boost_250[2:6])
+df <- data.frame("cox" = summary(csh_survival)$coefficients[,1],
+                 "cox_se" = summary(csh_survival)$coefficients[,3],
+                 "lasso_min" = coef(lassoCV.fit, s = lassoCV.fit$lambda.min)[,1],
+                 "lasso_1se" = coef(lassoCV.fit, s = lassoCV.fit$lambda.1se)[,1],
+                 "mboost_stopb" = coef(csh_mboost[stop.B]),
+                 "mboost_250" = coef_boost_250)
+round(df, 2)
+df$variable <- rownames(df)
+```
+
+
+
+
+
+```{r}
+library(ggplot2)
+library(patchwork)
+
+p_all <- ggplot(df, aes(x=variable, y=cox, col = "Cox")) + 
+  geom_errorbar(aes(ymin = cox - cox_se, ymax = cox + cox_se), width=.1) +
+  geom_point(cex = 2.5) + 
+  geom_point(aes(x = variable, y = lasso_min, col = "lasso_min"), cex = 2.5) +
+  geom_point(aes(x = variable, y = lasso_1se, colour = "lasso_1se"), cex = 2.5) +
+  geom_point(aes(x = variable, y = mboost_stopb, colour = "mboost_min"), cex = 2.5) + 
+  geom_point(aes(x = variable, y = mboost_250, colour = "mboost_other"), cex = 2.5) +
+  geom_hline(yintercept = 0, lty = 2, colour = "gray") +
+  theme_classic() +
+  ylab("Estimate") + xlab("Coefficient") +
+  labs(color="Method") +
+  scale_color_manual(values=c("#999999", "#1A5276", "#2980B9", "#B9770E", "#F5B041"))
+
+p_age <- ggplot(df[df$variable == "age",], aes(x=variable, y=cox, col = "Cox")) + 
+  geom_errorbar(aes(ymin = cox - cox_se, ymax = cox + cox_se), width=.1) +
+  geom_point(cex = 2.5) + 
+  geom_point(aes(x = variable, y = lasso_min, col = "lasso_min"), cex = 2.5) +
+  geom_point(aes(x = variable, y = lasso_1se, colour = "lasso_1se"), cex = 2.5) +
+  geom_point(aes(x = variable, y = mboost_stopb, colour = "mboost_min"), cex = 2.5) + 
+  geom_point(aes(x = variable, y = mboost_250, colour = "mboost_other"), cex = 2.5) +
+  theme_classic() +
+  ylab("Estimate") + xlab("Coefficient") +
+  labs(color="Method") +
+  scale_color_manual(values=c("#999999", "#1A5276", "#2980B9", "#B9770E", "#F5B041")) +
+  theme(legend.position="none", 
+        axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.background = element_rect(colour = "black", fill=NA, size=0.6))
+
+p_all + inset_element(p_age, left = 0.01, bottom = 0.6, right = 0.2, top = 1)
 ```
 
 # Storing predictions
