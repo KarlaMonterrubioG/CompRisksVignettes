@@ -516,8 +516,7 @@ iterations:
 csh_mboost[1200]
 ```
 
-
-# Comparison 1: estimation
+# Comparison: estimates of regression coefficients
 
 First, we compare estimated regression coefficients obtained above. As the 
 estimates obtained for the cause-specific Cox PH were the same regardless of the 
@@ -575,6 +574,12 @@ p_age <- ggplot(df[df$variable == "age",], aes(x=variable, y=cox, col = "Cox")) 
         plot.background = element_rect(colour = "black", fill=NA, size=0.6))
 
 p_all + inset_element(p_age, left = 0.01, bottom = 0.6, right = 0.2, top = 1)
+
+if (file.exists("/.dockerenv")){ # running in docker
+  ggsave("/Outputs/Comparison_estimation_CSH.pdf", device = "pdf")
+} else {
+  ggsave("../Outputs/Comparison_estimation_CSH.pdf", device = "pdf")
+}
 ```
 
 # Storing predictions
@@ -587,9 +592,9 @@ pred_CS <- data.frame("testID" = seq_len(nrow(hd_test)),
                       "coxph_riskRegression" = risk.coxph,
                       "coxphPL_riskRegression" = risk.coxphPL)
 if (file.exists("/.dockerenv")){ # running in docker
-  write.csv(pred_CS, "/Predictions/pred_CS.csv", row.names = FALSE)
+  write.csv(pred_CS, "/Outputs/pred_CS.csv", row.names = FALSE)
 } else {
-  write.csv(pred_CS, "../Predictions/pred_CS.csv", row.names = FALSE)
+  write.csv(pred_CS, "../Outputs/pred_CS.csv", row.names = FALSE)
 }
 ```
 
