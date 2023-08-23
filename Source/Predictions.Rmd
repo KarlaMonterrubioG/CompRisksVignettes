@@ -31,8 +31,9 @@ knitr::opts_chunk$set(
 )
 ```
 
+# Comparing predictions at $t=5$
 
-# Loading predictions
+## Loading the predictions
 
 Here, we load the predicted probabilities of observing an event of type 1 by
 $t=5$ that were obtained by different methods
@@ -76,14 +77,12 @@ between the first and second event types.
 enables feature selection
 * `crisk.bart`: BART using its second formulation    
 
-# Comparing predictions at $t=5$
+## Pairwise comparison
 
-As shown below, all methods led to correlated predictions. The greatest similarity was between the classical approaches:
-
-similarity between methods based on the CIF specification
-(Fine and Gray regression, direct binomial and DPWeibull). The three BART 
-variations also led to similar predictions (discrepancies may be due to lack
-of convergence). 
+As shown below, all methods led to correlated predictions. The greatest similarity was between the classical approaches (CS Cox, F&G, Direct binomial).
+BART, under its second formulation, also led to similar predictions. RF 
+exhibited the greatest discrepancy with respect to such methods above.
+Note that for the different BART approaches and DPWeibull, predicted probabilities may be affected by lack of convergence of the algorithm. 
 
 ```{r, fig.width=12, fig.height=12}
 library(GGally)
