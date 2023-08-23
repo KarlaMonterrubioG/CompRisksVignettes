@@ -590,7 +590,7 @@ we save the predictions obtained in this vignette.
 ```{r save_pred}
 pred_CS <- data.frame("testID" = seq_len(nrow(hd_test)),
                       "coxph_riskRegression" = risk.coxph,
-                      "coxphPL_riskRegression" = risk.coxphPL)
+                      "coxphPL_riskRegression" = risk.pec)
 if (file.exists("/.dockerenv")){ # running in docker
   write.csv(pred_CS, "/Outputs/pred_CS.csv", row.names = FALSE)
 } else {

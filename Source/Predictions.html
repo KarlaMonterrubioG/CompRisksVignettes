@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
+
+<meta name="date" content="2023-08-23" />
+
+<title>Comparison of predictions</title>
+
+<script src="Predictions_files/header-attrs-2.23/header-attrs.js"></script>
+<script src="Predictions_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="Predictions_files/bootstrap-3.3.5/css/simplex.min.css" rel="stylesheet" />
+<script src="Predictions_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="Predictions_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="Predictions_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="Predictions_files/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="Predictions_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="Predictions_files/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="Predictions_files/navigation-1.1/tabsets.js"></script>
+<script src="Predictions_files/navigation-1.1/codefolding.js"></script>
+<link href="Predictions_files/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="Predictions_files/highlightjs-9.12.0/highlight.js"></script>
+<script src="https://kit.fontawesome.com/1339b11c04.js" crossorigin="anonymous"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div id = "nav">
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="DataPreparation.html">Data Preparation</a></li>
+    <li><a href="CIF_specification.html">Cumulative Incidence</a></li>
+    <li><a href="CS_specification.html">Cause Specific</a></li>
+    <li><a href="Discrete_specification.html">Discrete</a></li>
+    <li><a href="Others.html">Other</a></li>
+    <li><a href="Predictions.html">Predictions</a></li>
+    <li style="float:right"><a href="https://github.com/VallejosGroup/CompRisksVignettes"><i style="font-size: 20px; padding-top: 0px; padding-bottom: 0px;" class="fa-brands fa-github"></i></a></li>
+  </ul>
+</div>
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Comparison of predictions</h1>
+<h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
+and Catalina Vallejos</h4>
+<h4 class="date">2023-08-23</h4>
+
+</div>
+
+
+<div id="loading-predictions" class="section level1">
+<h1>Loading predictions</h1>
+<p>Here, we load the predicted probabilities of observing an event of
+type 1 by <span class="math inline">\(t=5\)</span> that were obtained by
+different methods</p>
+<pre class="r"><code>if (file.exists(&quot;/.dockerenv&quot;)){
+  pred_CS &lt;- read.csv(&quot;/Outputs/pred_CS.csv&quot;)
+  pred_CIF &lt;- read.csv(&quot;/Outputs/pred_CIF.csv&quot;)
+  pred_Others &lt;- read.csv(&quot;/Outputs/pred_Others.csv&quot;)
+  pred_BART &lt;- read.csv(&quot;/Outputs/pred_BART.csv&quot;)
+} else {
+  pred_CS &lt;- read.csv(&quot;../Outputs/pred_CS.csv&quot;)
+  pred_CIF &lt;- read.csv(&quot;../Outputs/pred_CIF.csv&quot;)
+  pred_Others &lt;- read.csv(&quot;../Outputs/pred_Others.csv&quot;)
+  pred_BART &lt;- read.csv(&quot;../Outputs/pred_BART.csv&quot;)
+}
+
+pred_all &lt;- merge(pred_CS, pred_CIF, by = &quot;testID&quot;)
+pred_all &lt;- merge(pred_all, pred_Others, by = &quot;testID&quot;)
+pred_all &lt;- merge(pred_all, pred_BART, by = &quot;testID&quot;)
+
+names(pred_all)
+#&gt;  [1] &quot;testID&quot;                 &quot;coxph_riskRegression&quot;   &quot;coxphPL_riskRegression&quot;
+#&gt;  [4] &quot;FG_riskRegression&quot;      &quot;DirectBinomial&quot;         &quot;DPWeibull&quot;             
+#&gt;  [7] &quot;RF_logrankCR&quot;           &quot;RF_logrankCR.av&quot;        &quot;crisk2.bart&quot;           
+#&gt; [10] &quot;crisk2.bart_dart&quot;       &quot;crisk.bart&quot;</code></pre>
+<p>The data above includes predictions obtained using the following
+methods:</p>
+<ul>
+<li><code>coxph_riskRegression</code>: Cause-specific Cox PH (CS Cox)
+model</li>
+<li><code>coxphPL_riskRegression</code>: Cause-specific Cox PH (CS Cox)
+model using a product limit (PL) approach to calculated predicted
+probabilities. The latter ensures that (in the limit) the event-specific
+probabilities sum up to 1 across events.</li>
+<li><code>FG_riskRegression</code>: Fine &amp; Gray (F&amp;G)
+regression<br />
+</li>
+<li><code>DirectBinomial</code>: Direct binomial<br />
+</li>
+<li><code>DPWeibull</code>: Dependent Dirichlet Process<br />
+</li>
+<li><code>RF_logrankCR</code>: Random Forests (RF) using a modified
+Gray’s criteria as the splitting rule, focusing on the first event type.
+The latter aims to identify covariates that affect the CIF for the first
+event type.</li>
+<li><code>RF_logrankCR.av</code>: as above, but the splitting rule
+considers the average between the first and second event types.</li>
+<li><code>crisk2.bart</code>: BART using its first formulation<br />
+</li>
+<li><code>crisk2.bart_dart</code>: DART - a variation of BART (first
+formulation) that enables feature selection</li>
+<li><code>crisk.bart</code>: BART using its second formulation</li>
+</ul>
+</div>
+<div id="comparing-predictions-at-t5" class="section level1">
+<h1>Comparing predictions at <span
+class="math inline">\(t=5\)</span></h1>
+<p>As shown below, all methods led to correlated predictions. The
+greatest similarity was between the classical approaches:</p>
+<p>similarity between methods based on the CIF specification (Fine and
+Gray regression, direct binomial and DPWeibull). The three BART
+variations also led to similar predictions (discrepancies may be due to
+lack of convergence).</p>
+<pre class="r"><code>library(GGally)
+
+# Code to control axis limits was adapted from: https://stackoverflow.com/questions/53277656/how-to-define-facet-axis-limits-in-ggpairs-function
+scatter_limitRange &lt;- function(data, mapping, ...) { 
+  ggplot(data = data, mapping = mapping, ...) + 
+    geom_point(..., col = &quot;#1A5276&quot;, alpha = 0.5) + 
+    geom_abline(intercept = 0, slope = 1) +
+    scale_x_continuous(limits = c(min(pred_all[,-1]), max(pred_all[,-1]))) +
+    scale_y_continuous(limits = c(min(pred_all[,-1]), max(pred_all[,-1]))) +
+    theme_classic()
+}
+dens_limitRange &lt;- function(data, mapping, ...) {
+  ggplot(data = data, mapping = mapping, ...) + 
+    geom_density(..., col = &quot;#1A5276&quot;, fill = &quot;#1A5276&quot;) + 
+    scale_x_continuous(limits = c(min(pred_all[,-1]), max(pred_all[,-1]))) +
+    theme_classic()
+}
+
+my.labels &lt;- c(&quot;CS Cox&quot;, &quot;CS Cox (PL)&quot;, &quot;F&amp;G&quot;, &quot;Direct Binomial&quot;, 
+               &quot;DPWeibull&quot;, &quot;RF logrankCR (1)&quot;, &quot;RF logrankCR (av)&quot;, 
+               &quot;BART (1)&quot;, &quot;DART (1)&quot;, &quot;BART (2)&quot;)
+
+ggpairs(pred_all, columns = 2:11, progress = FALSE,
+        lower = list(continuous = scatter_limitRange),
+        diag = list(continuous = dens_limitRange),
+        columnLabels = my.labels)</code></pre>
+<p><img src="Predictions_files/figure-html/unnamed-chunk-1-1.png" width="1152" /></p>
+<pre class="r"><code>
+if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
+  ggsave(&quot;/Outputs/Comparison_predictions_t5.pdf&quot;, device = &quot;pdf&quot;)
+} else {
+  ggsave(&quot;../Outputs/Comparison_predictions_t5.pdf&quot;, device = &quot;pdf&quot;)
+}
+#&gt; Saving 12 x 12 in image</code></pre>
+<p>To evaluate the predictive performance for each methods, users can
+follow the examples provided by <a
+href="https://github.com/survival-lumc/ValidationCompRisks">van Geloven
+et al</a>.</p>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<div id="refs">
+
+</div>
+</div>
+<div id="session-info" class="section level1">
+<h1>Session Info</h1>
+<pre class="r"><code>sessionInfo()
+#&gt; R version 4.3.0 (2023-04-21)
+#&gt; Platform: aarch64-apple-darwin20 (64-bit)
+#&gt; Running under: macOS Ventura 13.2.1
+#&gt; 
+#&gt; Matrix products: default
+#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRblas.0.dylib 
+#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
+#&gt; 
+#&gt; locale:
+#&gt; [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+#&gt; 
+#&gt; time zone: Europe/London
+#&gt; tzcode source: internal
+#&gt; 
+#&gt; attached base packages:
+#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     
+#&gt; 
+#&gt; other attached packages:
+#&gt; [1] GGally_2.1.2  ggplot2_3.4.2
+#&gt; 
+#&gt; loaded via a namespace (and not attached):
+#&gt;  [1] gtable_0.3.3       jsonlite_1.8.7     dplyr_1.1.2        compiler_4.3.0    
+#&gt;  [5] highr_0.10         tidyselect_1.2.0   Rcpp_1.0.11        jquerylib_0.1.4   
+#&gt;  [9] scales_1.2.1       yaml_2.3.7         fastmap_1.1.1      R6_2.5.1          
+#&gt; [13] plyr_1.8.8         labeling_0.4.2     generics_0.1.3     knitr_1.43        
+#&gt; [17] tibble_3.2.1       munsell_0.5.0      bslib_0.5.0        pillar_1.9.0      
+#&gt; [21] RColorBrewer_1.1-3 rlang_1.1.1        utf8_1.2.3         cachem_1.0.8      
+#&gt; [25] reshape_0.8.9      xfun_0.39          sass_0.4.7         cli_3.6.1         
+#&gt; [29] withr_2.5.0        magrittr_2.0.3     digest_0.6.33      grid_4.3.0        
+#&gt; [33] rstudioapi_0.15.0  lifecycle_1.0.3    vctrs_0.6.3        evaluate_0.21     
+#&gt; [37] glue_1.6.2         farver_2.1.1       codetools_0.2-19   fansi_1.0.4       
+#&gt; [41] colorspace_2.1-0   rmarkdown_2.23     tools_4.3.0        pkgconfig_2.0.3   
+#&gt; [45] htmltools_0.5.5</code></pre>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

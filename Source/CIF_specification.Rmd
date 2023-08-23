@@ -570,7 +570,7 @@ we save the predictions obtained in this vignette.
 ```{r save_pred}
 pred_CIF <- data.frame("testID" = seq_len(nrow(hd_test)),
                       "FG_riskRegression" = FG.pred,
-                      "DirectBinomal" = pred_DB.t$P1,
+                      "DirectBinomial" = pred_DB.t$P1,
                       "DPWeibull" = pred_DDP.t$Fpred)
 if (file.exists("/.dockerenv")){ # running in docker
   write.csv(pred_CIF, "/Outputs/pred_CIF.csv", row.names = FALSE)

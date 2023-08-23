@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
+
+<meta name="date" content="2023-08-23" />
+
+<title>Other methods</title>
+
+<script src="Others_files/header-attrs-2.23/header-attrs.js"></script>
+<script src="Others_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="Others_files/bootstrap-3.3.5/css/simplex.min.css" rel="stylesheet" />
+<script src="Others_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="Others_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="Others_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="Others_files/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="Others_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="Others_files/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="Others_files/navigation-1.1/tabsets.js"></script>
+<script src="Others_files/navigation-1.1/codefolding.js"></script>
+<link href="Others_files/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="Others_files/highlightjs-9.12.0/highlight.js"></script>
+<script src="Others_files/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+<script src="Others_files/viz-1.8.2/viz.js"></script>
+<link href="Others_files/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+<script src="Others_files/grViz-binding-1.0.10/grViz.js"></script>
+<script src="https://kit.fontawesome.com/1339b11c04.js" crossorigin="anonymous"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div id = "nav">
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="DataPreparation.html">Data Preparation</a></li>
+    <li><a href="CIF_specification.html">Cumulative Incidence</a></li>
+    <li><a href="CS_specification.html">Cause Specific</a></li>
+    <li><a href="Discrete_specification.html">Discrete</a></li>
+    <li><a href="Others.html">Other</a></li>
+    <li><a href="Predictions.html">Predictions</a></li>
+    <li style="float:right"><a href="https://github.com/VallejosGroup/CompRisksVignettes"><i style="font-size: 20px; padding-top: 0px; padding-bottom: 0px;" class="fa-brands fa-github"></i></a></li>
+  </ul>
+</div>
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Other methods</h1>
+<h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
+and Catalina Vallejos</h4>
+<h4 class="date">2023-08-23</h4>
+
+</div>
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>The dataset used here corresponds to the Hodgkin’s disease (HD) study
+described in Pintilie, 2006. The data was loaded and pre-processed using
+the script that is sourced below. The latter creates three data
+objects:</p>
+<ul>
+<li><code>hd</code>: all the samples in the original data</li>
+<li><code>hd_train</code>: a random sample of the data to be used as a
+training set</li>
+<li><code>hd_test</code>: a random sample of the data to be used as a
+testing set</li>
+</ul>
+<p>Details about data pre-processing steps can be found <a
+href="https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/DataPreparation.Rmd">here</a></p>
+<pre class="r"><code>source(&quot;../Aux/data_prep.R&quot;)
+#&gt; Loading required package: readr
+#&gt; Loading required package: splitstackshape
+#&gt; The sourced script has been used to load and pre-process the data.
+#&gt; The latter converts appropriate variables into factors.
+#&gt; Additionally, we randomly split the data into training and testing sets, 
+#&gt; enabling us to evaluate out-of-sample predictive performance when comparing different approaches.</code></pre>
+<p>The following sections illustrate the usage of different methods that
+do not fall within a cause-specific hazards or CIF formulation.</p>
+</div>
+<div id="random-survival-forests" class="section level1">
+<h1>Random survival forests</h1>
+<p>The authors of random survival forests provide an online vignette <a
+href="https://www.randomforestsrc.org/articles/competing.html">here</a>
+(<span class="citation">Ishwaran et al. (<a href="#ref-HemantCompeting"
+role="doc-biblioref">2021</a>)</span>). The method can be fitted using
+the <code>randomForestSRC</code> package. Below we showcase how to do
+that.</p>
+<p>As RSF permits, both, a cause-specific and a CIF formulation. The
+user should first determine the type of analysis of interest, and pass
+it on the argument <code>splitrule</code> in the fitter function
+<code>rfsrc()</code>. When the objective is to do identify which
+variables are informative for a cause-specific hazard analysis, focusing
+on a <em>specific</em> cause of interest, we must set
+<code>splitrule="logrank"</code>. In contrast, if one is interested on
+long term predictions, <code>splitrule = "logrankCR"</code> is more
+appropriate, as it considers the CIF. Below, we will illustrate the use
+of both splitting rules.</p>
+<p>The argument <code>cause</code> should indicate the event type of
+interest to be used when applying the splitting rule. As described in
+the documentation of <code>rfsrc()</code>, <code>cause</code> can either
+be specified as a single integer (<code>cause = 1</code> if the first
+event type is of interest; <code>cause = 2</code> if the second event
+type is of interest) or as a vector of non-negative weights associated
+to each event type (e.g.  <code>cause = c(1,0)</code> if the first event
+type is of interest). If <code>cause</code> is not specified, the
+default is for the splitting rule to use an average across all event
+types.</p>
+<div id="generalized-log-rank-splitting-rule-logrank"
+class="section level2">
+<h2>Generalized log-rank splitting rule (logrank)</h2>
+<p>The model can be fit with the <code>rfsrc()</code> function in the
+<code>randomForestSRC</code> package. In order to do so, one should
+first create a survival time object with the <code>Surv()</code>
+function. This object will be the response variable in our regression
+model. As discussed above, we set <code>splitrule="logrank"</code> and
+<code>cause = c(1,0)</code> to obtain a cause-specific analysis for
+event type <span class="math inline">\(k=1\)</span>. In order to assess
+variable importance, we set argument <code>importance="permute"</code>.
+Note that this can be computed after the model is fitted using the
+<code>vimp()</code> function directly. Furthermore, we set
+<code>bootstrap = by.rootand samptype = "swr"</code> to do bootstrapping
+with replacement.</p>
+<pre class="r"><code>library(randomForestSRC)
+#&gt; 
+#&gt;  randomForestSRC 3.2.2 
+#&gt;  
+#&gt;  Type rfsrc.news() to see new features, changes, and bug fixes. 
+#&gt; 
+
+rsf.lr &lt;- rfsrc(Surv(time, status) ~ age + sex + trtgiven + 
+                  medwidsi + extranod + clinstg, 
+                data = hd_train,
+                ntree = 100,
+                splitrule = &quot;logrank&quot;, 
+                cause = c(1,0),          # to indicate that first event is of interest
+                bootstrap = &quot;by.root&quot;,
+                samptype = &quot;swr&quot;,        # sampling with replacement.
+                importance = &quot;random&quot;,   # other choices available, e.g. permute
+                save.memory= TRUE,       # useful for big datasets
+                seed = 100)</code></pre>
+<p>Note that if missing values are present, it is possible to impute
+them by setting the argument <code>na.action=na.impute</code>.</p>
+<p>A summary of the fitted object is obtained with
+<code>print()</code>.</p>
+<pre class="r"><code>print(rsf.lr)
+#&gt;                          Sample size: 692
+#&gt;                     Number of events: 233, 108
+#&gt;                      Number of trees: 100
+#&gt;            Forest terminal node size: 15
+#&gt;        Average no. of terminal nodes: 47.97
+#&gt; No. of variables tried at each split: 3
+#&gt;               Total no. of variables: 6
+#&gt;        Resampling used to grow trees: swr
+#&gt;     Resample size used to grow trees: 692
+#&gt;                             Analysis: RSF
+#&gt;                               Family: surv-CR
+#&gt;                       Splitting rule: logrank *random*
+#&gt;        Number of random split points: 10
+#&gt;    (OOB) Requested performance error: 0.43894869, 0.22820705</code></pre>
+<p>We can obtain the fitted trees; for instance, a plot of the fifth
+fitted tree is shown:</p>
+<pre class="r"><code>plot(get.tree(rsf.lr, 5))</code></pre>
+<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-32ad728e4f5e6a175702" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-32ad728e4f5e6a175702">{"x":{"diagram":"digraph {\n\n\n\n\n  \"1\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"2\" [label = \"trtgiven\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"3\" [label = \"medwidsi\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"4\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"5\" [label = \"n=7\n0\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=25\n- split.pretty: <=25\", fillcolor = \"GreenYellow\"] \n  \"6\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"7\" [label = \"n=1\n28.1\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=27\n- split.pretty: <=27\", fillcolor = \"GreenYellow\"] \n  \"8\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"9\" [label = \"n=17\n15.15\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=43\n- split.pretty: <=43\", fillcolor = \"GreenYellow\"] \n  \"10\" [label = \"n=3\n0\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >43\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"11\" [label = \"sex\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"12\" [label = \"extranod\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"13\" [label = \"medwidsi\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"14\" [label = \"n=15\n9.12\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {1}\n- split.pretty: {1}\", fillcolor = \"GreenYellow\"] \n  \"15\" [label = \"n=11\n1.52\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {3,2}\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"16\" [label = \"n=20\n8.1\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {2}\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"17\" [label = \"extranod\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"18\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"19\" [label = \"n=12\n8.97\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=23\n- split.pretty: <=23\", fillcolor = \"GreenYellow\"] \n  \"20\" [label = \"n=14\n3.97\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >23\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"21\" [label = \"n=5\n0\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {2}\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"22\" [label = \"clinstg\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"23\" [label = \"sex\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"24\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"25\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"26\" [label = \"n=8\n7.53\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=22\n- split.pretty: <=22\", fillcolor = \"GreenYellow\"] \n  \"27\" [label = \"n=14\n0\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >22\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"28\" [label = \"n=8\n7.8\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >31\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"29\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"30\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"31\" [label = \"n=5\n13.77\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=19\n- split.pretty: <=19\", fillcolor = \"GreenYellow\"] \n  \"32\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"33\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"34\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"35\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"36\" [label = \"n=6\n10.12\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=22\n- split.pretty: <=22\", fillcolor = \"GreenYellow\"] \n  \"37\" [label = \"n=20\n6.38\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >22\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"38\" [label = \"n=7\n15.46\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >27\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"39\" [label = \"n=3\n0\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >30\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"40\" [label = \"n=1\n27.1\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >31.58\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"41\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"42\" [label = \"n=2\n18.53\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=34\n- split.pretty: <=34\", fillcolor = \"GreenYellow\"] \n  \"43\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"44\" [label = \"n=14\n1.21\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=40.71\n- split.pretty: <=40.71\", fillcolor = \"GreenYellow\"] \n  \"45\" [label = \"n=12\n9.76\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >40.71\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"46\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"47\" [label = \"medwidsi\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"48\" [label = \"n=13\n15.59\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {1}\n- split.pretty: {1}\", fillcolor = \"GreenYellow\"] \n  \"49\" [label = \"extranod\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"50\" [label = \"sex\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"51\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"52\" [label = \"medwidsi\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"53\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"54\" [label = \"n=13\n16.06\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=28\n- split.pretty: <=28\", fillcolor = \"GreenYellow\"] \n  \"55\" [label = \"n=13\n6.71\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >28\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"56\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"57\" [label = \"n=4\n0\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=17\n- split.pretty: <=17\", fillcolor = \"GreenYellow\"] \n  \"58\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"59\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"60\" [label = \"n=17\n5.4\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=23.39\n- split.pretty: <=23.39\", fillcolor = \"GreenYellow\"] \n  \"61\" [label = \"n=5\n21.98\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >23.39\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"62\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"63\" [label = \"n=4\n0\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=29.57\n- split.pretty: <=29.57\", fillcolor = \"GreenYellow\"] \n  \"64\" [label = \"n=15\n7.31\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >29.57\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"65\" [label = \"n=2\n25.92\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >41\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"66\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"67\" [label = \"n=15\n8.47\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=22\n- split.pretty: <=22\", fillcolor = \"GreenYellow\"] \n  \"68\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"69\" [label = \"n=4\n21.74\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=23\n- split.pretty: <=23\", fillcolor = \"GreenYellow\"] \n  \"70\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"71\" [label = \"n=12\n7.36\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=27.61\n- split.pretty: <=27.61\", fillcolor = \"GreenYellow\"] \n  \"72\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"73\" [label = \"n=10\n15.04\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=34\n- split.pretty: <=34\", fillcolor = \"GreenYellow\"] \n  \"74\" [label = \"n=10\n7.55\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >34\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"75\" [label = \"n=5\n3.56\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {2}\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"76\" [label = \"n=8\n17.92\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >45\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"77\" [label = \"trtgiven\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"78\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"79\" [label = \"n=2\n21.15\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=49\n- split.pretty: <=49\", fillcolor = \"GreenYellow\"] \n  \"80\" [label = \"n=17\n5.16\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >49\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"81\" [label = \"sex\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"82\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"83\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"84\" [label = \"n=11\n8.56\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=56.58\n- split.pretty: <=56.58\", fillcolor = \"GreenYellow\"] \n  \"85\" [label = \"n=14\n19.86\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >56.58\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"86\" [label = \"n=11\n5.98\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >69\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"87\" [label = \"extranod\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"88\" [label = \"medwidsi\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"89\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"90\" [label = \"clinstg\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"91\" [label = \"n=17\n13.9\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {1}\n- split.pretty: {1}\", fillcolor = \"GreenYellow\"] \n  \"92\" [label = \"n=9\n4.75\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {2}\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"93\" [label = \"n=8\n19.63\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >71.42\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"94\" [label = \"n=3\n26.63\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {3,1}\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"95\" [label = \"n=3\n21.57\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {2}\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n\"1\"->\"2\" [color = \"black\", label = \"<=48.29\", fontcolor = \"black\", fontcolor = \"black\"] \n\"1\"->\"77\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"2\"->\"3\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"2\"->\"22\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"77\"->\"78\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"77\"->\"81\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"3\"->\"4\" [color = \"black\", label = \"{2}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"3\"->\"11\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"22\"->\"23\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"22\"->\"46\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"78\"->\"79\" [color = \"grey35\", label = \"<=49\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"78\"->\"80\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"81\"->\"82\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"81\"->\"87\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"4\"->\"5\" [color = \"grey35\", label = \"<=25\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"4\"->\"6\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"11\"->\"12\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"11\"->\"17\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"23\"->\"24\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"23\"->\"29\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"46\"->\"47\" [color = \"black\", label = \"<=45\", fontcolor = \"black\", fontcolor = \"black\"] \n\"46\"->\"76\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"82\"->\"83\" [color = \"black\", label = \"<=69\", fontcolor = \"black\", fontcolor = \"black\"] \n\"82\"->\"86\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"87\"->\"88\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"87\"->\"95\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"6\"->\"7\" [color = \"grey35\", label = \"<=27\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"6\"->\"8\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"12\"->\"13\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"12\"->\"16\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"17\"->\"18\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"17\"->\"21\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"24\"->\"25\" [color = \"black\", label = \"<=31\", fontcolor = \"black\", fontcolor = \"black\"] \n\"24\"->\"28\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"29\"->\"30\" [color = \"black\", label = \"<=32\", fontcolor = \"black\", fontcolor = \"black\"] \n\"29\"->\"41\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"47\"->\"48\" [color = \"grey35\", label = \"{1}\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"47\"->\"49\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"83\"->\"84\" [color = \"grey35\", label = \"<=56.58\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"83\"->\"85\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"88\"->\"89\" [color = \"black\", label = \"{2}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"88\"->\"94\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"8\"->\"9\" [color = \"grey35\", label = \"<=43\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"8\"->\"10\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"13\"->\"14\" [color = \"grey35\", label = \"{1}\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"13\"->\"15\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"18\"->\"19\" [color = \"grey35\", label = \"<=23\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"18\"->\"20\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"25\"->\"26\" [color = \"grey35\", label = \"<=22\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"25\"->\"27\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"30\"->\"31\" [color = \"grey35\", label = \"<=19\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"30\"->\"32\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"41\"->\"42\" [color = \"grey35\", label = \"<=34\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"41\"->\"43\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"49\"->\"50\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"49\"->\"75\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"89\"->\"90\" [color = \"black\", label = \"<=71.42\", fontcolor = \"black\", fontcolor = \"black\"] \n\"89\"->\"93\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"32\"->\"33\" [color = \"black\", label = \"<=31.58\", fontcolor = \"black\", fontcolor = \"black\"] \n\"32\"->\"40\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"43\"->\"44\" [color = \"grey35\", label = \"<=40.71\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"43\"->\"45\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"50\"->\"51\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"50\"->\"66\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"90\"->\"91\" [color = \"grey35\", label = \"{1}\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"90\"->\"92\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"33\"->\"34\" [color = \"black\", label = \"<=30\", fontcolor = \"black\", fontcolor = \"black\"] \n\"33\"->\"39\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"51\"->\"52\" [color = \"black\", label = \"<=41\", fontcolor = \"black\", fontcolor = \"black\"] \n\"51\"->\"65\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"66\"->\"67\" [color = \"grey35\", label = \"<=22\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"66\"->\"68\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"34\"->\"35\" [color = \"black\", label = \"<=27\", fontcolor = \"black\", fontcolor = \"black\"] \n\"34\"->\"38\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"52\"->\"53\" [color = \"black\", label = \"{2}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"52\"->\"56\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"68\"->\"69\" [color = \"grey35\", label = \"<=23\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"68\"->\"70\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"35\"->\"36\" [color = \"grey35\", label = \"<=22\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"35\"->\"37\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"53\"->\"54\" [color = \"grey35\", label = \"<=28\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"53\"->\"55\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"56\"->\"57\" [color = \"grey35\", label = \"<=17\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"56\"->\"58\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"70\"->\"71\" [color = \"grey35\", label = \"<=27.61\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"70\"->\"72\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"58\"->\"59\" [color = \"black\", label = \"<=28\", fontcolor = \"black\", fontcolor = \"black\"] \n\"58\"->\"62\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"72\"->\"73\" [color = \"grey35\", label = \"<=34\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"72\"->\"74\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"59\"->\"60\" [color = \"grey35\", label = \"<=23.39\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"59\"->\"61\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"62\"->\"63\" [color = \"grey35\", label = \"<=29.57\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"62\"->\"64\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<p>Furthermore, we can visualize the results of the fitted model with
+<code>plot.competing.risk()</code>. This command shows averaged
+out-of-bag ensemble for: CS cumulative hazard, the CIF, and the
+conditional probability, stratified by event type. In the plot below,
+the event of interest is shown in black.</p>
+<pre class="r"><code>plot.competing.risk(rsf.lr)</code></pre>
+<p><img src="Others_files/figure-html/unnamed-chunk-5-1.png" width="768" />
+The output of the <code>rfsrc()</code> is rich ans contains extensive
+information about the model fit. For example, we can obtain both,
+out-of-bag, estimates of the cause-specific cumulative hazard function
+(see <code>rsf.lr$chf.oob</code>) and the CIF (see
+<code>rsf.lr$cif.oob</code>) for each event type. These estimates are
+provided at the unique observed event times (see
+<code>rsf.lr$time.interest</code>).</p>
+<p>In addition, we can visualize marginal effects for each variable in
+terms of specific quantities of interest. For example, in terms of the
+cumulative hazard function of the event of interest (indicated below
+through <code>target</code>) at a given time point
+(e.g. <code>time = 5</code> years below).</p>
+<pre class="r"><code>plot.variable(rsf.lr, target = 1, 
+              time = 5,
+              surv.type = &quot;chf&quot;, 
+              sorted = TRUE)</code></pre>
+<p><img src="Others_files/figure-html/unnamed-chunk-6-1.png" width="768" /></p>
+<p>In order to do variable selection, a variable importance measure for
+the event of interest is shown below. The higher the value, the better.
+Negative values indicate no predictive ability.</p>
+<pre class="r"><code>rsf.lr$importance[,1]
+#&gt;          age          sex     trtgiven     medwidsi     extranod      clinstg 
+#&gt;  0.020174337 -0.001455005  0.016779088 -0.001703250 -0.003966918  0.001417083</code></pre>
+<p>In addition, one can also use minimal depth variable selection. In
+this case, the smaller the value, the more predictive ability. The
+second column of the table below shows the results:</p>
+<pre class="r"><code>var.mindepth  &lt;- var.select(rsf.lr, 
+                        cause = 1, 
+                        method = &quot;md&quot;, # is possible to select &quot;vh.vimp&quot; for variable importance measure
+                        conservative = &quot;medium&quot; # level of conservativeness of the thresholding rule
+           )  
+#&gt; minimal depth variable selection ...
+#&gt; 
+#&gt; 
+#&gt; -----------------------------------------------------------
+#&gt; family             : surv-CR 
+#&gt; var. selection     : Minimal Depth 
+#&gt; conservativeness   : medium 
+#&gt; x-weighting used?  : TRUE 
+#&gt; dimension          : 6 
+#&gt; sample size        : 692 
+#&gt; ntree              : 100 
+#&gt; nsplit             : 10 
+#&gt; mtry               : 3 
+#&gt; nodesize           : 15 
+#&gt; refitted forest    : FALSE 
+#&gt; model size         : 6 
+#&gt; depth threshold    : 5.3022 
+#&gt; PE (true OOB)      : 43.8949 22.8207 
+#&gt; 
+#&gt; 
+#&gt; Top variables:
+#&gt;          depth vimp.event.1 vimp.event.2
+#&gt; age       0.74        0.020        0.214
+#&gt; medwidsi  1.56       -0.002        0.012
+#&gt; trtgiven  1.68        0.017       -0.006
+#&gt; extranod  2.65       -0.004       -0.008
+#&gt; clinstg   2.77        0.001       -0.006
+#&gt; sex       2.99       -0.001        0.011
+#&gt; -----------------------------------------------------------
+
+pander::pander(var.mindepth$varselect)</code></pre>
+<table style="width:74%;">
+<colgroup>
+<col width="20%" />
+<col width="11%" />
+<col width="20%" />
+<col width="20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center"> </th>
+<th align="center">depth</th>
+<th align="center">vimp.event.1</th>
+<th align="center">vimp.event.2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center"><strong>age</strong></td>
+<td align="center">0.74</td>
+<td align="center">0.02017</td>
+<td align="center">0.2135</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>medwidsi</strong></td>
+<td align="center">1.56</td>
+<td align="center">-0.001703</td>
+<td align="center">0.01225</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>trtgiven</strong></td>
+<td align="center">1.68</td>
+<td align="center">0.01678</td>
+<td align="center">-0.006373</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>extranod</strong></td>
+<td align="center">2.65</td>
+<td align="center">-0.003967</td>
+<td align="center">-0.008177</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>clinstg</strong></td>
+<td align="center">2.77</td>
+<td align="center">0.001417</td>
+<td align="center">-0.006344</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>sex</strong></td>
+<td align="center">2.99</td>
+<td align="center">-0.001455</td>
+<td align="center">0.01074</td>
+</tr>
+</tbody>
+</table>
+<p>Finally, whilst it is possible to obtain predictions for a test
+dataset using the <code>predict()</code> function, we do not do this
+here as <code>splitrule = "logrankCR"</code> is instead recommended when
+the purpose of the analysis is to perform prediction.</p>
+</div>
+<div id="modified-grays-test-splitting-rule-logrankcr"
+class="section level2">
+<h2>Modified Gray’s test splitting rule (logrankCR)</h2>
+<p>In the code below, the settings of <code>rfsrc()</code> have been
+specified in the same way as in the previous section (except for
+<code>splitrule</code>). In particular, we use
+<code>cause = c(1,0)</code> to indicate that the first event type is of
+primary interest.</p>
+<pre class="r"><code>rsf.lrCR &lt;- rfsrc(Surv(time, status) ~ age + sex + trtgiven + 
+                    medwidsi + extranod + clinstg, 
+                data = hd_train,
+                ntree = 100,
+                splitrule = &quot;logrankCR&quot;, 
+                cause = c(1,0),          # to indicate that first event is of interest
+                bootstrap = &quot;by.root&quot;,
+                samptype = &quot;swr&quot;,        # sampling with replacement.
+                importance = &quot;random&quot;,   # other choices available, e.g. permute
+                save.memory= TRUE,       # useful for big datasets
+                seed = 100
+                )
+
+print(rsf.lrCR)
+#&gt;                          Sample size: 692
+#&gt;                     Number of events: 233, 108
+#&gt;                      Number of trees: 100
+#&gt;            Forest terminal node size: 15
+#&gt;        Average no. of terminal nodes: 48.37
+#&gt; No. of variables tried at each split: 3
+#&gt;               Total no. of variables: 6
+#&gt;        Resampling used to grow trees: swr
+#&gt;     Resample size used to grow trees: 692
+#&gt;                             Analysis: RSF
+#&gt;                               Family: surv-CR
+#&gt;                       Splitting rule: logrankCR *random*
+#&gt;        Number of random split points: 10
+#&gt;    (OOB) Requested performance error: 0.44416446, 0.22447986</code></pre>
+<p>As before fitted trees can be obtained with
+<code>get.tree</code>.</p>
+<pre class="r"><code>plot(get.tree(rsf.lrCR, 5))</code></pre>
+<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-3c7dd81dc98edb51febe" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-3c7dd81dc98edb51febe">{"x":{"diagram":"digraph {\n\n\n\n\n  \"1\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"2\" [label = \"trtgiven\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"3\" [label = \"medwidsi\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"4\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"5\" [label = \"n=7\n0\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=25\n- split.pretty: <=25\", fillcolor = \"GreenYellow\"] \n  \"6\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"7\" [label = \"n=1\n28.1\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=27\n- split.pretty: <=27\", fillcolor = \"GreenYellow\"] \n  \"8\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"9\" [label = \"n=17\n15.15\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=43\n- split.pretty: <=43\", fillcolor = \"GreenYellow\"] \n  \"10\" [label = \"n=3\n0\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >43\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"11\" [label = \"sex\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"12\" [label = \"extranod\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"13\" [label = \"medwidsi\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"14\" [label = \"n=15\n9.12\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {1}\n- split.pretty: {1}\", fillcolor = \"GreenYellow\"] \n  \"15\" [label = \"n=11\n1.52\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {3,2}\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"16\" [label = \"n=20\n8.1\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {2}\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"17\" [label = \"extranod\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"18\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"19\" [label = \"n=12\n8.97\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=23\n- split.pretty: <=23\", fillcolor = \"GreenYellow\"] \n  \"20\" [label = \"n=14\n3.97\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >23\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"21\" [label = \"n=5\n0\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {2}\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"22\" [label = \"clinstg\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"23\" [label = \"sex\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"24\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"25\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"26\" [label = \"n=8\n7.53\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=22\n- split.pretty: <=22\", fillcolor = \"GreenYellow\"] \n  \"27\" [label = \"n=14\n0\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >22\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"28\" [label = \"n=8\n7.8\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >31\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"29\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"30\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"31\" [label = \"n=5\n13.77\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=19\n- split.pretty: <=19\", fillcolor = \"GreenYellow\"] \n  \"32\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"33\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"34\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"35\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"36\" [label = \"n=6\n10.12\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=22\n- split.pretty: <=22\", fillcolor = \"GreenYellow\"] \n  \"37\" [label = \"n=20\n6.38\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >22\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"38\" [label = \"n=7\n15.46\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >27\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"39\" [label = \"n=3\n0\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >30\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"40\" [label = \"n=1\n27.1\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >31.58\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"41\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"42\" [label = \"n=2\n18.53\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=34\n- split.pretty: <=34\", fillcolor = \"GreenYellow\"] \n  \"43\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"44\" [label = \"n=14\n1.21\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=40.71\n- split.pretty: <=40.71\", fillcolor = \"GreenYellow\"] \n  \"45\" [label = \"n=12\n9.76\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >40.71\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"46\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"47\" [label = \"medwidsi\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"48\" [label = \"n=13\n15.59\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {1}\n- split.pretty: {1}\", fillcolor = \"GreenYellow\"] \n  \"49\" [label = \"extranod\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"50\" [label = \"sex\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"51\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"52\" [label = \"medwidsi\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"53\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"54\" [label = \"n=13\n16.06\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=28\n- split.pretty: <=28\", fillcolor = \"GreenYellow\"] \n  \"55\" [label = \"n=13\n6.71\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >28\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"56\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"57\" [label = \"n=4\n0\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=17\n- split.pretty: <=17\", fillcolor = \"GreenYellow\"] \n  \"58\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"59\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"60\" [label = \"n=17\n5.4\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=23.39\n- split.pretty: <=23.39\", fillcolor = \"GreenYellow\"] \n  \"61\" [label = \"n=5\n21.98\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >23.39\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"62\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"63\" [label = \"n=4\n0\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=29.57\n- split.pretty: <=29.57\", fillcolor = \"GreenYellow\"] \n  \"64\" [label = \"n=15\n7.31\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >29.57\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"65\" [label = \"n=2\n25.92\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >41\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"66\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"67\" [label = \"n=15\n8.47\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=22\n- split.pretty: <=22\", fillcolor = \"GreenYellow\"] \n  \"68\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"69\" [label = \"n=4\n21.74\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=23\n- split.pretty: <=23\", fillcolor = \"GreenYellow\"] \n  \"70\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"71\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"72\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"73\" [label = \"n=3\n0\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=24\n- split.pretty: <=24\", fillcolor = \"GreenYellow\"] \n  \"74\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"75\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"76\" [label = \"n=16\n11.13\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=33.25\n- split.pretty: <=33.25\", fillcolor = \"GreenYellow\"] \n  \"77\" [label = \"n=3\n21.2\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >33.25\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"78\" [label = \"n=6\n3.22\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >34\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"79\" [label = \"n=2\n28.1\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >40.04\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"80\" [label = \"n=2\n0\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >42\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"81\" [label = \"n=5\n3.56\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {2}\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"82\" [label = \"n=8\n17.92\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >45\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"83\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"84\" [label = \"medwidsi\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"85\" [label = \"n=1\n28.1\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {1}\n- split.pretty: {1}\", fillcolor = \"GreenYellow\"] \n  \"86\" [label = \"trtgiven\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"87\" [label = \"extranod\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"88\" [label = \"n=13\n9.79\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {1}\n- split.pretty: {1}\", fillcolor = \"GreenYellow\"] \n  \"89\" [label = \"n=5\n0\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {2}\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"90\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"91\" [label = \"medwidsi\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"92\" [label = \"clinstg\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"93\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"94\" [label = \"n=1\n28.5\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=50\n- split.pretty: <=50\", fillcolor = \"GreenYellow\"] \n  \"95\" [label = \"age\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"96\" [label = \"n=14\n7.3\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: <=61\n- split.pretty: <=61\", fillcolor = \"GreenYellow\"] \n  \"97\" [label = \"n=11\n20.24\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >61\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"98\" [label = \"n=21\n12.05\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {2}\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"99\" [label = \"n=6\n18.03\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {3,1}\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"100\" [label = \"medwidsi\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"101\" [label = \"clinstg\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"\", shape = \"\", fontname = \"\", tooltip = \"\", fillcolor = \"\"] \n  \"102\" [label = \"n=16\n8.82\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {1}\n- split.pretty: {1}\", fillcolor = \"GreenYellow\"] \n  \"103\" [label = \"n=4\n18.93\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {2}\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"104\" [label = \"n=1\n0\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: {3,1}\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n  \"105\" [label = \"n=2\n26.15\", color = \"black\", fontcolor = \"black\", penwidth = \"3\", style = \"filled,rounded\", shape = \"box\", fontname = \"helvetica\", tooltip = \"- split: >82\n- split.pretty: \", fillcolor = \"GreenYellow\"] \n\"1\"->\"2\" [color = \"black\", label = \"<=48.29\", fontcolor = \"black\", fontcolor = \"black\"] \n\"1\"->\"83\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"2\"->\"3\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"2\"->\"22\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"83\"->\"84\" [color = \"black\", label = \"<=82\", fontcolor = \"black\", fontcolor = \"black\"] \n\"83\"->\"105\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"3\"->\"4\" [color = \"black\", label = \"{2}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"3\"->\"11\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"22\"->\"23\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"22\"->\"46\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"84\"->\"85\" [color = \"grey35\", label = \"{1}\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"84\"->\"86\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"4\"->\"5\" [color = \"grey35\", label = \"<=25\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"4\"->\"6\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"11\"->\"12\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"11\"->\"17\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"23\"->\"24\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"23\"->\"29\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"46\"->\"47\" [color = \"black\", label = \"<=45\", fontcolor = \"black\", fontcolor = \"black\"] \n\"46\"->\"82\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"86\"->\"87\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"86\"->\"90\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"6\"->\"7\" [color = \"grey35\", label = \"<=27\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"6\"->\"8\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"12\"->\"13\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"12\"->\"16\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"17\"->\"18\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"17\"->\"21\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"24\"->\"25\" [color = \"black\", label = \"<=31\", fontcolor = \"black\", fontcolor = \"black\"] \n\"24\"->\"28\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"29\"->\"30\" [color = \"black\", label = \"<=32\", fontcolor = \"black\", fontcolor = \"black\"] \n\"29\"->\"41\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"47\"->\"48\" [color = \"grey35\", label = \"{1}\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"47\"->\"49\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"87\"->\"88\" [color = \"grey35\", label = \"{1}\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"87\"->\"89\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"90\"->\"91\" [color = \"black\", label = \"<=69\", fontcolor = \"black\", fontcolor = \"black\"] \n\"90\"->\"100\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"8\"->\"9\" [color = \"grey35\", label = \"<=43\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"8\"->\"10\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"13\"->\"14\" [color = \"grey35\", label = \"{1}\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"13\"->\"15\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"18\"->\"19\" [color = \"grey35\", label = \"<=23\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"18\"->\"20\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"25\"->\"26\" [color = \"grey35\", label = \"<=22\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"25\"->\"27\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"30\"->\"31\" [color = \"grey35\", label = \"<=19\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"30\"->\"32\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"41\"->\"42\" [color = \"grey35\", label = \"<=34\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"41\"->\"43\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"49\"->\"50\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"49\"->\"81\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"91\"->\"92\" [color = \"black\", label = \"{2}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"91\"->\"99\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"100\"->\"101\" [color = \"black\", label = \"{2}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"100\"->\"104\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"32\"->\"33\" [color = \"black\", label = \"<=31.58\", fontcolor = \"black\", fontcolor = \"black\"] \n\"32\"->\"40\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"43\"->\"44\" [color = \"grey35\", label = \"<=40.71\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"43\"->\"45\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"50\"->\"51\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"50\"->\"66\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"92\"->\"93\" [color = \"black\", label = \"{1}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"92\"->\"98\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"101\"->\"102\" [color = \"grey35\", label = \"{1}\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"101\"->\"103\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"33\"->\"34\" [color = \"black\", label = \"<=30\", fontcolor = \"black\", fontcolor = \"black\"] \n\"33\"->\"39\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"51\"->\"52\" [color = \"black\", label = \"<=41\", fontcolor = \"black\", fontcolor = \"black\"] \n\"51\"->\"65\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"66\"->\"67\" [color = \"grey35\", label = \"<=22\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"66\"->\"68\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"93\"->\"94\" [color = \"grey35\", label = \"<=50\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"93\"->\"95\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"34\"->\"35\" [color = \"black\", label = \"<=27\", fontcolor = \"black\", fontcolor = \"black\"] \n\"34\"->\"38\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"52\"->\"53\" [color = \"black\", label = \"{2}\", fontcolor = \"black\", fontcolor = \"black\"] \n\"52\"->\"56\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"68\"->\"69\" [color = \"grey35\", label = \"<=23\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"68\"->\"70\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"95\"->\"96\" [color = \"grey35\", label = \"<=61\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"95\"->\"97\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"35\"->\"36\" [color = \"grey35\", label = \"<=22\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"35\"->\"37\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"53\"->\"54\" [color = \"grey35\", label = \"<=28\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"53\"->\"55\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"56\"->\"57\" [color = \"grey35\", label = \"<=17\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"56\"->\"58\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"70\"->\"71\" [color = \"black\", label = \"<=42\", fontcolor = \"black\", fontcolor = \"black\"] \n\"70\"->\"80\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"58\"->\"59\" [color = \"black\", label = \"<=28\", fontcolor = \"black\", fontcolor = \"black\"] \n\"58\"->\"62\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"71\"->\"72\" [color = \"black\", label = \"<=40.04\", fontcolor = \"black\", fontcolor = \"black\"] \n\"71\"->\"79\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"59\"->\"60\" [color = \"grey35\", label = \"<=23.39\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"59\"->\"61\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"62\"->\"63\" [color = \"grey35\", label = \"<=29.57\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"62\"->\"64\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"72\"->\"73\" [color = \"grey35\", label = \"<=24\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"72\"->\"74\" [color = \"black\", color = \"black\", fontcolor = \"black\", fontcolor = \"black\"] \n\"74\"->\"75\" [color = \"black\", label = \"<=34\", fontcolor = \"black\", fontcolor = \"black\"] \n\"74\"->\"78\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"75\"->\"76\" [color = \"grey35\", label = \"<=33.25\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n\"75\"->\"77\" [color = \"grey35\", color = \"grey35\", fontcolor = \"black\", arrowhead = \"vee\", penwidth = \"3\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<p>Similarly, one can visualize the results of the fitted model with
+<code>plot.competing.risk()</code>, which shows 3 plots: a CS cumulative
+hazard, the CIF, and the conditional probability, stratified by event
+type. In the plot below, the event of interest is shown in black.</p>
+<pre class="r"><code>plot.competing.risk(rsf.lrCR)</code></pre>
+<p><img src="Others_files/figure-html/unnamed-chunk-11-1.png" width="768" /></p>
+<p>In addition, we can visualize marginal effects according to the
+expected number of years lost due to the event specific cause.</p>
+<pre class="r"><code>plot.variable(rsf.lrCR, target = 1,
+              surv.type = &quot;years.lost&quot;, 
+              sorted = TRUE)</code></pre>
+<p><img src="Others_files/figure-html/unnamed-chunk-12-1.png" width="768" /></p>
+<p>In order to do variable selection, as variable importance measure for
+the event of interest is shown below. The higher the value, the better.
+Negative values indicate no predictive ability.</p>
+<pre class="r"><code>rsf.lrCR$importance[,1]
+#&gt;          age          sex     trtgiven     medwidsi     extranod      clinstg 
+#&gt;  0.016969667 -0.002039459  0.015975435 -0.004734901 -0.001124025  0.002350809</code></pre>
+<p>In order to obtain predictions in the test set, we employ
+<code>predict()</code> function as shown below. A summary of the object
+is shown with the function <code>print()</code></p>
+<pre class="r"><code>test.lrCR &lt;- predict(rsf.lrCR, 
+                   newdata = hd_test,
+                   importance = &quot;permute&quot;  #VIM can also be obtained at this stage
+                   )
+print(test.lrCR)
+#&gt;   Sample size of test (predict) data: 173
+#&gt;                 Number of grow trees: 100
+#&gt;   Average no. of grow terminal nodes: 48.37
+#&gt;          Total no. of grow variables: 6
+#&gt;        Resampling used to grow trees: swr
+#&gt;     Resample size used to grow trees: 692
+#&gt;                             Analysis: RSF
+#&gt;                               Family: surv-CR
+#&gt;          Requested performance error: 0.38690476, 0.23518072</code></pre>
+<p>The CIF for patient 1 and 2 in the test set is shown:</p>
+<pre class="r"><code>par(mar = c(4, 4, 2, 0.1))
+
+plot(test.lrCR$time.interest,
+     test.lrCR$cif[1,,1], 
+     type = &quot;l&quot;,
+     col = &quot;red&quot;,
+     ylim = c(0, 0.6),
+     xlab = &quot;Time (years)&quot;,
+     ylab = &quot;Cumulative incidence&quot;)
+lines(test.lrCR$time.interest,  test.lrCR$cif[2,,1], #CIF.hat[2,], 
+      col=&quot;blue&quot;)
+legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&quot;),
+       lty = c(1,1), col = c(&quot;red&quot;, &quot;blue&quot;))</code></pre>
+<p><img src="Others_files/figure-html/unnamed-chunk-15-1.png" width="576" /></p>
+<p>Predicted CIF at <span class="math inline">\(t=5\)</span> for the
+first 5 subjects in the test set are shown:</p>
+<pre class="r"><code>test.lrCR$cif[1:5, test.lrCR$time.interest==5,1]
+#&gt; [1] 0.2471439 0.4264480 0.3513243 0.1933283 0.3215940</code></pre>
+<p>A similar analysis can be performed using an average between both
+event types as the target for the splitting rule. To do so,
+<code>cause</code> can be left unspecified or be set to
+<code>cause = c(0.5, 0.5)</code>.</p>
+<pre class="r"><code>rsf.lrCR.av &lt;- rfsrc(Surv(time, status) ~ age + sex + trtgiven + 
+                    medwidsi + extranod + clinstg, 
+                data = hd_train,
+                ntree = 100,
+                splitrule = &quot;logrankCR&quot;, 
+                bootstrap = &quot;by.root&quot;,
+                samptype = &quot;swr&quot;,        # sampling with replacement.
+                importance = &quot;random&quot;,   # other choices available, e.g. permute
+                save.memory= TRUE,       # useful for big datasets
+                seed = 100
+                )
+
+print(rsf.lrCR.av)
+#&gt;                          Sample size: 692
+#&gt;                     Number of events: 233, 108
+#&gt;                      Number of trees: 100
+#&gt;            Forest terminal node size: 15
+#&gt;        Average no. of terminal nodes: 49.21
+#&gt; No. of variables tried at each split: 3
+#&gt;               Total no. of variables: 6
+#&gt;        Resampling used to grow trees: swr
+#&gt;     Resample size used to grow trees: 692
+#&gt;                             Analysis: RSF
+#&gt;                               Family: surv-CR
+#&gt;                       Splitting rule: logrankCR *random*
+#&gt;        Number of random split points: 10
+#&gt;    (OOB) Requested performance error: 0.43828167, 0.21863874</code></pre>
+<p>Using this approach, predictions for the test dataset are obtained as
+follows:</p>
+<pre class="r"><code>test.lrCR.av &lt;- predict(rsf.lrCR.av, 
+                   newdata = hd_test,
+                   importance = &quot;permute&quot;  #VIM can also be obtained at this stage
+                   )
+print(test.lrCR.av)
+#&gt;   Sample size of test (predict) data: 173
+#&gt;                 Number of grow trees: 100
+#&gt;   Average no. of grow terminal nodes: 49.21
+#&gt;          Total no. of grow variables: 6
+#&gt;        Resampling used to grow trees: swr
+#&gt;     Resample size used to grow trees: 692
+#&gt;                             Analysis: RSF
+#&gt;                               Family: surv-CR
+#&gt;          Requested performance error: 0.39114583, 0.24481928</code></pre>
+<p>As before, here we visualise the CIF for the first two patients in
+the test set:</p>
+<pre class="r"><code>par(mar = c(4, 4, 2, 0.1))
+
+plot(test.lrCR.av$time.interest,
+     test.lrCR.av$cif[1,,1], 
+     type = &quot;l&quot;,
+     col = &quot;red&quot;,
+     ylim = c(0, 0.6),
+     xlab = &quot;Time (years)&quot;,
+     ylab = &quot;Cumulative incidence&quot;)
+lines(test.lrCR.av$time.interest,  test.lrCR.av$cif[2,,1], #CIF.hat[2,], 
+      col=&quot;blue&quot;)
+legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&quot;),
+       lty = c(1,1), col = c(&quot;red&quot;, &quot;blue&quot;))</code></pre>
+<p><img src="Others_files/figure-html/unnamed-chunk-19-1.png" width="576" />
+Finally, CIF estimates at <span class="math inline">\(t=5\)</span> for
+the first 5 subjects in the test set are shown:</p>
+<pre class="r"><code>test.lrCR.av$cif[1:5, test.lrCR.av$time.interest==5,1]
+#&gt; [1] 0.2243883 0.4189461 0.2749960 0.1813040 0.3046402</code></pre>
+</div>
+</div>
+<div id="storing-predictions" class="section level1">
+<h1>Storing predictions</h1>
+<p>In order to allow comparison with the predictions generated by other
+methods, we save the predictions obtained in this vignette.</p>
+<pre class="r"><code>pred_Others &lt;- data.frame(
+  &quot;testID&quot; = seq_len(nrow(hd_test)),
+  &quot;RF_logrankCR&quot; = test.lrCR$cif[,test.lrCR$time.interest==5,1],
+  &quot;RF_logrankCR.av&quot; = test.lrCR.av$cif[,test.lrCR.av$time.interest==5,1])
+if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
+  write.csv(pred_Others, &quot;/Outputs/pred_Others.csv&quot;, row.names = FALSE)
+} else {
+  write.csv(pred_Others, &quot;../Outputs/pred_Others.csv&quot;, row.names = FALSE)
+}</code></pre>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-HemantCompeting" class="csl-entry">
+Ishwaran, Hemant, Thomas A. Gerds, Bryan M. Lau, Min Lu, and Udaya B.
+Kogalur. 2021. <span>“<span class="nocase">randomForestSRC</span>:
+Competing Risks Vignette.”</span> <a
+href="http://randomforestsrc.org/articles/competing.html">http://randomforestsrc.org/articles/competing.html</a>.
+</div>
+</div>
+</div>
+<div id="session-info" class="section level1">
+<h1>Session Info</h1>
+<pre class="r"><code>sessionInfo()
+#&gt; R version 4.3.0 (2023-04-21)
+#&gt; Platform: aarch64-apple-darwin20 (64-bit)
+#&gt; Running under: macOS Ventura 13.2.1
+#&gt; 
+#&gt; Matrix products: default
+#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRblas.0.dylib 
+#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
+#&gt; 
+#&gt; locale:
+#&gt; [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+#&gt; 
+#&gt; time zone: Europe/London
+#&gt; tzcode source: internal
+#&gt; 
+#&gt; attached base packages:
+#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     
+#&gt; 
+#&gt; other attached packages:
+#&gt; [1] randomForestSRC_3.2.2 splitstackshape_1.4.8 readr_2.1.4          
+#&gt; 
+#&gt; loaded via a namespace (and not attached):
+#&gt;  [1] jsonlite_1.8.7     highr_0.10         dplyr_1.1.2        compiler_4.3.0    
+#&gt;  [5] tidyselect_1.2.0   stringr_1.5.0      parallel_4.3.0     tidyr_1.3.0       
+#&gt;  [9] DiagrammeR_1.0.10  jquerylib_0.1.4    yaml_2.3.7         fastmap_1.1.1     
+#&gt; [13] R6_2.5.1           generics_0.1.3     knitr_1.43         htmlwidgets_1.6.2 
+#&gt; [17] visNetwork_2.1.2   tibble_3.2.1       bslib_0.5.0        pillar_1.9.0      
+#&gt; [21] RColorBrewer_1.1-3 tzdb_0.4.0         rlang_1.1.1        utf8_1.2.3        
+#&gt; [25] cachem_1.0.8       stringi_1.7.12     xfun_0.39          sass_0.4.7        
+#&gt; [29] cli_3.6.1          withr_2.5.0        magrittr_2.0.3     digest_0.6.33     
+#&gt; [33] rstudioapi_0.15.0  hms_1.1.3          lifecycle_1.0.3    data.tree_1.0.0   
+#&gt; [37] vctrs_0.6.3        evaluate_0.21      glue_1.6.2         data.table_1.14.8 
+#&gt; [41] codetools_0.2-19   fansi_1.0.4        purrr_1.0.1        rmarkdown_2.23    
+#&gt; [45] ellipsis_0.3.2     tools_4.3.0        pkgconfig_2.0.3    htmltools_0.5.5</code></pre>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

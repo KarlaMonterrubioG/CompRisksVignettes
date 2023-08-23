@@ -35,80 +35,24 @@ knitr::opts_chunk$set(
 
 
 
-# Dataset
-
-In order to demonstrate the methods, we employ publicly available data. 
+# Introduction
 
 The dataset used here corresponds to the Hodgkin’s disease (HD) study described
-in Pintilie, 2006. The dataset comprises 865 patients diagnosed with early stage
-(I or II) HD, and which were treated either with radiation (RT) or with
-radiation and chemotherapy (CMT).
+in Pintilie, 2006. The data was loaded and pre-processed using the script that
+is sourced below. The latter creates three data objects:
 
-The recorded data includes:
+- `hd`: all the samples in the original data
+- `hd_train`: a random sample of the data to be used as a training set
+- `hd_test`: a random sample of the data to be used as a testing set
 
-* age: Age (years)
-* sex: Sex, F=female and M=Male.
-* trtgiven: Treatment given, RT=Radiation, CMT=Chemotherapy and radiation
-* medwidsi: Size of mediastinum involvement, N=No, S=Small, L=Large
-* extranod: Extranodal disease, Y=Extranodal disease, N= Nodal disease
-* clinstg: Clinical stage, 1=Stage I, 2=Stage II
-* time: time to failure (years) calculated from the date of diagnosis
-* status: 0=censoring, 1=relapse and 2=death.
-
-We now load and display the structure of the HD dataset:
-
-```{r, message=FALSE, warning=FALSE}
-library(readr)
-hd <- data.frame(read_csv("../Data/HD/hd.csv",
-                          col_types = cols(X1 = col_skip())))
-str(hd)
-```
-
-To proceed with the analysis, it is important to change the data type of sex,
-trtgiven, medwidsi, and extranod from character to factor. Similarly, we convert
-clinstg from numeric to factor.
+Details about data pre-processing steps can be found [here](https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/DataPreparation.Rmd)
 
 ```{r}
-hd$sex      <- as.factor(hd$sex)
-hd$trtgiven <- as.factor(hd$trtgiven)
-hd$medwidsi <- as.factor(hd$medwidsi)
-hd$extranod <- as.factor(hd$extranod)
-hd$clinstg  <- as.factor(hd$clinstg)
+source("../Aux/data_prep.R")
 ```
 
-Now, we explore the number of events for each event type:
-
-```{r}
-require(pander)
-pander::pander(table(hd$status))
-```
-
-Thus, we have `r length(which(hd$status==0))` censored patients, 
-`r length(which(hd$status==1))` with relapse, and `r length(which(hd$status==2))`
-who died. From now on, we assume that the event of interest is relapse, 
-i.e. status=1.
-
-In order to create a test set, we use stratified sampling to partition our
-dataset into 80% for train and 20% for test.
-
-```{r}
-library(splitstackshape)
-set.seed(2022)
-split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
-hd_train   <- split_data$SAMP1[,-1]
-hd_test    <- split_data$SAMP2[,-1]
-```
-
-Now, we explore the number of observations per status in both train and test
-set:
-
-```{r}
-pander::pander(table(hd_train$status))
-```
-
-```{r}
-pander::pander(table(hd_test$status))
-```
+The following sections illustrate the usage of methods that use discrete time
+specification when modelling competing risks data.
 
 # BART
 
@@ -498,9 +442,9 @@ pred_BART <- data.frame("testID" = seq_len(nrow(hd_test)),
                       "crisk2.bart_dart" = DART1.pred[, which(dart1$times == 5)],
                       "crisk.bart" = BART2.pred[, which(bart1$times == 5)])
 if (file.exists("/.dockerenv")){ # running in docker
-  write.csv(pred_BART, "/Predictions/pred_BART.csv", row.names = FALSE)
+  write.csv(pred_BART, "/Outputs/pred_BART.csv", row.names = FALSE)
 } else {
-  write.csv(pred_BART, "../Predictions/pred_BART.csv", row.names = FALSE)
+  write.csv(pred_BART, "../Outputs/pred_BART.csv", row.names = FALSE)
 }
 ```
 

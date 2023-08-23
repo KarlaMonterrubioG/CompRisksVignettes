@@ -33,95 +33,30 @@ knitr::opts_chunk$set(
 
 
 
-# Dataset
-
-In order to demonstrate the methods, we employ publicly available data. 
+# Introduction
 
 The dataset used here corresponds to the Hodgkin’s disease (HD) study described
-in @pintilie2006competing. The dataset comprises 865 patients diagnosed with 
-early stage (I or II) HD, and which were treated either with radiation (RT) or 
-with radiation and chemotherapy (CMT).
+in Pintilie, 2006. The data was loaded and pre-processed using the script that
+is sourced below. The latter creates three data objects:
 
-The recorded data includes:
+- `hd`: all the samples in the original data
+- `hd_train`: a random sample of the data to be used as a training set
+- `hd_test`: a random sample of the data to be used as a testing set
 
-* age: Age (years)
-* sex: Sex, F=female and M=Male.
-* trtgiven: Treatment given, RT=Radiation, CMT=Chemotherapy and radiation
-* medwidsi: Size of mediastinum involvement, N=No, S=Small, L=Large
-* extranod: Extranodal disease, Y=Extranodal disease, N= Nodal disease
-* clinstg: Clinical stage, 1=Stage I, 2=Stage II
-* time: time to failure (years) calculated from the date of diagnosis
-* status: 0=censoring, 1=relapse and 2=death.
-
-We now load and display the structure of the HD dataset:
-
-```{r, message=FALSE, warning=FALSE}
-library(readr)
-hd <- data.frame(read_csv("../Data/HD/hd.csv",
-                          col_types = cols(X1 = col_skip())))
-str(hd)
-```
-
-To proceed with the analysis, it is important to change the data type of sex,
-trtgiven, medwidsi, and extranod from character to factor. Similarly, we convert
-clinstg from numeric to factor.
+Details about data pre-processing steps can be found [here](https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/DataPreparation.Rmd)
 
 ```{r}
-hd$sex      <- as.factor(hd$sex)
-hd$trtgiven <- as.factor(hd$trtgiven)
-hd$medwidsi <- as.factor(hd$medwidsi)
-hd$extranod <- as.factor(hd$extranod)
-hd$clinstg  <- as.factor(hd$clinstg)
+source("../Aux/data_prep.R")
 ```
 
-Now, we explore the number of events for each event type:
-
-```{r, message=FALSE}
-require(pander)
-pander::pander(table(hd$status))
-```
-
-Thus, we have `r length(which(hd$status==0))` censored patients, 
-`r length(which(hd$status==1))` with relapse, and 
-`r length(which(hd$status==2))` who died. From
-now on, we assume that the event of interest is relapse, i.e. `status=1`.
-
-In order to create a test set, we use stratified sampling to partition our
-dataset into 80% for train and 20% for test.
-
-```{r}
-library(splitstackshape)
-set.seed(2022)
-split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
-hd_train   <- split_data$SAMP1[,-1]
-hd_test    <- split_data$SAMP2[,-1]
-```
-
-Now, we explore the number of observations per status in both train and test
-set:
-
-
-```{r}
-pander::pander(table(hd_train$status))
-```
-```{r}
-pander::pander(table(hd_test$status))
-```
+The following sections illustrate the usage of different methods that do not
+fall within a cause-specific hazards or CIF formulation.
 
 # Random survival forests
 
 The authors of random survival forests provide an online vignette 
 [here](https://www.randomforestsrc.org/articles/competing.html) 
-(@HemantCompeting). The method can be fitted using the `randomForestSRC` package. 
-Below we showcase how to do that.
-
-First, in order to fit the model, both, the train and test sets should be 
-converted to data.frames:
-
-```{r}
-hd_train <- as.data.frame(hd_train)
-hd_test <- as.data.frame(hd_test)
-```
+(@HemantCompeting). The method can be fitted using the `randomForestSRC` package. Below we showcase how to do that.
 
 As RSF permits, both, a cause-specific and a CIF formulation. The user should 
 first determine the type of analysis of interest, and pass it on the argument 
@@ -167,7 +102,6 @@ rsf.lr <- rfsrc(Surv(time, status) ~ age + sex + trtgiven +
                 importance = "random",   # other choices available, e.g. permute
                 save.memory= TRUE,       # useful for big datasets
                 seed = 100)
-
 ```
 
 Note that if missing values are present, it is possible to impute them by 
@@ -396,9 +330,9 @@ pred_Others <- data.frame(
   "RF_logrankCR" = test.lrCR$cif[,test.lrCR$time.interest==5,1],
   "RF_logrankCR.av" = test.lrCR.av$cif[,test.lrCR.av$time.interest==5,1])
 if (file.exists("/.dockerenv")){ # running in docker
-  write.csv(pred_Others, "/Predictions/pred_Others.csv", row.names = FALSE)
+  write.csv(pred_Others, "/Outputs/pred_Others.csv", row.names = FALSE)
 } else {
-  write.csv(pred_Others, "../Predictions/pred_Others.csv", row.names = FALSE)
+  write.csv(pred_Others, "../Outputs/pred_Others.csv", row.names = FALSE)
 }
 ```
 
