@@ -116,9 +116,11 @@ To do this, you can run:
 ``` bash
 docker container run \
   --mount type=bind,source="$(pwd)"/docs,target=/docs \
+  --mount type=bind,source="$(pwd)"/Aux,target=/Aux \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
-  --mount type=bind,source="$(pwd)"/Aux,target=/Aux \
+  --mount type=bind,source="$(pwd)"/Predictions,target=/Predictions \
+  --mount type=bind,source="$(pwd)"/Outputs,target=/Outputs \
   -e PASSWORD=password \
   -p 8787:8787 \
   ghcr.io/vallejosgroup/comprisksvignettes
@@ -137,9 +139,11 @@ To render the html reports, run
 ``` bash
 docker container run \
   --mount type=bind,source="$(pwd)"/docs,target=/docs \
+  --mount type=bind,source="$(pwd)"/Aux,target=/Aux \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
-  --mount type=bind,source="$(pwd)"/Aux,target=/Aux \
+  --mount type=bind,source="$(pwd)"/Predictions,target=/Predictions \
+  --mount type=bind,source="$(pwd)"/Outputs,target=/Outputs \
   ghcr.io/vallejosgroup/comprisksvignettes ./render
 ```
 

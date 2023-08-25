@@ -11,11 +11,11 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2023-07-25" />
+<meta name="date" content="2023-08-25" />
 
 <title>Other methods</title>
 
-<script src="Others_files/header-attrs-2.23/header-attrs.js"></script>
+<script src="Others_files/header-attrs-2.24/header-attrs.js"></script>
 <script src="Others_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="Others_files/bootstrap-3.3.5/css/simplex.min.css" rel="stylesheet" />
@@ -300,139 +300,33 @@ div.tocify {
 <h1 class="title toc-ignore">Other methods</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2023-07-25</h4>
+<h4 class="date">2023-08-25</h4>
 
 </div>
 
 
-<div id="dataset" class="section level1">
-<h1>Dataset</h1>
-<p>In order to demonstrate the methods, we employ publicly available
-data.</p>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
 <p>The dataset used here corresponds to the Hodgkin’s disease (HD) study
-described in <span class="citation">Pintilie (<a
-href="#ref-pintilie2006competing">2006</a>)</span>. The dataset
-comprises 865 patients diagnosed with early stage (I or II) HD, and
-which were treated either with radiation (RT) or with radiation and
-chemotherapy (CMT).</p>
-<p>The recorded data includes:</p>
+described in Pintilie, 2006. The data was loaded and pre-processed using
+the script that is sourced below. The latter creates three data
+objects:</p>
 <ul>
-<li>age: Age (years)</li>
-<li>sex: Sex, F=female and M=Male.</li>
-<li>trtgiven: Treatment given, RT=Radiation, CMT=Chemotherapy and
-radiation</li>
-<li>medwidsi: Size of mediastinum involvement, N=No, S=Small,
-L=Large</li>
-<li>extranod: Extranodal disease, Y=Extranodal disease, N= Nodal
-disease</li>
-<li>clinstg: Clinical stage, 1=Stage I, 2=Stage II</li>
-<li>time: time to failure (years) calculated from the date of
-diagnosis</li>
-<li>status: 0=censoring, 1=relapse and 2=death.</li>
+<li><code>hd</code>: all the samples in the original data</li>
+<li><code>hd_train</code>: a random sample of the data to be used as a
+training set</li>
+<li><code>hd_test</code>: a random sample of the data to be used as a
+testing set</li>
 </ul>
-<p>We now load and display the structure of the HD dataset:</p>
-<pre class="r"><code>library(readr)
-hd &lt;- data.frame(read_csv(&quot;../Data/HD/hd.csv&quot;,
-                          col_types = cols(X1 = col_skip())))
-str(hd)
-#&gt; &#39;data.frame&#39;:    865 obs. of  9 variables:
-#&gt;  $ ...1    : num  1 2 3 4 5 6 7 8 9 10 ...
-#&gt;  $ age     : num  64 63 17 63 21 37 41 35 27 32 ...
-#&gt;  $ sex     : chr  &quot;F&quot; &quot;M&quot; &quot;M&quot; &quot;M&quot; ...
-#&gt;  $ trtgiven: chr  &quot;RT&quot; &quot;RT&quot; &quot;RT&quot; &quot;RT&quot; ...
-#&gt;  $ medwidsi: chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
-#&gt;  $ extranod: chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
-#&gt;  $ clinstg : num  1 1 2 2 2 1 2 2 2 2 ...
-#&gt;  $ time    : num  3.1 15.9 0.9 13.1 35.9 1.1 2.5 0.003 4.1 28.1 ...
-#&gt;  $ status  : num  2 2 1 2 0 1 1 1 1 0 ...</code></pre>
-<p>To proceed with the analysis, it is important to change the data type
-of sex, trtgiven, medwidsi, and extranod from character to factor.
-Similarly, we convert clinstg from numeric to factor.</p>
-<pre class="r"><code>hd$sex      &lt;- as.factor(hd$sex)
-hd$trtgiven &lt;- as.factor(hd$trtgiven)
-hd$medwidsi &lt;- as.factor(hd$medwidsi)
-hd$extranod &lt;- as.factor(hd$extranod)
-hd$clinstg  &lt;- as.factor(hd$clinstg)</code></pre>
-<p>Now, we explore the number of events for each event type:</p>
-<pre class="r"><code>require(pander)
-pander::pander(table(hd$status))</code></pre>
-<table style="width:25%;">
-<colgroup>
-<col width="8%" />
-<col width="8%" />
-<col width="8%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">0</th>
-<th align="center">1</th>
-<th align="center">2</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">439</td>
-<td align="center">291</td>
-<td align="center">135</td>
-</tr>
-</tbody>
-</table>
-<p>Thus, we have 439 censored patients, 291 with relapse, and 135 who
-died. From now on, we assume that the event of interest is relapse,
-i.e. <code>status=1</code>.</p>
-<p>In order to create a test set, we use stratified sampling to
-partition our dataset into 80% for train and 20% for test.</p>
-<pre class="r"><code>library(splitstackshape)
-set.seed(2022)
-split_data &lt;- stratified(hd, c(&quot;status&quot;), 0.8, bothSets = TRUE)
-hd_train   &lt;- split_data$SAMP1[,-1]
-hd_test    &lt;- split_data$SAMP2[,-1]</code></pre>
-<p>Now, we explore the number of observations per status in both train
-and test set:</p>
-<pre class="r"><code>pander::pander(table(hd_train$status))</code></pre>
-<table style="width:25%;">
-<colgroup>
-<col width="8%" />
-<col width="8%" />
-<col width="8%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">0</th>
-<th align="center">1</th>
-<th align="center">2</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">351</td>
-<td align="center">233</td>
-<td align="center">108</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>pander::pander(table(hd_test$status))</code></pre>
-<table style="width:21%;">
-<colgroup>
-<col width="6%" />
-<col width="6%" />
-<col width="6%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">0</th>
-<th align="center">1</th>
-<th align="center">2</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">88</td>
-<td align="center">58</td>
-<td align="center">27</td>
-</tr>
-</tbody>
-</table>
+<p>Details about data pre-processing steps can be found <a
+href="https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/DataPreparation.Rmd">here</a></p>
+<pre class="r"><code>source(&quot;../Aux/data_prep.R&quot;)
+#&gt; The sourced script has been used to load and pre-process the data.
+#&gt; The latter converts appropriate variables into factors.
+#&gt; Additionally, we randomly split the data into training and testing sets, 
+#&gt; enabling us to evaluate out-of-sample predictive performance when comparing different approaches.</code></pre>
+<p>The following sections illustrate the usage of different methods that
+do not fall within a cause-specific hazards or CIF formulation.</p>
 </div>
 <div id="random-survival-forests" class="section level1">
 <h1>Random survival forests</h1>
@@ -442,10 +336,6 @@ href="https://www.randomforestsrc.org/articles/competing.html">here</a>
 href="#ref-HemantCompeting">2021</a>)</span>). The method can be fitted
 using the <code>randomForestSRC</code> package. Below we showcase how to
 do that.</p>
-<p>First, in order to fit the model, both, the train and test sets
-should be converted to data.frames:</p>
-<pre class="r"><code>hd_train &lt;- as.data.frame(hd_train)
-hd_test &lt;- as.data.frame(hd_test)</code></pre>
 <p>As RSF permits, both, a cause-specific and a CIF formulation. The
 user should first determine the type of analysis of interest, and pass
 it on the argument <code>splitrule</code> in the fitter function
@@ -495,6 +385,9 @@ with replacement.</p>
 #&gt; The following object is masked from &#39;package:Hmisc&#39;:
 #&gt; 
 #&gt;     impute
+#&gt; The following object is masked from &#39;package:purrr&#39;:
+#&gt; 
+#&gt;     partial
 
 rsf.lr &lt;- rfsrc(Surv(time, status) ~ age + sex + trtgiven + 
                   medwidsi + extranod + clinstg, 
@@ -537,7 +430,7 @@ out-of-bag ensemble for: CS cumulative hazard, the CIF, and the
 conditional probability, stratified by event type. In the plot below,
 the event of interest is shown in black.</p>
 <pre class="r"><code>plot.competing.risk(rsf.lr)</code></pre>
-<p><img src="Others_files/figure-html/unnamed-chunk-11-1.png" width="768" />
+<p><img src="Others_files/figure-html/unnamed-chunk-5-1.png" width="768" />
 The output of the <code>rfsrc()</code> is rich ans contains extensive
 information about the model fit. For example, we can obtain both,
 out-of-bag, estimates of the cause-specific cumulative hazard function
@@ -554,15 +447,15 @@ through <code>target</code>) at a given time point
               time = 5,
               surv.type = &quot;chf&quot;, 
               sorted = TRUE)</code></pre>
-<p><img src="Others_files/figure-html/unnamed-chunk-12-1.png" width="768" /></p>
+<p><img src="Others_files/figure-html/unnamed-chunk-6-1.png" width="768" /></p>
 <p>In order to do variable selection, a variable importance measure for
 the event of interest is shown below. The higher the value, the better.
 Negative values indicate no predictive ability.</p>
 <pre class="r"><code>rsf.lr$importance[,1]
 #&gt;           age           sex      trtgiven      medwidsi      extranod 
-#&gt;  0.0235668361  0.0027958071  0.0188645005 -0.0005434887 -0.0027084406 
+#&gt;  0.0263970205 -0.0013143184  0.0153313501 -0.0014772292 -0.0016092523 
 #&gt;       clinstg 
-#&gt;  0.0006262024</code></pre>
+#&gt;  0.0008298882</code></pre>
 <p>In addition, one can also use minimal depth variable selection. In
 this case, the smaller the value, the more predictive ability. The
 second column of the table below shows the results:</p>
@@ -593,12 +486,12 @@ second column of the table below shows the results:</p>
 #&gt; 
 #&gt; Top variables:
 #&gt;          depth vimp.event.1 vimp.event.2
-#&gt; age       0.74        0.024        0.201
-#&gt; medwidsi  1.56       -0.001        0.008
-#&gt; trtgiven  1.68        0.019       -0.009
-#&gt; extranod  2.65       -0.003       -0.009
-#&gt; clinstg   2.77        0.001       -0.008
-#&gt; sex       2.99        0.003        0.006
+#&gt; age       0.74        0.026        0.211
+#&gt; medwidsi  1.56       -0.001        0.006
+#&gt; trtgiven  1.68        0.015       -0.003
+#&gt; extranod  2.65       -0.002       -0.007
+#&gt; clinstg   2.77        0.001       -0.006
+#&gt; sex       2.99       -0.001        0.007
 #&gt; -----------------------------------------------------------
 
 pander::pander(var.mindepth$varselect)</code></pre>
@@ -621,38 +514,38 @@ pander::pander(var.mindepth$varselect)</code></pre>
 <tr class="odd">
 <td align="center"><strong>age</strong></td>
 <td align="center">0.74</td>
-<td align="center">0.02357</td>
-<td align="center">0.201</td>
+<td align="center">0.0264</td>
+<td align="center">0.2111</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>medwidsi</strong></td>
 <td align="center">1.56</td>
-<td align="center">-0.0005435</td>
-<td align="center">0.007964</td>
+<td align="center">-0.001477</td>
+<td align="center">0.006372</td>
 </tr>
 <tr class="odd">
 <td align="center"><strong>trtgiven</strong></td>
 <td align="center">1.68</td>
-<td align="center">0.01886</td>
-<td align="center">-0.00852</td>
+<td align="center">0.01533</td>
+<td align="center">-0.003032</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>extranod</strong></td>
 <td align="center">2.65</td>
-<td align="center">-0.002708</td>
-<td align="center">-0.008587</td>
+<td align="center">-0.001609</td>
+<td align="center">-0.007437</td>
 </tr>
 <tr class="odd">
 <td align="center"><strong>clinstg</strong></td>
 <td align="center">2.77</td>
-<td align="center">0.0006262</td>
-<td align="center">-0.007653</td>
+<td align="center">0.0008299</td>
+<td align="center">-0.005732</td>
 </tr>
 <tr class="even">
 <td align="center"><strong>sex</strong></td>
 <td align="center">2.99</td>
-<td align="center">0.002796</td>
-<td align="center">0.005913</td>
+<td align="center">-0.001314</td>
+<td align="center">0.00718</td>
 </tr>
 </tbody>
 </table>
@@ -707,21 +600,19 @@ print(rsf.lrCR)
 hazard, the CIF, and the conditional probability, stratified by event
 type. In the plot below, the event of interest is shown in black.</p>
 <pre class="r"><code>plot.competing.risk(rsf.lrCR)</code></pre>
-<p><img src="Others_files/figure-html/unnamed-chunk-17-1.png" width="768" /></p>
+<p><img src="Others_files/figure-html/unnamed-chunk-11-1.png" width="768" /></p>
 <p>In addition, we can visualize marginal effects according to the
 expected number of years lost due to the event specific cause.</p>
 <pre class="r"><code>plot.variable(rsf.lrCR, target = 1,
               surv.type = &quot;years.lost&quot;, 
               sorted = TRUE)</code></pre>
-<p><img src="Others_files/figure-html/unnamed-chunk-18-1.png" width="768" /></p>
+<p><img src="Others_files/figure-html/unnamed-chunk-12-1.png" width="768" /></p>
 <p>In order to do variable selection, as variable importance measure for
 the event of interest is shown below. The higher the value, the better.
 Negative values indicate no predictive ability.</p>
 <pre class="r"><code>rsf.lrCR$importance[,1]
-#&gt;           age           sex      trtgiven      medwidsi      extranod 
-#&gt;  0.0170858149 -0.0007612084  0.0110442457 -0.0045024446 -0.0033761305 
-#&gt;       clinstg 
-#&gt;  0.0025128498</code></pre>
+#&gt;          age          sex     trtgiven     medwidsi     extranod      clinstg 
+#&gt;  0.017550983 -0.001493761  0.013009972 -0.005943485 -0.001592419  0.002881475</code></pre>
 <p>In order to obtain predictions in the test set, we employ
 <code>predict()</code> function as shown below. A summary of the object
 is shown with the function <code>print()</code></p>
@@ -753,7 +644,7 @@ lines(test.lrCR$time.interest,  test.lrCR$cif[2,,1], #CIF.hat[2,],
       col=&quot;blue&quot;)
 legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&quot;),
        lty = c(1,1), col = c(&quot;red&quot;, &quot;blue&quot;))</code></pre>
-<p><img src="Others_files/figure-html/unnamed-chunk-21-1.png" width="576" /></p>
+<p><img src="Others_files/figure-html/unnamed-chunk-15-1.png" width="576" /></p>
 <p>Predicted CIF at <span class="math inline">\(t=5\)</span> for the
 first 5 subjects in the test set are shown:</p>
 <pre class="r"><code>test.lrCR$cif[1:5, test.lrCR$time.interest==5,1]
@@ -820,7 +711,7 @@ lines(test.lrCR.av$time.interest,  test.lrCR.av$cif[2,,1], #CIF.hat[2,],
       col=&quot;blue&quot;)
 legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&quot;),
        lty = c(1,1), col = c(&quot;red&quot;, &quot;blue&quot;))</code></pre>
-<p><img src="Others_files/figure-html/unnamed-chunk-25-1.png" width="576" />
+<p><img src="Others_files/figure-html/unnamed-chunk-19-1.png" width="576" />
 Finally, CIF estimates at <span class="math inline">\(t=5\)</span> for
 the first 5 subjects in the test set are shown:</p>
 <pre class="r"><code>test.lrCR.av$cif[1:5, test.lrCR.av$time.interest==5,1]
@@ -836,9 +727,9 @@ methods, we save the predictions obtained in this vignette.</p>
   &quot;RF_logrankCR&quot; = test.lrCR$cif[,test.lrCR$time.interest==5,1],
   &quot;RF_logrankCR.av&quot; = test.lrCR.av$cif[,test.lrCR.av$time.interest==5,1])
 if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
-  write.csv(pred_Others, &quot;/Predictions/pred_Others.csv&quot;, row.names = FALSE)
+  write.csv(pred_Others, &quot;/Outputs/pred_Others.csv&quot;, row.names = FALSE)
 } else {
-  write.csv(pred_Others, &quot;../Predictions/pred_Others.csv&quot;, row.names = FALSE)
+  write.csv(pred_Others, &quot;../Outputs/pred_Others.csv&quot;, row.names = FALSE)
 }</code></pre>
 </div>
 <div id="references" class="section level1">
@@ -850,10 +741,6 @@ Kogalur. 2021. <span>“<span class="nocase">randomForestSRC</span>:
 Competing Risks Vignette.”</span> <a
 href="http://randomforestsrc.org/articles/competing.html">http://randomforestsrc.org/articles/competing.html</a>.
 </div>
-<div id="ref-pintilie2006competing" class="csl-entry">
-Pintilie, Melania. 2006. <em>Competing Risks: A Practical
-Perspective</em>. John Wiley &amp; Sons.
-</div>
 </div>
 </div>
 <div id="session-info" class="section level1">
@@ -861,7 +748,7 @@ Perspective</em>. John Wiley &amp; Sons.
 <pre class="r"><code>sessionInfo()
 #&gt; R version 4.3.1 (2023-06-16)
 #&gt; Platform: aarch64-unknown-linux-gnu (64-bit)
-#&gt; Running under: Ubuntu 22.04.2 LTS
+#&gt; Running under: Ubuntu 22.04.3 LTS
 #&gt; 
 #&gt; Matrix products: default
 #&gt; BLAS:   /usr/lib/aarch64-linux-gnu/openblas-pthread/libblas.so.3 
@@ -885,52 +772,57 @@ Perspective</em>. John Wiley &amp; Sons.
 #&gt; other attached packages:
 #&gt;  [1] randomForestSRC_3.2.2     BART_2.9.4               
 #&gt;  [3] nlme_3.1-162              nnet_7.3-19              
-#&gt;  [5] mboost_2.9-7              stabs_0.6-4              
-#&gt;  [7] glmnet_4.1-7              Matrix_1.6-0             
-#&gt;  [9] pec_2023.04.12            rms_6.7-0                
-#&gt; [11] Hmisc_5.1-0               coda_0.19-4              
-#&gt; [13] DPWeibull_1.8             timereg_2.0.5            
-#&gt; [15] pseudo_1.4.3              geepack_1.3.9            
-#&gt; [17] KMsurv_0.1-5              riskRegression_2023.03.22
-#&gt; [19] prodlim_2023.03.31        cmprsk_2.2-11            
-#&gt; [21] survival_3.5-5            splitstackshape_1.4.8    
-#&gt; [23] pander_0.6.5              readr_2.1.4              
+#&gt;  [5] pander_0.6.5              mboost_2.9-7             
+#&gt;  [7] stabs_0.6-4               glmnet_4.1-8             
+#&gt;  [9] Matrix_1.6-1              pec_2023.04.12           
+#&gt; [11] rms_6.7-0                 Hmisc_5.1-0              
+#&gt; [13] patchwork_1.1.3           lubridate_1.9.2.9000     
+#&gt; [15] forcats_1.0.0             stringr_1.5.0            
+#&gt; [17] dplyr_1.1.2               purrr_1.0.2              
+#&gt; [19] tidyr_1.3.0               tibble_3.2.1             
+#&gt; [21] ggplot2_3.4.3             tidyverse_2.0.0          
+#&gt; [23] coda_0.19-4               DPWeibull_1.8            
+#&gt; [25] timereg_2.0.5             pseudo_1.4.3             
+#&gt; [27] geepack_1.3.9             KMsurv_0.1-5             
+#&gt; [29] riskRegression_2023.03.22 prodlim_2023.03.31       
+#&gt; [31] cmprsk_2.2-11             survival_3.5-5           
+#&gt; [33] splitstackshape_1.4.8     readr_2.1.4              
 #&gt; 
 #&gt; loaded via a namespace (and not attached):
-#&gt;   [1] gridExtra_2.3       sandwich_3.0-2      rlang_1.1.1        
-#&gt;   [4] magrittr_2.0.3      multcomp_1.4-25     polspline_1.1.23   
-#&gt;   [7] compiler_4.3.1      vctrs_0.6.3         quadprog_1.5-8     
-#&gt;  [10] quantreg_5.95       stringr_1.5.0       shape_1.4.6        
-#&gt;  [13] pkgconfig_2.0.3     crayon_1.5.2        fastmap_1.1.1      
-#&gt;  [16] ellipsis_0.3.2      backports_1.4.1     inum_1.0-5         
-#&gt;  [19] utf8_1.2.3          rmarkdown_2.23      tzdb_0.4.0         
-#&gt;  [22] MatrixModels_0.5-2  purrr_1.0.1         bit_4.0.5          
-#&gt;  [25] xfun_0.39           cachem_1.0.8        jsonlite_1.8.7     
-#&gt;  [28] highr_0.10          data.tree_1.0.0     broom_1.0.5        
-#&gt;  [31] cluster_2.1.4       R6_2.5.1            RColorBrewer_1.1-3 
-#&gt;  [34] bslib_0.5.0         stringi_1.7.12      parallelly_1.36.0  
-#&gt;  [37] rpart_4.1.19        jquerylib_0.1.4     numDeriv_2016.8-1.1
-#&gt;  [40] Rcpp_1.0.11         iterators_1.0.14    knitr_1.43         
-#&gt;  [43] future.apply_1.11.0 zoo_1.8-12          base64enc_0.1-3    
-#&gt;  [46] nnls_1.4            splines_4.3.1       tidyselect_1.2.0   
-#&gt;  [49] rstudioapi_0.15.0   yaml_2.3.7          partykit_1.2-20    
-#&gt;  [52] codetools_0.2-19    listenv_0.9.0       lattice_0.21-8     
-#&gt;  [55] tibble_3.2.1        withr_2.5.0         evaluate_0.21      
-#&gt;  [58] foreign_0.8-84      future_1.33.0       pillar_1.9.0       
-#&gt;  [61] DiagrammeR_1.0.10   checkmate_2.2.0     foreach_1.5.2      
-#&gt;  [64] stats4_4.3.1        generics_0.1.3      vroom_1.6.3        
-#&gt;  [67] hms_1.1.3           ggplot2_3.4.2       munsell_0.5.0      
-#&gt;  [70] scales_1.2.1        globals_0.16.2      binaryLogic_0.3.9  
-#&gt;  [73] glue_1.6.2          tools_4.3.1         data.table_1.14.8  
-#&gt;  [76] SparseM_1.81        visNetwork_2.1.2    mvtnorm_1.2-2      
-#&gt;  [79] grid_4.3.1          tidyr_1.3.0         libcoin_1.0-9      
-#&gt;  [82] truncdist_1.0-2     colorspace_2.1-0    htmlTable_2.4.1    
-#&gt;  [85] Formula_1.2-5       cli_3.6.1           evd_2.3-6.1        
-#&gt;  [88] fansi_1.0.4         lava_1.7.2.1        mets_1.3.2         
-#&gt;  [91] dplyr_1.1.2         gtable_0.3.3        sass_0.4.6         
-#&gt;  [94] digest_0.6.33       TH.data_1.1-2       htmlwidgets_1.6.2  
-#&gt;  [97] htmltools_0.5.5     lifecycle_1.0.3     bit64_4.0.5        
-#&gt; [100] MASS_7.3-60</code></pre>
+#&gt;   [1] RColorBrewer_1.1-3  libcoin_1.0-9       rstudioapi_0.15.0  
+#&gt;   [4] jsonlite_1.8.7      shape_1.4.6         magrittr_2.0.3     
+#&gt;   [7] TH.data_1.1-2       farver_2.1.1        rmarkdown_2.24     
+#&gt;  [10] ragg_1.2.5          vctrs_0.6.3         truncdist_1.0-2    
+#&gt;  [13] binaryLogic_0.3.9   base64enc_0.1-3     htmltools_0.5.6    
+#&gt;  [16] polspline_1.1.23    broom_1.0.5         Formula_1.2-5      
+#&gt;  [19] sass_0.4.7          parallelly_1.36.0   bslib_0.5.1        
+#&gt;  [22] htmlwidgets_1.6.2   sandwich_3.0-2      zoo_1.8-12         
+#&gt;  [25] cachem_1.0.8        lifecycle_1.0.3     iterators_1.0.14   
+#&gt;  [28] pkgconfig_2.0.3     R6_2.5.1            fastmap_1.1.1      
+#&gt;  [31] future_1.33.0       digest_0.6.33       numDeriv_2016.8-1.1
+#&gt;  [34] colorspace_2.1-0    textshaping_0.3.6   labeling_0.4.2     
+#&gt;  [37] fansi_1.0.4         timechange_0.2.0    nnls_1.4           
+#&gt;  [40] compiler_4.3.1      bit64_4.0.5         withr_2.5.0        
+#&gt;  [43] htmlTable_2.4.1     backports_1.4.1     highr_0.10         
+#&gt;  [46] MASS_7.3-60         lava_1.7.2.1        quantreg_5.97      
+#&gt;  [49] tools_4.3.1         foreign_0.8-84      future.apply_1.11.0
+#&gt;  [52] glue_1.6.2          quadprog_1.5-8      DiagrammeR_1.0.10  
+#&gt;  [55] mets_1.3.2          inum_1.0-5          grid_4.3.1         
+#&gt;  [58] checkmate_2.2.0     cluster_2.1.4       generics_0.1.3     
+#&gt;  [61] gtable_0.3.4        tzdb_0.4.0          data.table_1.14.8  
+#&gt;  [64] hms_1.1.3           utf8_1.2.3          foreach_1.5.2      
+#&gt;  [67] pillar_1.9.0        vroom_1.6.3         partykit_1.2-20    
+#&gt;  [70] splines_4.3.1       lattice_0.21-8      bit_4.0.5          
+#&gt;  [73] SparseM_1.81        tidyselect_1.2.0    knitr_1.43         
+#&gt;  [76] gridExtra_2.3       stats4_4.3.1        xfun_0.40          
+#&gt;  [79] visNetwork_2.1.2    stringi_1.7.12      yaml_2.3.7         
+#&gt;  [82] evaluate_0.21       codetools_0.2-19    data.tree_1.0.0    
+#&gt;  [85] evd_2.3-6.1         cli_3.6.1           rpart_4.1.19       
+#&gt;  [88] systemfonts_1.0.4   munsell_0.5.0       jquerylib_0.1.4    
+#&gt;  [91] Rcpp_1.0.11         globals_0.16.2      ellipsis_0.3.2     
+#&gt;  [94] MatrixModels_0.5-2  listenv_0.9.0       mvtnorm_1.2-2      
+#&gt;  [97] scales_1.2.1        crayon_1.5.2        rlang_1.1.1        
+#&gt; [100] multcomp_1.4-25</code></pre>
 </div>
 
 
