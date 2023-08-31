@@ -525,8 +525,10 @@ df_long <- df %>%
                names_sep = "_")
 ```
 
+The following code was used to create Figure 1B:
 
 ```{r}
+# coloured version
 library(ggplot2)
 library(patchwork)
 
@@ -559,6 +561,41 @@ if (file.exists("/.dockerenv")){ # running in docker
   ggsave("/Outputs/Comparison_estimation_CIF.pdf", device = "pdf")
 } else {
   ggsave("../Outputs/Comparison_estimation_CIF.pdf", device = "pdf")
+}
+```
+
+```{r}
+# black and white
+
+p_all <- ggplot(df_long, aes(x = variable, y = est, pch = Method)) +
+  geom_point(cex = 2.5, position = position_dodge(width=0.4)) +
+  geom_errorbar(aes(ymin = est - se, ymax = est + se), 
+                width=.1, position = position_dodge(width=0.4)) +
+  geom_hline(yintercept = 0, lty = 2, colour = "gray") +
+  theme_classic() +
+  ylab("Estimate") + xlab("Coefficient") +
+  scale_shape_manual(values = c(16, 15, 17), 
+                     labels = c('Fine & Gray', 'Pseudo values', 'Direct binomial')) 
+
+p_age <- ggplot(df_long[df_long$variable == "age",], 
+                aes(x = variable, y = est, pch = Method)) +
+  geom_point(cex = 2.5, position = position_dodge(width=0.6)) +
+  geom_errorbar(aes(ymin = est - se, ymax = est + se), 
+                width=.1, position = position_dodge(width=0.6)) +
+  theme_classic() +
+  ylab("Estimate") + xlab("Coefficient") +
+  scale_shape_manual(values = c(16, 15, 17), 
+                     labels = c('Fine & Gray', 'Pseudo values', 'Direct binomial'))  +
+  theme(legend.position="none", 
+        axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.background = element_rect(colour = "black", fill=NA, size=0.6))
+
+p_all + inset_element(p_age, left = 0.004, bottom = 0.6, right = 0.19, top = 1)
+
+if (file.exists("/.dockerenv")){ # running in docker
+  ggsave("/Outputs/Comparison_estimation_CIF_BW.pdf", device = "pdf")
+} else {
+  ggsave("../Outputs/Comparison_estimation_CIF_BW.pdf", device = "pdf")
 }
 ```
 

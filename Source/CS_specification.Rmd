@@ -393,7 +393,7 @@ Hence, choosing `lambda.min` may not be appropriate. An alternative, more
 parsimonious, choice can be selected by using `lambda.1se` [@hastie2009elements]. 
 In such case, `lambda.1se` represents the highest value of $\lambda$ (i.e. the 
 strongest regularisation) such that the chosen performance metric (C-index here) 
-is within 1 standard deviation of the one associated to `lambda.1se`. In this 
+is within 1 standard deviation of the one associated to `lambda.min`. In this 
 example, the selected model only contains 3 covariates (`age`, `trtgiven` and
 `medwidsi`):
 
@@ -538,10 +538,10 @@ df$variable <- rownames(df)
 ```
 
 
-
-
+The following code was used to create Figure 1A:
 
 ```{r}
+# colour version
 library(ggplot2)
 library(patchwork)
 
@@ -579,6 +579,46 @@ if (file.exists("/.dockerenv")){ # running in docker
   ggsave("/Outputs/Comparison_estimation_CSH.pdf", device = "pdf")
 } else {
   ggsave("../Outputs/Comparison_estimation_CSH.pdf", device = "pdf")
+}
+```
+
+```{r}
+# black and white
+
+p_all <- ggplot(df, aes(x=variable, y=cox, pch = "Cox")) + 
+  geom_errorbar(aes(ymin = cox - cox_se, ymax = cox + cox_se), width=.1) +
+  geom_point(cex = 2.5) + 
+  geom_point(aes(x = variable, y = lasso_min, pch = "lasso_min"), cex = 2.5) +
+  geom_point(aes(x = variable, y = lasso_1se, pch =  "lasso_1se"), cex = 2.5) +
+  geom_point(aes(x = variable, y = mboost_stopb, pch =  "mboost_min"), cex = 2.5) + 
+  geom_point(aes(x = variable, y = mboost_250, pch = "mboost_other"), cex = 2.5) +
+  geom_hline(yintercept = 0, lty = 2, colour = "gray") +
+  theme_classic() +
+  ylab("Estimate") + xlab("Coefficient") +
+  labs(pch="Method") +
+  scale_shape_manual(values = c(16, 15, 17, 1, 2)) 
+
+p_age <- ggplot(df[df$variable == "age",], aes(x=variable, y=cox, pch = "Cox")) + 
+  geom_errorbar(aes(ymin = cox - cox_se, ymax = cox + cox_se), width=.1) +
+  geom_point(cex = 2.5) + 
+  geom_point(aes(x = variable, y = lasso_min, pch = "lasso_min"), cex = 2.5) +
+  geom_point(aes(x = variable, y = lasso_1se, pch = "lasso_1se"), cex = 2.5) +
+  geom_point(aes(x = variable, y = mboost_stopb, pch = "mboost_min"), cex = 2.5) + 
+  geom_point(aes(x = variable, y = mboost_250, pch = "mboost_other"), cex = 2.5) +
+  theme_classic() +
+  ylab("Estimate") + xlab("Coefficient") +
+  labs(pch="Method") +
+  theme(legend.position="none", 
+        axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.background = element_rect(colour = "black", fill=NA, size=0.6)) +
+  scale_shape_manual(values = c(16, 15, 17, 1, 2)) 
+
+p_all + inset_element(p_age, left = 0.01, bottom = 0.6, right = 0.2, top = 1)
+
+if (file.exists("/.dockerenv")){ # running in docker
+  ggsave("/Outputs/Comparison_estimation_CSH_BW.pdf", device = "pdf")
+} else {
+  ggsave("../Outputs/Comparison_estimation_CSH_BW.pdf", device = "pdf")
 }
 ```
 

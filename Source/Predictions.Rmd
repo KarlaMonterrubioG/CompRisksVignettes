@@ -84,13 +84,15 @@ BART, under its second formulation, also led to similar predictions. RF
 exhibited the greatest discrepancy with respect to such methods above.
 Note that for the different BART approaches and DPWeibull, predicted probabilities may be affected by lack of convergence of the algorithm. 
 
+The following code was used to create Figure 2:
+
 ```{r, fig.width=12, fig.height=12}
 library(GGally)
 
 # Code to control axis limits was adapted from: https://stackoverflow.com/questions/53277656/how-to-define-facet-axis-limits-in-ggpairs-function
 scatter_limitRange <- function(data, mapping, ...) { 
   ggplot(data = data, mapping = mapping, ...) + 
-    geom_point(..., col = "#1A5276", alpha = 0.5) + 
+    geom_point(..., col = "gray", alpha = 0.5) + 
     geom_abline(intercept = 0, slope = 1) +
     scale_x_continuous(limits = c(min(pred_all[,-1]), max(pred_all[,-1]))) +
     scale_y_continuous(limits = c(min(pred_all[,-1]), max(pred_all[,-1]))) +
@@ -98,7 +100,7 @@ scatter_limitRange <- function(data, mapping, ...) {
 }
 dens_limitRange <- function(data, mapping, ...) {
   ggplot(data = data, mapping = mapping, ...) + 
-    geom_density(..., col = "#1A5276", fill = "#1A5276") + 
+    geom_density(..., col = "gray", fill = "gray") + 
     scale_x_continuous(limits = c(min(pred_all[,-1]), max(pred_all[,-1]))) +
     theme_classic()
 }

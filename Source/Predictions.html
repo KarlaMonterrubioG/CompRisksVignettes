@@ -11,7 +11,7 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2023-08-23" />
+<meta name="date" content="2023-08-31" />
 
 <title>Comparison of predictions</title>
 
@@ -296,13 +296,16 @@ div.tocify {
 <h1 class="title toc-ignore">Comparison of predictions</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2023-08-23</h4>
+<h4 class="date">2023-08-31</h4>
 
 </div>
 
 
-<div id="loading-predictions" class="section level1">
-<h1>Loading predictions</h1>
+<div id="comparing-predictions-at-t5" class="section level1">
+<h1>Comparing predictions at <span
+class="math inline">\(t=5\)</span></h1>
+<div id="loading-the-predictions" class="section level2">
+<h2>Loading the predictions</h2>
 <p>Here, we load the predicted probabilities of observing an event of
 type 1 by <span class="math inline">\(t=5\)</span> that were obtained by
 different methods</p>
@@ -356,21 +359,22 @@ formulation) that enables feature selection</li>
 <li><code>crisk.bart</code>: BART using its second formulation</li>
 </ul>
 </div>
-<div id="comparing-predictions-at-t5" class="section level1">
-<h1>Comparing predictions at <span
-class="math inline">\(t=5\)</span></h1>
+<div id="pairwise-comparison" class="section level2">
+<h2>Pairwise comparison</h2>
 <p>As shown below, all methods led to correlated predictions. The
-greatest similarity was between the classical approaches:</p>
-<p>similarity between methods based on the CIF specification (Fine and
-Gray regression, direct binomial and DPWeibull). The three BART
-variations also led to similar predictions (discrepancies may be due to
-lack of convergence).</p>
+greatest similarity was between the classical approaches (CS Cox,
+F&amp;G, Direct binomial). BART, under its second formulation, also led
+to similar predictions. RF exhibited the greatest discrepancy with
+respect to such methods above. Note that for the different BART
+approaches and DPWeibull, predicted probabilities may be affected by
+lack of convergence of the algorithm.</p>
+<p>The following code was used to create Figure 2:</p>
 <pre class="r"><code>library(GGally)
 
 # Code to control axis limits was adapted from: https://stackoverflow.com/questions/53277656/how-to-define-facet-axis-limits-in-ggpairs-function
 scatter_limitRange &lt;- function(data, mapping, ...) { 
   ggplot(data = data, mapping = mapping, ...) + 
-    geom_point(..., col = &quot;#1A5276&quot;, alpha = 0.5) + 
+    geom_point(..., col = &quot;gray&quot;, alpha = 0.5) + 
     geom_abline(intercept = 0, slope = 1) +
     scale_x_continuous(limits = c(min(pred_all[,-1]), max(pred_all[,-1]))) +
     scale_y_continuous(limits = c(min(pred_all[,-1]), max(pred_all[,-1]))) +
@@ -378,7 +382,7 @@ scatter_limitRange &lt;- function(data, mapping, ...) {
 }
 dens_limitRange &lt;- function(data, mapping, ...) {
   ggplot(data = data, mapping = mapping, ...) + 
-    geom_density(..., col = &quot;#1A5276&quot;, fill = &quot;#1A5276&quot;) + 
+    geom_density(..., col = &quot;gray&quot;, fill = &quot;gray&quot;) + 
     scale_x_continuous(limits = c(min(pred_all[,-1]), max(pred_all[,-1]))) +
     theme_classic()
 }
@@ -403,6 +407,7 @@ if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
 follow the examples provided by <a
 href="https://github.com/survival-lumc/ValidationCompRisks">van Geloven
 et al</a>.</p>
+</div>
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>

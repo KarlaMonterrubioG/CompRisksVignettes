@@ -11,7 +11,7 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2023-08-23" />
+<meta name="date" content="2023-08-31" />
 
 <title>Approaches based on a proportional cause-specific hazard specification</title>
 
@@ -297,7 +297,7 @@ div.tocify {
 cause-specific hazard specification</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2023-08-23</h4>
+<h4 class="date">2023-08-31</h4>
 
 </div>
 
@@ -1217,12 +1217,9 @@ round(df, 2)
 #&gt; extranodY   0.33   0.24      0.29      0.00         0.19       0.17
 #&gt; clinstg2    0.37   0.16      0.34      0.00         0.21       0.18
 df$variable &lt;- rownames(df)</code></pre>
-<pre class="r"><code>library(ggplot2)
-#&gt; 
-#&gt; Attaching package: &#39;ggplot2&#39;
-#&gt; The following object is masked from &#39;package:mboost&#39;:
-#&gt; 
-#&gt;     %+%
+<p>The following code was used to create Figure 1A:</p>
+<pre class="r"><code># colour version
+library(ggplot2)
 library(patchwork)
 
 p_all &lt;- ggplot(df, aes(x=variable, y=cox, col = &quot;Cox&quot;)) + 
@@ -1265,6 +1262,52 @@ if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
   ggsave(&quot;/Outputs/Comparison_estimation_CSH.pdf&quot;, device = &quot;pdf&quot;)
 } else {
   ggsave(&quot;../Outputs/Comparison_estimation_CSH.pdf&quot;, device = &quot;pdf&quot;)
+}
+#&gt; Saving 7 x 5 in image
+#&gt; Warning: &#39;mode(bg)&#39; differs between new and previous
+#&gt;   ==&gt; NOT changing &#39;bg&#39;</code></pre>
+<pre class="r"><code># black and white
+
+p_all &lt;- ggplot(df, aes(x=variable, y=cox, pch = &quot;Cox&quot;)) + 
+  geom_errorbar(aes(ymin = cox - cox_se, ymax = cox + cox_se), width=.1) +
+  geom_point(cex = 2.5) + 
+  geom_point(aes(x = variable, y = lasso_min, pch = &quot;lasso_min&quot;), cex = 2.5) +
+  geom_point(aes(x = variable, y = lasso_1se, pch =  &quot;lasso_1se&quot;), cex = 2.5) +
+  geom_point(aes(x = variable, y = mboost_stopb, pch =  &quot;mboost_min&quot;), cex = 2.5) + 
+  geom_point(aes(x = variable, y = mboost_250, pch = &quot;mboost_other&quot;), cex = 2.5) +
+  geom_hline(yintercept = 0, lty = 2, colour = &quot;gray&quot;) +
+  theme_classic() +
+  ylab(&quot;Estimate&quot;) + xlab(&quot;Coefficient&quot;) +
+  labs(pch=&quot;Method&quot;) +
+  scale_shape_manual(values = c(16, 15, 17, 1, 2)) 
+
+p_age &lt;- ggplot(df[df$variable == &quot;age&quot;,], aes(x=variable, y=cox, pch = &quot;Cox&quot;)) + 
+  geom_errorbar(aes(ymin = cox - cox_se, ymax = cox + cox_se), width=.1) +
+  geom_point(cex = 2.5) + 
+  geom_point(aes(x = variable, y = lasso_min, pch = &quot;lasso_min&quot;), cex = 2.5) +
+  geom_point(aes(x = variable, y = lasso_1se, pch = &quot;lasso_1se&quot;), cex = 2.5) +
+  geom_point(aes(x = variable, y = mboost_stopb, pch = &quot;mboost_min&quot;), cex = 2.5) + 
+  geom_point(aes(x = variable, y = mboost_250, pch = &quot;mboost_other&quot;), cex = 2.5) +
+  theme_classic() +
+  ylab(&quot;Estimate&quot;) + xlab(&quot;Coefficient&quot;) +
+  labs(pch=&quot;Method&quot;) +
+  theme(legend.position=&quot;none&quot;, 
+        axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.background = element_rect(colour = &quot;black&quot;, fill=NA, size=0.6)) +
+  scale_shape_manual(values = c(16, 15, 17, 1, 2)) 
+#&gt; Warning: The `size` argument of `element_rect()` is deprecated as of ggplot2 3.4.0.
+#&gt; ℹ Please use the `linewidth` argument instead.
+#&gt; This warning is displayed once every 8 hours.
+#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#&gt; generated.
+
+p_all + inset_element(p_age, left = 0.01, bottom = 0.6, right = 0.2, top = 1)</code></pre>
+<p><img src="CS_specification_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
+<pre class="r"><code>
+if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
+  ggsave(&quot;/Outputs/Comparison_estimation_CSH_BW.pdf&quot;, device = &quot;pdf&quot;)
+} else {
+  ggsave(&quot;../Outputs/Comparison_estimation_CSH_BW.pdf&quot;, device = &quot;pdf&quot;)
 }
 #&gt; Saving 7 x 5 in image
 #&gt; Warning: &#39;mode(bg)&#39; differs between new and previous
@@ -1343,34 +1386,33 @@ Medicine</em> 12 (24): 2305–14.
 #&gt;  [4] magrittr_2.0.3      multcomp_1.4-25     polspline_1.1.23   
 #&gt;  [7] compiler_4.3.0      systemfonts_1.0.4   vctrs_0.6.3        
 #&gt; [10] quantreg_5.96       quadprog_1.5-8      stringr_1.5.0      
-#&gt; [13] pkgconfig_2.0.3     shape_1.4.6         crayon_1.5.2       
-#&gt; [16] fastmap_1.1.1       backports_1.4.1     labeling_0.4.2     
-#&gt; [19] inum_1.0-5          utf8_1.2.3          rmarkdown_2.23     
+#&gt; [13] crayon_1.5.2        pkgconfig_2.0.3     shape_1.4.6        
+#&gt; [16] fastmap_1.1.1       backports_1.4.1     inum_1.0-5         
+#&gt; [19] labeling_0.4.2      utf8_1.2.3          rmarkdown_2.23     
 #&gt; [22] tzdb_0.4.0          ragg_1.2.5          MatrixModels_0.5-2 
-#&gt; [25] bit_4.0.5           xfun_0.39           cachem_1.0.8       
-#&gt; [28] jsonlite_1.8.7      highr_0.10          timereg_2.0.5      
-#&gt; [31] cluster_2.1.4       R6_2.5.1            bslib_0.5.0        
-#&gt; [34] stringi_1.7.12      parallelly_1.36.0   rpart_4.1.19       
-#&gt; [37] jquerylib_0.1.4     numDeriv_2016.8-1.1 Rcpp_1.0.11        
-#&gt; [40] iterators_1.0.14    knitr_1.43          future.apply_1.11.0
-#&gt; [43] zoo_1.8-12          base64enc_0.1-3     splines_4.3.0      
-#&gt; [46] nnls_1.4            nnet_7.3-18         tidyselect_1.2.0   
-#&gt; [49] rstudioapi_0.15.0   yaml_2.3.7          partykit_1.2-20    
-#&gt; [52] codetools_0.2-19    listenv_0.9.0       lattice_0.21-8     
-#&gt; [55] tibble_3.2.1        withr_2.5.0         evaluate_0.21      
-#&gt; [58] foreign_0.8-84      future_1.33.0       pillar_1.9.0       
-#&gt; [61] checkmate_2.2.0     foreach_1.5.2       generics_0.1.3     
-#&gt; [64] vroom_1.6.3         hms_1.1.3           munsell_0.5.0      
-#&gt; [67] scales_1.2.1        globals_0.16.2      glue_1.6.2         
-#&gt; [70] tools_4.3.0         data.table_1.14.8   SparseM_1.81       
-#&gt; [73] mvtnorm_1.2-2       grid_4.3.0          libcoin_1.0-9      
-#&gt; [76] colorspace_2.1-0    nlme_3.1-162        htmlTable_2.4.1    
-#&gt; [79] Formula_1.2-5       cli_3.6.1           textshaping_0.3.6  
-#&gt; [82] fansi_1.0.4         lava_1.7.2.1        mets_1.3.2         
-#&gt; [85] dplyr_1.1.2         gtable_0.3.3        sass_0.4.7         
-#&gt; [88] digest_0.6.33       TH.data_1.1-2       farver_2.1.1       
-#&gt; [91] htmlwidgets_1.6.2   htmltools_0.5.5     cmprsk_2.2-11      
-#&gt; [94] lifecycle_1.0.3     bit64_4.0.5         MASS_7.3-58.4</code></pre>
+#&gt; [25] xfun_0.39           cachem_1.0.8        jsonlite_1.8.7     
+#&gt; [28] highr_0.10          timereg_2.0.5       cluster_2.1.4      
+#&gt; [31] R6_2.5.1            bslib_0.5.0         stringi_1.7.12     
+#&gt; [34] parallelly_1.36.0   rpart_4.1.19        jquerylib_0.1.4    
+#&gt; [37] numDeriv_2016.8-1.1 Rcpp_1.0.11         iterators_1.0.14   
+#&gt; [40] knitr_1.43          future.apply_1.11.0 zoo_1.8-12         
+#&gt; [43] base64enc_0.1-3     splines_4.3.0       nnls_1.4           
+#&gt; [46] nnet_7.3-18         tidyselect_1.2.0    rstudioapi_0.15.0  
+#&gt; [49] yaml_2.3.7          partykit_1.2-20     codetools_0.2-19   
+#&gt; [52] listenv_0.9.0       lattice_0.21-8      tibble_3.2.1       
+#&gt; [55] withr_2.5.0         evaluate_0.21       foreign_0.8-84     
+#&gt; [58] future_1.33.0       pillar_1.9.0        checkmate_2.2.0    
+#&gt; [61] foreach_1.5.2       generics_0.1.3      hms_1.1.3          
+#&gt; [64] munsell_0.5.0       scales_1.2.1        globals_0.16.2     
+#&gt; [67] glue_1.6.2          tools_4.3.0         data.table_1.14.8  
+#&gt; [70] SparseM_1.81        mvtnorm_1.2-2       grid_4.3.0         
+#&gt; [73] libcoin_1.0-9       colorspace_2.1-0    nlme_3.1-162       
+#&gt; [76] htmlTable_2.4.1     Formula_1.2-5       cli_3.6.1          
+#&gt; [79] textshaping_0.3.6   fansi_1.0.4         lava_1.7.2.1       
+#&gt; [82] mets_1.3.2          dplyr_1.1.2         gtable_0.3.3       
+#&gt; [85] sass_0.4.7          digest_0.6.33       TH.data_1.1-2      
+#&gt; [88] htmlwidgets_1.6.2   farver_2.1.1        htmltools_0.5.5    
+#&gt; [91] cmprsk_2.2-11       lifecycle_1.0.3     MASS_7.3-58.4</code></pre>
 </div>
 
 
