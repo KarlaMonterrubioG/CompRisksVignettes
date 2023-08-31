@@ -123,7 +123,13 @@ pander::pander(table(hd_train$status))
 pander::pander(table(hd_test$status))
 ```
 
-To
+The following code is used to create the summary presented in Table 3:
+
+```{r Table3}
+library(table1)
+table1(~ age + sex + trtgiven + medwidsi + extranod + clinstg | 
+         factor(status), data = hd)
+```
 
 # References
 
