@@ -6,25 +6,31 @@ LABEL "org.opencontainers.image.source"="https://github.com/vallejosgroup/CompRi
     "org.opencontainers.image.description"="Docker image for the CompRisksVignettes repository" \
     "org.opencontainers.image.vendor"="University of Edinburgh"
 
+RUN apt clean
+
 RUN apt-get update -qq && apt-get -y --no-install-recommends install \
   # Install XML2
   libxml2-dev  \
   # Install the Cairo graphics library
   libcairo2-dev \
+  # Install SQL libraries
   libsqlite-dev \
   libmariadb-dev \
   libpq-dev \
+  # Install SSH libraries
   libssh2-1-dev \
+  # Install ODBC libraries
   unixodbc-dev \
+  # Install Cyrus SASL libraries
   libsasl2-dev \
   libgsl0-dev \
   # Needed for curl
   libcurl4-openssl-dev \
-  # Open SSL
+  # Install open SSL
   libssl-dev \
-  # Image Magick
+  # Install image magick
   libmagick++-dev \
-  # Rust
+  # Install rust
   cargo \
   # Needed for gifski
   libharfbuzz-dev \
@@ -34,6 +40,8 @@ RUN apt-get update -qq && apt-get -y --no-install-recommends install \
   pandoc-citeproc \
   libgit2-dev \
   cmake \
+  # Install java
+  default-jdk \
   # Remove unneeded files to decrease image size
   && rm -rf /var/lib/apt/lists/*
 
@@ -99,7 +107,10 @@ RUN install2.r --error \
     nnet \
     randomForestSRC \
     splitstackshape \
-    RcppProgress
+    RcppProgress \
+    tidyverse \
+    patchwork \
+    GGally
 
 
 RUN install2.r --error \
@@ -117,6 +128,7 @@ RUN rm -rf /tmp/downloaded_packages \
 
 RUN mkdir docs
 RUN mkdir Source
+RUN mkdir Outputs
 
 WORKDIR /
 COPY Docker /

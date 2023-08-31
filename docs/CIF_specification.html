@@ -11,11 +11,11 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2023-07-25" />
+<meta name="date" content="2023-08-25" />
 
 <title>Approaches based on CIF specification</title>
 
-<script src="CIF_specification_files/header-attrs-2.23/header-attrs.js"></script>
+<script src="CIF_specification_files/header-attrs-2.24/header-attrs.js"></script>
 <script src="CIF_specification_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="CIF_specification_files/bootstrap-3.3.5/css/simplex.min.css" rel="stylesheet" />
@@ -296,140 +296,35 @@ div.tocify {
 <h1 class="title toc-ignore">Approaches based on CIF specification</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2023-07-25</h4>
+<h4 class="date">2023-08-25</h4>
 
 </div>
 
 
-<div id="dataset" class="section level1">
-<h1>Dataset</h1>
-<p>In order to demonstrate the methods, we employ publicly available
-data.</p>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
 <p>The dataset used here corresponds to the Hodgkin’s disease (HD) study
-described in <span class="citation">Pintilie (<a
-href="#ref-pintilie2006competing">2006</a>)</span>. The dataset
-comprises 865 patients diagnosed with early stage (I or II) HD, and
-which were treated either with radiation (RT) or with radiation and
-chemotherapy (CMT).</p>
-<p>The recorded data includes:</p>
+described in Pintilie, 2006. The data was loaded and pre-processed using
+the script that is sourced below. The latter creates three data
+objects:</p>
 <ul>
-<li>age: Age (years)</li>
-<li>sex: Sex, F=female and M=Male.</li>
-<li>trtgiven: Treatment given, RT=Radiation, CMT=Chemotherapy and
-radiation</li>
-<li>medwidsi: Size of mediastinum involvement, N=No, S=Small,
-L=Large</li>
-<li>extranod: Extranodal disease, Y=Extranodal disease, N= Nodal
-disease</li>
-<li>clinstg: Clinical stage, 1=Stage I, 2=Stage II</li>
-<li>time: time to failure (years) calculated from the date of
-diagnosis</li>
-<li>status: 0=censoring, 1=relapse and 2=death.</li>
+<li><code>hd</code>: all the samples in the original data</li>
+<li><code>hd_train</code>: a random sample of the data to be used as a
+training set</li>
+<li><code>hd_test</code>: a random sample of the data to be used as a
+testing set</li>
 </ul>
-<p>We now load and display the structure of the HD dataset:</p>
-<pre class="r"><code>library(readr)
-hd &lt;- data.frame(read_csv(&quot;../Data/HD/hd.csv&quot;,
-                          col_types = cols(X1 = col_skip())))
-str(hd)
-#&gt; &#39;data.frame&#39;:    865 obs. of  9 variables:
-#&gt;  $ ...1    : num  1 2 3 4 5 6 7 8 9 10 ...
-#&gt;  $ age     : num  64 63 17 63 21 37 41 35 27 32 ...
-#&gt;  $ sex     : chr  &quot;F&quot; &quot;M&quot; &quot;M&quot; &quot;M&quot; ...
-#&gt;  $ trtgiven: chr  &quot;RT&quot; &quot;RT&quot; &quot;RT&quot; &quot;RT&quot; ...
-#&gt;  $ medwidsi: chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
-#&gt;  $ extranod: chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
-#&gt;  $ clinstg : num  1 1 2 2 2 1 2 2 2 2 ...
-#&gt;  $ time    : num  3.1 15.9 0.9 13.1 35.9 1.1 2.5 0.003 4.1 28.1 ...
-#&gt;  $ status  : num  2 2 1 2 0 1 1 1 1 0 ...</code></pre>
-<p>To proceed with the analysis, it is important to change the data type
-of sex, trtgiven, medwidsi, and extranod from character to factor.
-Similarly, we convert clinstg from numeric to factor.</p>
-<pre class="r"><code>hd$sex      &lt;- as.factor(hd$sex)
-hd$trtgiven &lt;- as.factor(hd$trtgiven)
-hd$medwidsi &lt;- as.factor(hd$medwidsi)
-hd$extranod &lt;- as.factor(hd$extranod)
-hd$clinstg  &lt;- as.factor(hd$clinstg)</code></pre>
-<p>Now, we explore the number of events for each event type:</p>
-<pre class="r"><code>require(pander)
-pander::pander(table(hd$status))</code></pre>
-<table style="width:25%;">
-<colgroup>
-<col width="8%" />
-<col width="8%" />
-<col width="8%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">0</th>
-<th align="center">1</th>
-<th align="center">2</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">439</td>
-<td align="center">291</td>
-<td align="center">135</td>
-</tr>
-</tbody>
-</table>
-<p>Thus, we have 439 censored patients,
-<code>r</code>length(which(hd$status==1))` with relapse, and 135 who
-died. From now on, we assume that the event of interest is relapse,
-i.e. status=1.</p>
-<p>In order to create a test set, we use stratified sampling to
-partition our dataset into 80% for train and 20% for test.</p>
-<pre class="r"><code>library(splitstackshape)
-set.seed(2022)
-split_data &lt;- stratified(hd, c(&quot;status&quot;), 0.8, bothSets = TRUE)
-hd_train   &lt;- split_data$SAMP1[,-1]
-hd_test    &lt;- split_data$SAMP2[,-1]</code></pre>
-<p>Now, we explore the number of observations per status in both train
-and test set:</p>
-<pre class="r"><code>pander::pander(table(hd_train$status))</code></pre>
-<table style="width:25%;">
-<colgroup>
-<col width="8%" />
-<col width="8%" />
-<col width="8%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">0</th>
-<th align="center">1</th>
-<th align="center">2</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">351</td>
-<td align="center">233</td>
-<td align="center">108</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>pander::pander(table(hd_test$status))</code></pre>
-<table style="width:21%;">
-<colgroup>
-<col width="6%" />
-<col width="6%" />
-<col width="6%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">0</th>
-<th align="center">1</th>
-<th align="center">2</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">88</td>
-<td align="center">58</td>
-<td align="center">27</td>
-</tr>
-</tbody>
-</table>
+<p>Details about data pre-processing steps can be found <a
+href="https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/DataPreparation.Rmd">here</a></p>
+<pre class="r"><code>source(&quot;../Aux/data_prep.R&quot;)
+#&gt; Loading required package: readr
+#&gt; Loading required package: splitstackshape
+#&gt; The sourced script has been used to load and pre-process the data.
+#&gt; The latter converts appropriate variables into factors.
+#&gt; Additionally, we randomly split the data into training and testing sets, 
+#&gt; enabling us to evaluate out-of-sample predictive performance when comparing different approaches.</code></pre>
+<p>The following sections illustrate the usage of different methods
+defined using a CIF formulation.</p>
 </div>
 <div id="fine-gray" class="section level1">
 <h1>Fine-Gray</h1>
@@ -535,9 +430,9 @@ the Breslow estimator.</p>
                                   clinstg,
                                 data = hd_test)[, -1]
 
-CIF_hat &lt;- predict(object = FG_crr, cov1 = predictors_test)
+FG_CIF &lt;- predict(object = FG_crr, cov1 = predictors_test)
 
-dim(CIF_hat)
+dim(FG_CIF)
 #&gt; [1]  72 174</code></pre>
 <p>The first column in CIF_hat corresponds to the 72 unique event times
 and the remaining 71 columns are the estimated CIFs for each patient
@@ -549,18 +444,17 @@ extranodal disease, and in clinical stage 1. The second patient is 41
 years old, male, under radiation, no mediastinum involvement, no
 extranodal disease, and clinical stage 2.</p>
 <pre class="r"><code>par(mar = c(4, 4, 2, 0.1))
-plot(CIF_hat[, 1],
-     CIF_hat[, 2],
+plot(FG_CIF[, 1],
+     FG_CIF[, 2],
      type = &quot;l&quot;,
      col = &quot;red&quot;,
      ylim = c(0, 0.6),
      xlab = &quot;Time (years)&quot;,
      ylab = &quot;Cumulative incidence&quot;)
-
-lines(CIF_hat[, 1], CIF_hat[, 4], col=&quot;blue&quot;)
+lines(FG_CIF[, 1], FG_CIF[, 4], col=&quot;blue&quot;)
 legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&quot;),
        lty = c(1,1), col = c(&quot;red&quot;, &quot;blue&quot;))</code></pre>
-<p><img src="CIF_specification_files/figure-html/unnamed-chunk-10-1.png" width="576" /></p>
+<p><img src="CIF_specification_files/figure-html/unnamed-chunk-5-1.png" width="576" /></p>
 <blockquote>
 <p><strong><em>NOTE:</em></strong> Using <code>cmprsk</code> it is not
 straightforward to do predictions at a specific time point beyond the
@@ -573,7 +467,7 @@ unique time-points present in the training data.</p>
 of the <code>crr()</code> function described above. However, it permits
 directly specifying the model through the formula argument, where we use
 <code>Hist()</code> to obtain the the response variable. When the cause
-argument is not passed, the default is 1.</p>
+argument is not passed, the default event of interest is 1.</p>
 <p>Below we confirm that estimated coefficients are identical to those
 obtained with <code>cmprsk</code> package and the interpretation is the
 same.</p>
@@ -639,136 +533,11 @@ permits to do predictions of the CIF at a specific time point
 (e.g. <span class="math inline">\(t=5\)</span> years) for a new dataset
 (e.g. <code>hd_test</code>). Below, we show results for the first 5
 subjects in the test set.</p>
-<pre class="r"><code>FG.prediction &lt;- predict(FG_riskRegression, newdata = hd_test,  times = 5)
+<pre class="r"><code>FG.pred &lt;- predict(FG_riskRegression, newdata = hd_test,  times = 5)
 #&gt; [1] &quot;age&quot;        &quot;sexM&quot;       &quot;trtgivenRT&quot; &quot;medwidsiN&quot;  &quot;medwidsiS&quot; 
 #&gt; [6] &quot;extranodY&quot;  &quot;clinstg2&quot;
-FG.prediction[c(1:5)]
+FG.pred[c(1:5)]
 #&gt; [1] 0.2964653 0.4056692 0.3361023 0.3202368 0.2351294</code></pre>
-<p>Because the Fine-Gray model can be recovered when a complementary
-log-log link function is used in a transformation model (<span
-class="citation">Gerds, Scheike, and Andersen (<a
-href="#ref-gerds2012">2012</a>)</span>), we can use
-<code>riskRegression()</code> with <code>link = "prop"</code> as shown
-below:</p>
-<pre class="r"><code>FG.prop &lt;- riskRegression(formula = Hist(time, status) ~
-                            age +
-                            sex +
-                            trtgiven +
-                            medwidsi +
-                            extranod +
-                            clinstg,
-                          data = hd_train,
-                          cause = 1,
-                          link = &quot;prop&quot;)
-summary(FG.prop)
-#&gt; 
-#&gt; riskRegression: Competing risks regression model 
-#&gt; 
-#&gt; IPCW estimation. The weights are based on
-#&gt; the Kaplan-Meier estimate for the censoring distribution.
-#&gt; 
-#&gt; Link function: &#39;proportional&#39; yielding sub-hazard ratios (Fine &amp; Gray 1999), see help(riskRegression).
-#&gt; 
-#&gt; Covariates with time-varying effects:
-#&gt; 
-#&gt;  Intercept (numeric)
-#&gt; 
-#&gt; The effects of these variables depend on time.The column &#39;Intercept&#39; is the baseline risk where all the covariates have value zero
-#&gt; 
-#&gt;      (Intercept)
-#&gt; 0.36 &quot;0.0123&quot;   
-#&gt; 2    &quot;0.0670&quot;   
-#&gt; 3.8  &quot;0.0906&quot;   
-#&gt; 6.4  &quot;0.1064&quot;   
-#&gt; 20   &quot;0.1199&quot;   
-#&gt; 
-#&gt; Shown are selected time points, use
-#&gt; 
-#&gt; plot.riskRegression
-#&gt; 
-#&gt; to investigate the full shape.
-#&gt; 
-#&gt; 
-#&gt; Covariates with time-constant effects:
-#&gt; 
-#&gt;  age (numeric)
-#&gt;  sexM (numeric)
-#&gt;  trtgivenRT (numeric)
-#&gt;  medwidsiN (numeric)
-#&gt;  medwidsiS (numeric)
-#&gt;  extranodY (numeric)
-#&gt;  clinstg2 (numeric)
-#&gt; 
-#&gt; Time constant regression coefficients:
-#&gt; 
-#&gt;      Factor    Coef exp(Coef) StandardError       z         CI_95    Pvalue
-#&gt;         age 0.01649   1.01663       0.00431 3.82626 [1.008;1.025] 0.0001301
-#&gt;        sexM  0.0133    1.0134        0.1419  0.0939 [0.767;1.338] 0.9251590
-#&gt;  trtgivenRT   0.712     2.037         0.217   3.283 [1.332;3.115] 0.0010271
-#&gt;   medwidsiN -0.0687    0.9336        0.2768 -0.2481 [0.543;1.606] 0.8040708
-#&gt;   medwidsiS  -0.407     0.665         0.274  -1.489 [0.389;1.137] 0.1364193
-#&gt;   extranodY   0.231     1.259         0.254   0.908 [0.766;2.071] 0.3637606
-#&gt;    clinstg2   0.339     1.403         0.163   2.082 [1.020;1.930] 0.0373014
-#&gt; 
-#&gt; 
-#&gt; Note: The values exp(Coef) are sub-hazard ratios (Fine &amp; Gray 1999)</code></pre>
-<p>In this case, <code>predict()</code> returns the risk at observed
-time points for each subject.</p>
-<pre class="r"><code>prediction.FG.prop  &lt;- predict(FG.prop, newdata = hd_test[c(1, 2), ])
-prediction.FG.prop
-#&gt; $time
-#&gt;  [1]  0.3550000  0.4926531  0.6303061  0.7679592  0.9056122  1.0432653
-#&gt;  [7]  1.1809184  1.3185714  1.4562245  1.5938776  1.7315306  1.8691837
-#&gt; [13]  2.0068367  2.1444898  2.2821429  2.4197959  2.5574490  2.6951020
-#&gt; [19]  2.8327551  2.9704082  3.2080612  3.3457143  3.4833673  3.6210204
-#&gt; [25]  3.7586735  3.9926531  4.1679592  4.3716327  4.5185714  4.7938776
-#&gt; [31]  5.0691837  5.3222449  5.5197959  5.6975510  6.0352041  6.2457143
-#&gt; [37]  6.4105102  6.6926531  7.1574490  7.4234694  7.5611224  8.8840816
-#&gt; [43]  9.5457143 10.6889796 11.4290816 12.4493878 12.8481633 15.0987755
-#&gt; [49] 16.7716327 19.8000000
-#&gt; 
-#&gt; $risk
-#&gt;            [,1]       [,2]       [,3]       [,4]      [,5]      [,6]      [,7]
-#&gt; [1,] 0.04268004 0.05112741 0.06900018 0.08112631 0.1041914 0.1197376 0.1343491
-#&gt; [2,] 0.06328963 0.07565201 0.10162716 0.11910964 0.1520457 0.1740082 0.1944747
-#&gt;           [,8]      [,9]     [,10]     [,11]     [,12]     [,13]     [,14]
-#&gt; [1,] 0.1499184 0.1591504 0.1749583 0.1926217 0.1963322 0.2116438 0.2173892
-#&gt; [2,] 0.2160937 0.2288202 0.2504501 0.2743753 0.2793683 0.2998503 0.3074850
-#&gt;          [,15]     [,16]     [,17]     [,18]     [,19]     [,20]     [,21]
-#&gt; [1,] 0.2192026 0.2274841 0.2326651 0.2339825 0.2442934 0.2492066 0.2574446
-#&gt; [2,] 0.3098889 0.3208316 0.3276478 0.3293774 0.3428628 0.3492565 0.3599301
-#&gt;          [,22]     [,23]     [,24]     [,25]     [,26]     [,27]     [,28]
-#&gt; [1,] 0.2636049 0.2669364 0.2735112 0.2748284 0.2756051 0.2809147 0.2820748
-#&gt; [2,] 0.3678732 0.3721550 0.3805769 0.3822596 0.3832511 0.3900149 0.3914895
-#&gt;          [,29]     [,30]     [,31]     [,32]     [,33]     [,34]     [,35]
-#&gt; [1,] 0.2844348 0.2874550 0.2890380 0.2972745 0.2987909 0.3018743 0.3078412
-#&gt; [2,] 0.3944854 0.3983123 0.4003149 0.4106985 0.4126036 0.4164711 0.4239312
-#&gt;          [,36]     [,37]     [,38]     [,39]     [,40]     [,41]     [,42]
-#&gt; [1,] 0.3109461 0.3144607 0.3161547 0.3170026 0.3199931 0.3229954 0.3246863
-#&gt; [2,] 0.4278003 0.4321695 0.4342715 0.4353226 0.4390247 0.4427332 0.4448181
-#&gt;          [,43]     [,44]     [,45]     [,46]     [,47]     [,48]     [,49]
-#&gt; [1,] 0.3281412 0.3297946 0.3329718 0.3364468 0.3378281 0.3409324 0.3423308
-#&gt; [2,] 0.4490702 0.4511013 0.4549971 0.4592476 0.4609341 0.4647178 0.4664193
-#&gt;          [,50]
-#&gt; [1,] 0.3464244
-#&gt; [2,] 0.4713900
-#&gt; 
-#&gt; attr(,&quot;class&quot;)
-#&gt; [1] &quot;predictedRisk&quot;</code></pre>
-<p>Below, we plot the CIF for patient 1 (red) and 2 (blue) in the test
-set.</p>
-<pre class="r"><code>par(mar = c(4, 4, 2, 0.1))
-plot(prediction.FG.prop$time,
-     prediction.FG.prop$risk[1, ],
-     type = &quot;l&quot;,
-     col = &quot;red&quot;,
-     ylim = c(0, 0.6),
-     xlab = &quot;Time (years)&quot;,
-     ylab = &quot;Cumulative incidence&quot;)
-lines(prediction.FG.prop$time, prediction.FG.prop$risk[2, ], col=&quot;blue&quot;)
-legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&quot;),
-       lty = c(1,1), col = c(&quot;red&quot;, &quot;blue&quot;))</code></pre>
-<p><img src="CIF_specification_files/figure-html/unnamed-chunk-15-1.png" width="576" /></p>
 </div>
 </div>
 <div id="sparse-regression" class="section level1">
@@ -998,7 +767,7 @@ plot(pred_DB,
      ylab = &quot;Cumulative incidence&quot;)
 legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&quot;),
        lty = c(1,1), col = c(&quot;red&quot;, &quot;blue&quot;))</code></pre>
-<p><img src="CIF_specification_files/figure-html/unnamed-chunk-22-1.png" width="576" /></p>
+<p><img src="CIF_specification_files/figure-html/unnamed-chunk-14-1.png" width="576" /></p>
 <p>In addition, one can also makes predictions at a specific time
 through the argument <code>times</code>. Absolute risk predictions at
 time <span class="math inline">\(t=5\)</span> for the first 5 patients
@@ -1028,16 +797,16 @@ summary(fit_DBtime)
 #&gt; 
 #&gt; Test for non-significant effects 
 #&gt;             Supremum-test of significance p-value H_0: B(t)=0
-#&gt; (Intercept)                          8.60                   0
-#&gt; trtgivenRT                           3.62                   0
+#&gt; (Intercept)                          8.60                0.00
+#&gt; trtgivenRT                           3.62                0.01
 #&gt; 
 #&gt; Test for time invariant effects 
 #&gt;                   Kolmogorov-Smirnov test p-value H_0:constant effect
-#&gt; (Intercept)                         1.220                         0.0
-#&gt; trtgivenRT                          0.548                         0.1
+#&gt; (Intercept)                         1.220                        0.00
+#&gt; trtgivenRT                          0.548                        0.08
 #&gt;                     Cramer von Mises test p-value H_0:constant effect
 #&gt; (Intercept)                         2.470                        0.00
-#&gt; trtgivenRT                          0.114                        0.42
+#&gt; trtgivenRT                          0.114                        0.44
 #&gt; 
 #&gt; Parametric terms : 
 #&gt;                    Coef.      SE Robust SE       z    P-val lower2.5%
@@ -1066,9 +835,13 @@ accessible**</p>
 </blockquote>
 <p>The formula definition uses <code>Hist()</code>.</p>
 <p>An indication of a competing risk setting must be passed by setting
-<code>comp = TRUE</code>. Below, we run the MCMC chain for 5000
-iterations, we discarded 3000 as part of the burn-in period, and to
-reduce autocorrelation, a thinning of 10 was used (default).</p>
+<code>comp = TRUE</code>. Below, we run the MCMC chain for 2,500
+iterations, we discarded 500 as part of the burn-in period, and to
+reduce autocorrelation, a thinning of 10 was used (default). These
+values were chosen for illustration purposes only. More iterations may
+be required for the algorithm to converge (the default in the
+<code>DPWeibull</code> package is to burn-in the first 8,000
+iterations).</p>
 <pre class="r"><code>library(DPWeibull)
 library(prodlim) # for Hist() function
 set.seed(1)
@@ -1081,98 +854,10 @@ fit_DDP &lt;- dpweib(Hist(time, status) ~
                     clinstg ,
                   data = hd_train,
                   comp = TRUE,
-                  burnin = 1000,
-                  iteration = 5000,
+                  burnin = 500,
+                  iteration = 2000,
                   predtime = seq(from = min(hd_train$time),
-                                 to = max(hd_train$time),
-                  length =  40))</code></pre>
-<pre class="r"><code>summary(fit_DDP)
-#&gt; $age
-#&gt;                            1/4 Observation Time 1/2 Observation Time
-#&gt; Time                               8.2869230769        17.4912820513
-#&gt; Estimated Log Hazard Ratio         0.0002017712         0.0003321403
-#&gt; Upper Credible Interval            0.0038489870         0.0075591076
-#&gt; Lower Credible Interval           -0.0026216719        -0.0035793960
-#&gt;                            3/4 Observation Time Observation Time
-#&gt; Time                              26.6956410256    35.9000000000
-#&gt; Estimated Log Hazard Ratio         0.0001379571     0.0001093395
-#&gt; Upper Credible Interval            0.0049630769     0.0120275368
-#&gt; Lower Credible Interval           -0.0056604125    -0.0051104076
-#&gt; 
-#&gt; $sexM
-#&gt;                            1/4 Observation Time 1/2 Observation Time
-#&gt; Time                                 8.28692308           17.4912821
-#&gt; Estimated Log Hazard Ratio           0.09589374            0.3518646
-#&gt; Upper Credible Interval              1.46874811            2.2747088
-#&gt; Lower Credible Interval             -1.38329233           -1.2309825
-#&gt;                            3/4 Observation Time Observation Time
-#&gt; Time                                 26.6956410       35.9000000
-#&gt; Estimated Log Hazard Ratio            0.2223839        0.1060239
-#&gt; Upper Credible Interval               2.2049343        2.2701371
-#&gt; Lower Credible Interval              -1.4482962       -2.0974672
-#&gt; 
-#&gt; $trtgivenRT
-#&gt;                            1/4 Observation Time 1/2 Observation Time
-#&gt; Time                                  8.2869231           17.4912821
-#&gt; Estimated Log Hazard Ratio            0.6685944            0.5360080
-#&gt; Upper Credible Interval               3.0549013            3.2871516
-#&gt; Lower Credible Interval              -0.4322761           -0.8298515
-#&gt;                            3/4 Observation Time Observation Time
-#&gt; Time                                 26.6956410       35.9000000
-#&gt; Estimated Log Hazard Ratio            0.5248109        0.5946117
-#&gt; Upper Credible Interval               3.4293169        3.7714528
-#&gt; Lower Credible Interval              -1.2592491       -1.4710504
-#&gt; 
-#&gt; $medwidsiN
-#&gt;                            1/4 Observation Time 1/2 Observation Time
-#&gt; Time                                  8.2869231            17.491282
-#&gt; Estimated Log Hazard Ratio            0.1298147             0.168123
-#&gt; Upper Credible Interval               1.8377889             1.870418
-#&gt; Lower Credible Interval              -1.3120494            -1.620167
-#&gt;                            3/4 Observation Time Observation Time
-#&gt; Time                                 26.6956410       35.9000000
-#&gt; Estimated Log Hazard Ratio            0.1281865        0.2078883
-#&gt; Upper Credible Interval               2.4328035        2.9548333
-#&gt; Lower Credible Interval              -1.7925186       -1.9651818
-#&gt; 
-#&gt; $medwidsiS
-#&gt;                            1/4 Observation Time 1/2 Observation Time
-#&gt; Time                                  8.2869231           17.4912821
-#&gt; Estimated Log Hazard Ratio           -0.4279462           -0.3407895
-#&gt; Upper Credible Interval               1.0687004            1.1871086
-#&gt; Lower Credible Interval              -2.0774661           -2.4088900
-#&gt;                            3/4 Observation Time Observation Time
-#&gt; Time                                 26.6956410       35.9000000
-#&gt; Estimated Log Hazard Ratio           -0.3285289       -0.1992219
-#&gt; Upper Credible Interval               1.4333606        1.9628314
-#&gt; Lower Credible Interval              -2.5372265       -2.7500703
-#&gt; 
-#&gt; $extranodY
-#&gt;                            1/4 Observation Time 1/2 Observation Time
-#&gt; Time                                 8.28692308           17.4912821
-#&gt; Estimated Log Hazard Ratio          -0.06251358           -0.1161135
-#&gt; Upper Credible Interval              1.16938415            1.7594204
-#&gt; Lower Credible Interval             -1.81537115           -2.5428141
-#&gt;                            3/4 Observation Time Observation Time
-#&gt; Time                                 26.6956410       35.9000000
-#&gt; Estimated Log Hazard Ratio           -0.1875517       -0.1412272
-#&gt; Upper Credible Interval               1.6920272        1.8970155
-#&gt; Lower Credible Interval              -3.2113817       -2.7973801
-#&gt; 
-#&gt; $clinstg2
-#&gt;                            1/4 Observation Time 1/2 Observation Time
-#&gt; Time                                  8.2869231           17.4912821
-#&gt; Estimated Log Hazard Ratio            0.2822405            0.3542525
-#&gt; Upper Credible Interval               1.7724563            2.1419576
-#&gt; Lower Credible Interval              -0.9837669           -1.1467553
-#&gt;                            3/4 Observation Time Observation Time
-#&gt; Time                                 26.6956410       35.9000000
-#&gt; Estimated Log Hazard Ratio            0.3493197        0.3411295
-#&gt; Upper Credible Interval               2.5551432        3.0560220
-#&gt; Lower Credible Interval              -1.1851987       -1.3584185
-#&gt; 
-#&gt; attr(,&quot;class&quot;)
-#&gt; [1] &quot;summary.ddpcomp&quot;</code></pre>
+                                 to = max(hd_train$time), length =  40))</code></pre>
 <p>Note that in order to make valid inferences one should ensure that
 convergence was achieved. One can explore trace plots of the estimated
 parameters using the <code>coda</code> library. This will help us to
@@ -1186,20 +871,132 @@ iterations should be used.</p>
 <pre class="r"><code>library(coda)
 par(mar = c(4, 4, 2, 0.1))
 traceplot(as.mcmc(fit_DDP$alpharec1[, 1]))</code></pre>
-<p><img src="CIF_specification_files/figure-html/unnamed-chunk-27-1.png" width="480" /></p>
+<p><img src="CIF_specification_files/figure-html/unnamed-chunk-18-1.png" width="480" /></p>
 <pre class="r"><code>traceplot(as.mcmc(fit_DDP$lambda0rec1[, 1]))</code></pre>
-<p><img src="CIF_specification_files/figure-html/unnamed-chunk-27-2.png" width="480" /></p>
+<p><img src="CIF_specification_files/figure-html/unnamed-chunk-18-2.png" width="480" />
+The summary below shows estimates for the log-hazard ratio at specific
+time-points:</p>
+<pre class="r"><code>summary(fit_DDP)
+#&gt; $age
+#&gt;                            1/4 Observation Time 1/2 Observation Time
+#&gt; Time                                8.286923077        17.4912820513
+#&gt; Estimated Log Hazard Ratio          0.000364010        -0.0001749801
+#&gt; Upper Credible Interval             0.001451399         0.0044236493
+#&gt; Lower Credible Interval            -0.001106449        -0.0032203707
+#&gt;                            3/4 Observation Time Observation Time
+#&gt; Time                              26.6956410256     35.900000000
+#&gt; Estimated Log Hazard Ratio        -0.0005901696     -0.000556661
+#&gt; Upper Credible Interval            0.0084931556      0.008570870
+#&gt; Lower Credible Interval           -0.0036207626     -0.004983568
+#&gt; 
+#&gt; $sexM
+#&gt;                            1/4 Observation Time 1/2 Observation Time
+#&gt; Time                                 8.28692308            17.491282
+#&gt; Estimated Log Hazard Ratio           0.06072226             0.479132
+#&gt; Upper Credible Interval              0.59520338             3.383177
+#&gt; Lower Credible Interval             -0.32448836            -1.776935
+#&gt;                            3/4 Observation Time Observation Time
+#&gt; Time                                 26.6956410       35.9000000
+#&gt; Estimated Log Hazard Ratio            0.1928737        0.0811511
+#&gt; Upper Credible Interval               3.6769833        3.9562652
+#&gt; Lower Credible Interval              -3.9580161       -3.8442833
+#&gt; 
+#&gt; $trtgivenRT
+#&gt;                            1/4 Observation Time 1/2 Observation Time
+#&gt; Time                                  8.2869231            17.491282
+#&gt; Estimated Log Hazard Ratio            0.3077187             0.495443
+#&gt; Upper Credible Interval               1.0000535             2.507985
+#&gt; Lower Credible Interval              -0.2139122            -1.743932
+#&gt;                            3/4 Observation Time Observation Time
+#&gt; Time                                 26.6956410       35.9000000
+#&gt; Estimated Log Hazard Ratio            0.5227197        0.5632346
+#&gt; Upper Credible Interval               2.9927264        3.1640008
+#&gt; Lower Credible Interval              -2.8701491       -2.5592571
+#&gt; 
+#&gt; $medwidsiN
+#&gt;                            1/4 Observation Time 1/2 Observation Time
+#&gt; Time                                 8.28692308           17.4912821
+#&gt; Estimated Log Hazard Ratio          -0.02352074           -0.1782526
+#&gt; Upper Credible Interval              0.50442829            1.9621298
+#&gt; Lower Credible Interval             -0.45032687           -2.2106923
+#&gt;                            3/4 Observation Time Observation Time
+#&gt; Time                                26.69564103      35.90000000
+#&gt; Estimated Log Hazard Ratio          -0.04207781      -0.03133229
+#&gt; Upper Credible Interval              2.86432802       3.39134065
+#&gt; Lower Credible Interval             -2.51356871      -2.52310320
+#&gt; 
+#&gt; $medwidsiS
+#&gt;                            1/4 Observation Time 1/2 Observation Time
+#&gt; Time                                  8.2869231           17.4912821
+#&gt; Estimated Log Hazard Ratio           -0.1160604           -0.3253849
+#&gt; Upper Credible Interval               0.1286986            1.9895925
+#&gt; Lower Credible Interval              -0.7952364           -2.7166320
+#&gt;                            3/4 Observation Time Observation Time
+#&gt; Time                                 26.6956410       35.9000000
+#&gt; Estimated Log Hazard Ratio           -0.3845055       -0.3444667
+#&gt; Upper Credible Interval               2.9608859        2.3321012
+#&gt; Lower Credible Interval              -4.3843840       -5.0677409
+#&gt; 
+#&gt; $extranodY
+#&gt;                            1/4 Observation Time 1/2 Observation Time
+#&gt; Time                                  8.2869231           17.4912821
+#&gt; Estimated Log Hazard Ratio           -0.1235803           -0.2201882
+#&gt; Upper Credible Interval               0.2746675            1.6118103
+#&gt; Lower Credible Interval              -1.5215496           -3.4077453
+#&gt;                            3/4 Observation Time Observation Time
+#&gt; Time                                 26.6956410       35.9000000
+#&gt; Estimated Log Hazard Ratio           -0.3011295       -0.1335254
+#&gt; Upper Credible Interval               2.5014697        2.4984141
+#&gt; Lower Credible Interval              -4.8611896       -5.6745903
+#&gt; 
+#&gt; $clinstg2
+#&gt;                            1/4 Observation Time 1/2 Observation Time
+#&gt; Time                                  8.2869231           17.4912821
+#&gt; Estimated Log Hazard Ratio            0.1384525            0.1839558
+#&gt; Upper Credible Interval               0.6378740            2.7698435
+#&gt; Lower Credible Interval              -0.1816435           -1.3962413
+#&gt;                            3/4 Observation Time Observation Time
+#&gt; Time                                 26.6956410       35.9000000
+#&gt; Estimated Log Hazard Ratio            0.3068444        0.2760249
+#&gt; Upper Credible Interval               3.6904296        3.8798339
+#&gt; Lower Credible Interval              -3.1969888       -3.3093072
+#&gt; 
+#&gt; attr(,&quot;class&quot;)
+#&gt; [1] &quot;summary.ddpcomp&quot;</code></pre>
+<p>The following plots show the estimated (non-linear) covariate effects
+on the scale of the log-subdistribution hazard ratio.</p>
+<pre class="r"><code>plot(fit_DDP)</code></pre>
+<p><img src="CIF_specification_files/figure-html/unnamed-chunk-20-1.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-20-2.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-20-3.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-20-4.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-20-5.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-20-6.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-20-7.png" width="672" /></p>
+<p>The latter plots can also be manually obtained as follows (here we
+add a horizontal line at zero as a visual reference):</p>
+<pre class="r"><code>plot(fit_DDP$predtime, fit_DDP$loghr.est[1,], type = &quot;l&quot;,
+     main = &quot;Log subdistribtion HR for covariate age, event 1&quot;,
+     ylim = c(min(fit_DDP$loghrl[1,]), max(fit_DDP$loghru[1,])))
+lines(fit_DDP$predtime, fit_DDP$loghrl[1,], lty = 2)
+lines(fit_DDP$predtime, fit_DDP$loghru[1,], lty = 2)
+abline(h = 0, col = &quot;red&quot;)</code></pre>
+<p><img src="CIF_specification_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<pre class="r"><code>
+plot(fit_DDP$predtime, fit_DDP$loghr.est[2,], type = &quot;l&quot;,
+     main = &quot;Log subdistribtion HR for covariate sexM, event 1&quot;,
+     ylim = c(min(fit_DDP$loghrl[2,]), max(fit_DDP$loghru[2,])))
+lines(fit_DDP$predtime, fit_DDP$loghrl[2,], lty = 2)
+lines(fit_DDP$predtime, fit_DDP$loghru[2,], lty = 2)
+abline(h = 0, col = &quot;red&quot;)</code></pre>
+<p><img src="CIF_specification_files/figure-html/unnamed-chunk-21-2.png" width="672" /></p>
+<p>In the example above, age appears to have a diminishing effect over
+time. Note also that, in all cases, there seems to be high posterior
+uncertainty and that reported credible intervals contain zero.</p>
 <p>Below, we illustrate how to do predictions with
 <code>DPWeibull</code>. First, we show how to estimate the CIF for two
 subjects in the test set at all observed event times.</p>
-<pre class="r"><code>par(mar = c(4, 4, 2, 0.1))
-
-pred_DDP &lt;- predict(fit_DDP, newdata = as.data.frame(hd_test[c(1, 2), 1:6]))</code></pre>
-<p>Note that <code>pred_DDP</code> contains posterior samples for the 2
-subjects at observed event times, as well as posterior estimated and
-credible intervals.</p>
-<p>Below, we show the estimated CIF curves for patient 1 (red) and 2
-(blue).</p>
+<pre class="r"><code>pred_DDP &lt;- predict(fit_DDP, newdata = as.data.frame(hd_test[1:2, 1:6]))</code></pre>
+<p>Note that <code>pred_DDP</code> contains posterior samples for all
+the two subjects at observed event times, as well as posterior estimated
+and credible intervals.</p>
+<p>Here we show how to manually extract and plot the estimated CIF
+curves for patient 1 (red) and 2 (blue). Dashed lines show the
+associated credible intervals.</p>
 <pre class="r"><code>plot(pred_DDP$tpred,
      pred_DDP$Fpred[1, ],
      type = &quot;l&quot;,
@@ -1207,55 +1004,138 @@ credible intervals.</p>
      xlab = &quot;Time (years)&quot;,
      ylab = &quot;Cumulative incidence&quot;,
      ylim = c(0, 0.6))
+lines(pred_DDP$tpred, pred_DDP$Fpredl[1,], col = &quot;red&quot;, lty = 2)
+lines(pred_DDP$tpred, pred_DDP$Fpredu[1,], col = &quot;red&quot;, lty = 2)
 lines(pred_DDP$tpred, pred_DDP$Fpred[2, ], col=&quot;blue&quot;)
+lines(pred_DDP$tpred, pred_DDP$Fpredl[2,], col = &quot;blue&quot;, lty = 2)
+lines(pred_DDP$tpred, pred_DDP$Fpredu[2,], col = &quot;blue&quot;, lty = 2)
 legend(&quot;topright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&quot;),
        lty = c(1,1), col = c(&quot;red&quot;, &quot;blue&quot;))</code></pre>
-<p><img src="CIF_specification_files/figure-html/unnamed-chunk-29-1.png" width="576" /></p>
+<p><img src="CIF_specification_files/figure-html/unnamed-chunk-23-1.png" width="576" /></p>
 <p>Note that <code>DPWeibull</code> also provides a <code>plot</code>
-method that can generate similar graphical summaries.</p>
+method that can generate similar graphical summaries. However, the
+previous code may be preferrable when generating predictions for a large
+number of individuals.</p>
 <pre class="r"><code>plot(pred_DDP)</code></pre>
-<p><img src="CIF_specification_files/figure-html/unnamed-chunk-30-1.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-30-2.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-30-3.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-30-4.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-30-5.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-30-6.png" width="672" /></p>
+<p><img src="CIF_specification_files/figure-html/unnamed-chunk-24-1.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-24-2.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-24-3.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-24-4.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-24-5.png" width="672" /><img src="CIF_specification_files/figure-html/unnamed-chunk-24-6.png" width="672" /></p>
 <p>In addition, we can also make predictions at a specific time point,
 e.g. <span class="math inline">\(t=5\)</span>. Below, we show the
 estimated risk for the first 5 subjects in the test data set:</p>
 <pre class="r"><code>pred_DDP.t &lt;- predict(fit_DDP, 
                       newdata = as.data.frame(hd_test[, 1:6]), tpred = 5)
 pred_DDP.t$Fpred[1:5]
-#&gt; [1] 0.3048127 0.3827592 0.3055722 0.3131346 0.2349481</code></pre>
+#&gt; [1] 0.2926223 0.4034872 0.2991689 0.3254405 0.2195294</code></pre>
+</div>
+<div id="comparison-estimates-of-regression-coefficients"
+class="section level1">
+<h1>Comparison: estimates of regression coefficients</h1>
+<p>First, we compare estimated regression coefficients obtained above.
+Note that this is only for (semi-)parametric approaches that follow the
+Fine &amp; Gray specification, with an linear effect in the log-scale of
+the sub-distribution hazard. As the estimates obtained for the Fine
+&amp; Gray were the same regardless of the choice of R library
+(<code>cmprsk</code> o <code>riskRegression</code>), we only store one
+of them (the ones for <code>cmprsk</code>).</p>
+<pre class="r"><code>my.vars &lt;- rownames(summary(FG_crr)$coef)
+
+# X1-3 is added so that the methods are plotted in the desired order
+df &lt;- data.frame(&quot;X1.fg_est&quot; = summary(FG_crr)$coef[,1],
+                 &quot;X1.fg_se&quot; = summary(FG_crr)$coef[,3],
+                 &quot;X2.pseudo_est&quot; = summary(fit_pseudo)$mean[my.vars,1],
+                 &quot;X2.pseudo_se&quot; = summary(fit_pseudo)$mean[my.vars,2],
+                 &quot;X3.db_est&quot; = coef(fit_DB)[,1],
+                 &quot;X3.db_se&quot; = coef(fit_DB)[,2])
+round(df, 2)
+#&gt;            X1.fg_est X1.fg_se X2.pseudo_est X2.pseudo_se X3.db_est X3.db_se
+#&gt; age             0.01     0.00          0.01         0.00      0.02     0.00
+#&gt; sexM            0.07     0.14          0.04         0.14      0.01     0.14
+#&gt; trtgivenRT      0.70     0.21          0.71         0.20      0.71     0.22
+#&gt; medwidsiN      -0.06     0.26         -0.11         0.26     -0.07     0.28
+#&gt; medwidsiS      -0.40     0.26         -0.45         0.26     -0.41     0.27
+#&gt; extranodY       0.32     0.25          0.22         0.24      0.23     0.25
+#&gt; clinstg2        0.34     0.15          0.28         0.16      0.34     0.16
+df$variable &lt;- rownames(df)
+
+library(tidyverse)
+#&gt; ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+#&gt; ✔ dplyr     1.1.2          ✔ purrr     1.0.2     
+#&gt; ✔ forcats   1.0.0          ✔ stringr   1.5.0     
+#&gt; ✔ ggplot2   3.4.3          ✔ tibble    3.2.1     
+#&gt; ✔ lubridate 1.9.2.9000     ✔ tidyr     1.3.0     
+#&gt; ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+#&gt; ✖ dplyr::filter() masks stats::filter()
+#&gt; ✖ dplyr::lag()    masks stats::lag()
+#&gt; ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors
+df_long &lt;- df %&gt;%
+  pivot_longer(!variable, 
+               names_to = c(&quot;Method&quot;, &quot;.value&quot;), 
+               names_sep = &quot;_&quot;)</code></pre>
+<pre class="r"><code>library(ggplot2)
+library(patchwork)
+
+p_all &lt;- ggplot(df_long, aes(x = variable, y = est, col = Method)) +
+  geom_point(cex = 2.5, position = position_dodge(width=0.4)) +
+  geom_errorbar(aes(ymin = est - se, ymax = est + se), 
+                width=.1, position = position_dodge(width=0.4)) +
+  geom_hline(yintercept = 0, lty = 2, colour = &quot;gray&quot;) +
+  theme_classic() +
+  ylab(&quot;Estimate&quot;) + xlab(&quot;Coefficient&quot;) +
+  scale_color_manual(values = c(&quot;#999999&quot;, &quot;#1A5276&quot;, &quot;#B9770E&quot;),
+                     labels = c(&#39;Fine &amp; Gray&#39;, &#39;Pseudo values&#39;, &#39;Direct binomial&#39;)) 
+
+p_age &lt;- ggplot(df_long[df_long$variable == &quot;age&quot;,], 
+                aes(x = variable, y = est, col = Method)) +
+  geom_point(cex = 2.5, position = position_dodge(width=0.6)) +
+  geom_errorbar(aes(ymin = est - se, ymax = est + se), 
+                width=.1, position = position_dodge(width=0.6)) +
+  theme_classic() +
+  ylab(&quot;Estimate&quot;) + xlab(&quot;Coefficient&quot;) +
+  scale_color_manual(values = c(&quot;#999999&quot;, &quot;#1A5276&quot;, &quot;#B9770E&quot;),
+                     labels = c(&#39;Fine &amp; Gray&#39;, &#39;Pseudo values&#39;, &#39;Direct binomial&#39;)) +
+  theme(legend.position=&quot;none&quot;, 
+        axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.background = element_rect(colour = &quot;black&quot;, fill=NA, size=0.6))
+#&gt; Warning: The `size` argument of `element_rect()` is deprecated as of ggplot2 3.4.0.
+#&gt; ℹ Please use the `linewidth` argument instead.
+#&gt; This warning is displayed once every 8 hours.
+#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#&gt; generated.
+
+p_all + inset_element(p_age, left = 0.004, bottom = 0.6, right = 0.19, top = 1)</code></pre>
+<p><img src="CIF_specification_files/figure-html/unnamed-chunk-27-1.png" width="672" /></p>
+<pre class="r"><code>
+if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
+  ggsave(&quot;/Outputs/Comparison_estimation_CIF.pdf&quot;, device = &quot;pdf&quot;)
+} else {
+  ggsave(&quot;../Outputs/Comparison_estimation_CIF.pdf&quot;, device = &quot;pdf&quot;)
+}
+#&gt; Saving 7 x 5 in image
+#&gt; Warning: &#39;mode(bg)&#39; differs between new and previous
+#&gt;   ==&gt; NOT changing &#39;bg&#39;</code></pre>
 </div>
 <div id="storing-predictions" class="section level1">
 <h1>Storing predictions</h1>
 <p>In order to allow comparison with the predictions generated by other
 methods, we save the predictions obtained in this vignette.</p>
 <pre class="r"><code>pred_CIF &lt;- data.frame(&quot;testID&quot; = seq_len(nrow(hd_test)),
-                      &quot;FG_riskRegression&quot; = FG.prediction,
-                      &quot;DirectBinomal&quot; = pred_DB.t$P1,
+                      &quot;FG_riskRegression&quot; = FG.pred,
+                      &quot;DirectBinomial&quot; = pred_DB.t$P1,
                       &quot;DPWeibull&quot; = pred_DDP.t$Fpred)
 if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
-  write.csv(pred_CIF, &quot;/Predictions/pred_CIF.csv&quot;, row.names = FALSE)
+  write.csv(pred_CIF, &quot;/Outputs/pred_CIF.csv&quot;, row.names = FALSE)
 } else {
-  write.csv(pred_CIF, &quot;../Predictions/pred_CIF.csv&quot;, row.names = FALSE)
+  write.csv(pred_CIF, &quot;../Outputs/pred_CIF.csv&quot;, row.names = FALSE)
 }</code></pre>
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent">
-<div id="ref-gerds2012" class="csl-entry">
-Gerds, Thomas A, Thomas H Scheike, and Per K Andersen. 2012.
-<span>“Absolute Risk Regression for Competing Risks: Interpretation,
-Link Functions, and Prediction.”</span> <em>Statistics in Medicine</em>
-31 (29): 3921–30.
-</div>
 <div id="ref-klein2008" class="csl-entry">
 Klein, John P., Mette Gerster, Per Kragh Andersen, Sergey Tarima, and
 Maja Pohar Perme. 2008. <span>“SAS and r Functions to Compute
 Pseudo-Values for Censored Data Regression.”</span> <em>Comput. Methods
 Prog. Biomed.</em> 89 (3): 289–300. <a
 href="https://doi.org/10.1016/j.cmpb.2007.11.017">https://doi.org/10.1016/j.cmpb.2007.11.017</a>.
-</div>
-<div id="ref-pintilie2006competing" class="csl-entry">
-Pintilie, Melania. 2006. <em>Competing Risks: A Practical
-Perspective</em>. John Wiley &amp; Sons.
 </div>
 </div>
 </div>
@@ -1264,7 +1144,7 @@ Perspective</em>. John Wiley &amp; Sons.
 <pre class="r"><code>sessionInfo()
 #&gt; R version 4.3.1 (2023-06-16)
 #&gt; Platform: aarch64-unknown-linux-gnu (64-bit)
-#&gt; Running under: Ubuntu 22.04.2 LTS
+#&gt; Running under: Ubuntu 22.04.3 LTS
 #&gt; 
 #&gt; Matrix products: default
 #&gt; BLAS:   /usr/lib/aarch64-linux-gnu/openblas-pthread/libblas.so.3 
@@ -1285,47 +1165,50 @@ Perspective</em>. John Wiley &amp; Sons.
 #&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     
 #&gt; 
 #&gt; other attached packages:
-#&gt;  [1] coda_0.19-4               DPWeibull_1.8            
-#&gt;  [3] timereg_2.0.5             pseudo_1.4.3             
-#&gt;  [5] geepack_1.3.9             KMsurv_0.1-5             
-#&gt;  [7] riskRegression_2023.03.22 prodlim_2023.03.31       
-#&gt;  [9] cmprsk_2.2-11             survival_3.5-5           
-#&gt; [11] splitstackshape_1.4.8     pander_0.6.5             
-#&gt; [13] readr_2.1.4              
+#&gt;  [1] patchwork_1.1.3           lubridate_1.9.2.9000     
+#&gt;  [3] forcats_1.0.0             stringr_1.5.0            
+#&gt;  [5] dplyr_1.1.2               purrr_1.0.2              
+#&gt;  [7] tidyr_1.3.0               tibble_3.2.1             
+#&gt;  [9] ggplot2_3.4.3             tidyverse_2.0.0          
+#&gt; [11] coda_0.19-4               DPWeibull_1.8            
+#&gt; [13] timereg_2.0.5             pseudo_1.4.3             
+#&gt; [15] geepack_1.3.9             KMsurv_0.1-5             
+#&gt; [17] riskRegression_2023.03.22 prodlim_2023.03.31       
+#&gt; [19] cmprsk_2.2-11             survival_3.5-5           
+#&gt; [21] splitstackshape_1.4.8     readr_2.1.4              
 #&gt; 
 #&gt; loaded via a namespace (and not attached):
 #&gt;  [1] gridExtra_2.3       sandwich_3.0-2      rlang_1.1.1        
 #&gt;  [4] magrittr_2.0.3      multcomp_1.4-25     polspline_1.1.23   
-#&gt;  [7] compiler_4.3.1      vctrs_0.6.3         quantreg_5.95      
-#&gt; [10] stringr_1.5.0       pkgconfig_2.0.3     crayon_1.5.2       
-#&gt; [13] fastmap_1.1.1       backports_1.4.1     utf8_1.2.3         
-#&gt; [16] rmarkdown_2.23      tzdb_0.4.0          MatrixModels_0.5-2 
-#&gt; [19] purrr_1.0.1         bit_4.0.5           xfun_0.39          
+#&gt;  [7] compiler_4.3.1      systemfonts_1.0.4   vctrs_0.6.3        
+#&gt; [10] quantreg_5.97       crayon_1.5.2        pkgconfig_2.0.3    
+#&gt; [13] fastmap_1.1.1       backports_1.4.1     labeling_0.4.2     
+#&gt; [16] utf8_1.2.3          rmarkdown_2.24      tzdb_0.4.0         
+#&gt; [19] ragg_1.2.5          MatrixModels_0.5-2  xfun_0.40          
 #&gt; [22] cachem_1.0.8        jsonlite_1.8.7      highr_0.10         
 #&gt; [25] broom_1.0.5         parallel_4.3.1      cluster_2.1.4      
-#&gt; [28] R6_2.5.1            bslib_0.5.0         stringi_1.7.12     
+#&gt; [28] R6_2.5.1            bslib_0.5.1         stringi_1.7.12     
 #&gt; [31] parallelly_1.36.0   rpart_4.1.19        jquerylib_0.1.4    
 #&gt; [34] numDeriv_2016.8-1.1 Rcpp_1.0.11         iterators_1.0.14   
 #&gt; [37] knitr_1.43          future.apply_1.11.0 zoo_1.8-12         
-#&gt; [40] base64enc_0.1-3     Matrix_1.6-0        splines_4.3.1      
-#&gt; [43] nnet_7.3-19         tidyselect_1.2.0    rstudioapi_0.15.0  
-#&gt; [46] yaml_2.3.7          codetools_0.2-19    listenv_0.9.0      
-#&gt; [49] lattice_0.21-8      tibble_3.2.1        evaluate_0.21      
-#&gt; [52] foreign_0.8-84      future_1.33.0       pillar_1.9.0       
-#&gt; [55] checkmate_2.2.0     foreach_1.5.2       stats4_4.3.1       
-#&gt; [58] generics_0.1.3      vroom_1.6.3         hms_1.1.3          
-#&gt; [61] ggplot2_3.4.2       munsell_0.5.0       scales_1.2.1       
-#&gt; [64] globals_0.16.2      binaryLogic_0.3.9   glue_1.6.2         
-#&gt; [67] rms_6.7-0           Hmisc_5.1-0         tools_4.3.1        
-#&gt; [70] data.table_1.14.8   SparseM_1.81        mvtnorm_1.2-2      
-#&gt; [73] grid_4.3.1          tidyr_1.3.0         truncdist_1.0-2    
-#&gt; [76] colorspace_2.1-0    nlme_3.1-162        htmlTable_2.4.1    
-#&gt; [79] Formula_1.2-5       cli_3.6.1           evd_2.3-6.1        
-#&gt; [82] fansi_1.0.4         lava_1.7.2.1        mets_1.3.2         
-#&gt; [85] dplyr_1.1.2         gtable_0.3.3        sass_0.4.6         
-#&gt; [88] digest_0.6.33       TH.data_1.1-2       htmlwidgets_1.6.2  
-#&gt; [91] htmltools_0.5.5     lifecycle_1.0.3     bit64_4.0.5        
-#&gt; [94] MASS_7.3-60</code></pre>
+#&gt; [40] base64enc_0.1-3     timechange_0.2.0    Matrix_1.6-1       
+#&gt; [43] splines_4.3.1       nnet_7.3-19         tidyselect_1.2.0   
+#&gt; [46] rstudioapi_0.15.0   yaml_2.3.7          codetools_0.2-19   
+#&gt; [49] listenv_0.9.0       lattice_0.21-8      withr_2.5.0        
+#&gt; [52] evaluate_0.21       foreign_0.8-84      future_1.33.0      
+#&gt; [55] pillar_1.9.0        checkmate_2.2.0     foreach_1.5.2      
+#&gt; [58] stats4_4.3.1        generics_0.1.3      hms_1.1.3          
+#&gt; [61] munsell_0.5.0       scales_1.2.1        globals_0.16.2     
+#&gt; [64] glue_1.6.2          binaryLogic_0.3.9   rms_6.7-0          
+#&gt; [67] Hmisc_5.1-0         tools_4.3.1         data.table_1.14.8  
+#&gt; [70] SparseM_1.81        mvtnorm_1.2-2       grid_4.3.1         
+#&gt; [73] truncdist_1.0-2     colorspace_2.1-0    nlme_3.1-162       
+#&gt; [76] htmlTable_2.4.1     Formula_1.2-5       cli_3.6.1          
+#&gt; [79] evd_2.3-6.1         textshaping_0.3.6   fansi_1.0.4        
+#&gt; [82] lava_1.7.2.1        mets_1.3.2          gtable_0.3.4       
+#&gt; [85] sass_0.4.7          digest_0.6.33       TH.data_1.1-2      
+#&gt; [88] farver_2.1.1        htmlwidgets_1.6.2   htmltools_0.5.6    
+#&gt; [91] lifecycle_1.0.3     MASS_7.3-60</code></pre>
 </div>
 
 
