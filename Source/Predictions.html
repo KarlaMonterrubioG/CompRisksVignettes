@@ -301,6 +301,33 @@ and Catalina Vallejos</h4>
 </div>
 
 
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>The dataset used here corresponds to the Hodgkin’s disease (HD) study
+described in Pintilie, 2006. The data was loaded and pre-processed using
+the script that is sourced below. The latter creates three data
+objects:</p>
+<ul>
+<li><code>hd</code>: all the samples in the original data</li>
+<li><code>hd_train</code>: a random sample of the data to be used as a
+training set</li>
+<li><code>hd_test</code>: a random sample of the data to be used as a
+testing set</li>
+</ul>
+<p>Details about data pre-processing steps can be found <a
+href="https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/DataPreparation.Rmd">here</a></p>
+<pre class="r"><code>source(&quot;../Aux/data_prep.R&quot;)
+#&gt; Loading required package: readr
+#&gt; Loading required package: splitstackshape
+#&gt; The sourced script has been used to load and pre-process the data.
+#&gt; The latter converts appropriate variables into factors.
+#&gt; Additionally, we randomly split the data into training and testing sets, 
+#&gt; enabling us to evaluate out-of-sample predictive performance when comparing different approaches.</code></pre>
+<p>This document compares predictions generated the different approaches
+for individuals in the test set, focusing on the risk of the primary
+event type (relapse) at <span class="math inline">\(t=5\)</span>
+years.</p>
+</div>
 <div id="comparing-predictions-at-t5" class="section level1">
 <h1>Comparing predictions at <span
 class="math inline">\(t=5\)</span></h1>
@@ -395,7 +422,7 @@ ggpairs(pred_all, columns = 2:11, progress = FALSE,
         lower = list(continuous = scatter_limitRange),
         diag = list(continuous = dens_limitRange),
         columnLabels = my.labels)</code></pre>
-<p><img src="Predictions_files/figure-html/unnamed-chunk-1-1.png" width="1152" /></p>
+<p><img src="Predictions_files/figure-html/unnamed-chunk-2-1.png" width="1152" /></p>
 <pre class="r"><code>
 if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
   ggsave(&quot;/Outputs/Comparison_predictions_t5.pdf&quot;, device = &quot;pdf&quot;)
@@ -407,6 +434,52 @@ if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
 follow the examples provided by <a
 href="https://github.com/survival-lumc/ValidationCompRisks">van Geloven
 et al</a>.</p>
+</div>
+<div id="predictions-versus-covariates" class="section level2">
+<h2>Predictions versus covariates</h2>
+<pre class="r"><code># combine test dataset with the predictions
+pred_all &lt;- cbind(pred_all, hd_test)
+
+library(tidyverse)
+library(patchwork)
+
+y.min &lt;- with(pred_all, min(FG_riskRegression, DPWeibull, RF_logrankCR))
+y.max &lt;- with(pred_all, max(FG_riskRegression, DPWeibull, RF_logrankCR))
+
+p_FG &lt;- ggplot(data = pred_all, 
+                aes(x = age, y = FG_riskRegression, 
+                    col = sex, pch = trtgiven)) +
+  geom_point(cex = 2) + theme_classic() +
+  ylab(&quot;Prob relapse before 5 years (Fine &amp; Gray)&quot;) +
+  ylim(y.min, y.max) +
+  scale_color_manual(values = c(&quot;#B3B6B7&quot;, &quot;#000000&quot;))
+
+p_DW &lt;- ggplot(data = pred_all, 
+                aes(x = age, y = DPWeibull, 
+                    col = sex, pch = trtgiven)) +
+  geom_point(cex = 2) + theme_classic() +
+  ylab(&quot;Prob relapse before 5 years (DPWeibull)&quot;) +
+  ylim(y.min, y.max) +
+  scale_color_manual(values = c(&quot;#B3B6B7&quot;, &quot;#000000&quot;))
+
+p_RF &lt;- ggplot(data = pred_all, 
+                aes(x = age, y = RF_logrankCR, 
+                    col = sex, pch = trtgiven)) +
+  geom_point(cex = 2) + theme_classic() +
+  ylab(&quot;Prob relapse before 5 years (RF; logrankCR)&quot;) +
+  ylim(y.min, y.max) +
+  scale_color_manual(values = c(&quot;#B3B6B7&quot;, &quot;#000000&quot;))
+
+p_FG + p_DW + p_RF + plot_annotation(tag_levels = &#39;A&#39;) + 
+  plot_layout(guides = &#39;collect&#39;)</code></pre>
+<p><img src="Predictions_files/figure-html/unnamed-chunk-3-1.png" width="1536" /></p>
+<pre class="r"><code>
+if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
+  ggsave(&quot;/Outputs/Comparison_predictions_t5_covariates.pdf&quot;, device = &quot;pdf&quot;)
+} else {
+  ggsave(&quot;../Outputs/Comparison_predictions_t5_covariates.pdf&quot;, device = &quot;pdf&quot;)
+}
+#&gt; Saving 16 x 5 in image</code></pre>
 </div>
 </div>
 <div id="references" class="section level1">
@@ -436,21 +509,27 @@ et al</a>.</p>
 #&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     
 #&gt; 
 #&gt; other attached packages:
-#&gt; [1] GGally_2.1.2  ggplot2_3.4.2
+#&gt;  [1] patchwork_1.1.2       lubridate_1.9.2       forcats_1.0.0        
+#&gt;  [4] stringr_1.5.0         dplyr_1.1.2           purrr_1.0.1          
+#&gt;  [7] tidyr_1.3.0           tibble_3.2.1          tidyverse_2.0.0      
+#&gt; [10] splitstackshape_1.4.8 readr_2.1.4           GGally_2.1.2         
+#&gt; [13] ggplot2_3.4.2        
 #&gt; 
 #&gt; loaded via a namespace (and not attached):
-#&gt;  [1] gtable_0.3.3       jsonlite_1.8.7     dplyr_1.1.2        compiler_4.3.0    
-#&gt;  [5] highr_0.10         tidyselect_1.2.0   Rcpp_1.0.11        jquerylib_0.1.4   
-#&gt;  [9] scales_1.2.1       yaml_2.3.7         fastmap_1.1.1      R6_2.5.1          
-#&gt; [13] plyr_1.8.8         labeling_0.4.2     generics_0.1.3     knitr_1.43        
-#&gt; [17] tibble_3.2.1       munsell_0.5.0      bslib_0.5.0        pillar_1.9.0      
-#&gt; [21] RColorBrewer_1.1-3 rlang_1.1.1        utf8_1.2.3         cachem_1.0.8      
-#&gt; [25] reshape_0.8.9      xfun_0.39          sass_0.4.7         cli_3.6.1         
-#&gt; [29] withr_2.5.0        magrittr_2.0.3     digest_0.6.33      grid_4.3.0        
-#&gt; [33] rstudioapi_0.15.0  lifecycle_1.0.3    vctrs_0.6.3        evaluate_0.21     
-#&gt; [37] glue_1.6.2         farver_2.1.1       codetools_0.2-19   fansi_1.0.4       
-#&gt; [41] colorspace_2.1-0   rmarkdown_2.23     tools_4.3.0        pkgconfig_2.0.3   
-#&gt; [45] htmltools_0.5.5</code></pre>
+#&gt;  [1] sass_0.4.7         utf8_1.2.3         generics_0.1.3     stringi_1.7.12    
+#&gt;  [5] hms_1.1.3          digest_0.6.33      magrittr_2.0.3     timechange_0.2.0  
+#&gt;  [9] evaluate_0.21      grid_4.3.0         RColorBrewer_1.1-3 fastmap_1.1.1     
+#&gt; [13] plyr_1.8.8         jsonlite_1.8.7     reshape_0.8.9      fansi_1.0.4       
+#&gt; [17] scales_1.2.1       codetools_0.2-19   textshaping_0.3.6  jquerylib_0.1.4   
+#&gt; [21] cli_3.6.1          rlang_1.1.1        crayon_1.5.2       bit64_4.0.5       
+#&gt; [25] munsell_0.5.0      withr_2.5.0        cachem_1.0.8       yaml_2.3.7        
+#&gt; [29] tools_4.3.0        parallel_4.3.0     tzdb_0.4.0         colorspace_2.1-0  
+#&gt; [33] vctrs_0.6.3        R6_2.5.1           lifecycle_1.0.3    bit_4.0.5         
+#&gt; [37] vroom_1.6.3        ragg_1.2.5         pkgconfig_2.0.3    pillar_1.9.0      
+#&gt; [41] bslib_0.5.0        gtable_0.3.3       glue_1.6.2         data.table_1.14.8 
+#&gt; [45] Rcpp_1.0.11        systemfonts_1.0.4  highr_0.10         xfun_0.39         
+#&gt; [49] tidyselect_1.2.0   rstudioapi_0.15.0  knitr_1.43         farver_2.1.1      
+#&gt; [53] htmltools_0.5.5    rmarkdown_2.23     labeling_0.4.2     compiler_4.3.0</code></pre>
 </div>
 
 

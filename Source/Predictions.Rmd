@@ -31,6 +31,25 @@ knitr::opts_chunk$set(
 )
 ```
 
+# Introduction
+
+The dataset used here corresponds to the Hodgkin’s disease (HD) study described
+in Pintilie, 2006. The data was loaded and pre-processed using the script that
+is sourced below. The latter creates three data objects:
+
+- `hd`: all the samples in the original data
+- `hd_train`: a random sample of the data to be used as a training set
+- `hd_test`: a random sample of the data to be used as a testing set
+
+Details about data pre-processing steps can be found [here](https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/DataPreparation.Rmd)
+
+```{r}
+source("../Aux/data_prep.R")
+```
+
+This document compares predictions generated the different approaches for individuals in the test set, focusing on the risk of the primary event type
+(relapse) at $t=5$ years. 
+
 # Comparing predictions at $t=5$
 
 ## Loading the predictions
@@ -123,6 +142,52 @@ if (file.exists("/.dockerenv")){ # running in docker
 
 To evaluate the predictive performance for each methods, users can follow the
 examples provided by [van Geloven et al](https://github.com/survival-lumc/ValidationCompRisks).
+
+## Predictions versus covariates
+
+```{r, fig.width=16, fig.height=5}
+# combine test dataset with the predictions
+pred_all <- cbind(pred_all, hd_test)
+
+library(tidyverse)
+library(patchwork)
+
+y.min <- with(pred_all, min(FG_riskRegression, DPWeibull, RF_logrankCR))
+y.max <- with(pred_all, max(FG_riskRegression, DPWeibull, RF_logrankCR))
+
+p_FG <- ggplot(data = pred_all, 
+                aes(x = age, y = FG_riskRegression, 
+                    col = sex, pch = trtgiven)) +
+  geom_point(cex = 2) + theme_classic() +
+  ylab("Prob relapse before 5 years (Fine & Gray)") +
+  ylim(y.min, y.max) +
+  scale_color_manual(values = c("#B3B6B7", "#000000"))
+
+p_DW <- ggplot(data = pred_all, 
+                aes(x = age, y = DPWeibull, 
+                    col = sex, pch = trtgiven)) +
+  geom_point(cex = 2) + theme_classic() +
+  ylab("Prob relapse before 5 years (DPWeibull)") +
+  ylim(y.min, y.max) +
+  scale_color_manual(values = c("#B3B6B7", "#000000"))
+
+p_RF <- ggplot(data = pred_all, 
+                aes(x = age, y = RF_logrankCR, 
+                    col = sex, pch = trtgiven)) +
+  geom_point(cex = 2) + theme_classic() +
+  ylab("Prob relapse before 5 years (RF; logrankCR)") +
+  ylim(y.min, y.max) +
+  scale_color_manual(values = c("#B3B6B7", "#000000"))
+
+p_FG + p_DW + p_RF + plot_annotation(tag_levels = 'A') + 
+  plot_layout(guides = 'collect')
+
+if (file.exists("/.dockerenv")){ # running in docker
+  ggsave("/Outputs/Comparison_predictions_t5_covariates.pdf", device = "pdf")
+} else {
+  ggsave("../Outputs/Comparison_predictions_t5_covariates.pdf", device = "pdf")
+}
+```
 
 # References
 <div id="refs"></div>
