@@ -131,7 +131,15 @@ then browse to `localhost:8787` in a web browser to get an Rstudio session. The
 login username should be "rstudio" and the password will be "password" (unless
 you have changed it).
 
-2. **Non-interactive**:
+You may wish to set the root directory as your working directory in Rstudio as
+this is the working directory in the  non-interactive approach. This
+can be achieved by running the below code in the Rstudio console:
+
+``` R
+setwd("/")
+```
+
+1. **Non-interactive**:
 
 This can be used to reproduce our results by rendering the html reports. 
 To render the html reports, run
