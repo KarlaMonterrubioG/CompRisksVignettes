@@ -154,7 +154,7 @@ render HTML files to the [`docs`](docs) directory using the Docker image.
 
 **Cleanup**
 
-The Docker image is large (3.88GB), so you may wish to delete the image once you
+The Docker image is large (3.98GB), so you may wish to delete the image once you
 are finished:
 
 ``` bash

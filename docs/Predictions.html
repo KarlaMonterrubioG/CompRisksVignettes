@@ -11,7 +11,7 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2023-08-25" />
+<meta name="date" content="2023-09-01" />
 
 <title>Comparison of predictions</title>
 
@@ -296,11 +296,36 @@ div.tocify {
 <h1 class="title toc-ignore">Comparison of predictions</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2023-08-25</h4>
+<h4 class="date">2023-09-01</h4>
 
 </div>
 
 
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>The dataset used here corresponds to the Hodgkin’s disease (HD) study
+described in Pintilie, 2006. The data was loaded and pre-processed using
+the script that is sourced below. The latter creates three data
+objects:</p>
+<ul>
+<li><code>hd</code>: all the samples in the original data</li>
+<li><code>hd_train</code>: a random sample of the data to be used as a
+training set</li>
+<li><code>hd_test</code>: a random sample of the data to be used as a
+testing set</li>
+</ul>
+<p>Details about data pre-processing steps can be found <a
+href="https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/DataPreparation.Rmd">here</a></p>
+<pre class="r"><code>source(&quot;../Aux/data_prep.R&quot;)
+#&gt; The sourced script has been used to load and pre-process the data.
+#&gt; The latter converts appropriate variables into factors.
+#&gt; Additionally, we randomly split the data into training and testing sets, 
+#&gt; enabling us to evaluate out-of-sample predictive performance when comparing different approaches.</code></pre>
+<p>This document compares predictions generated the different approaches
+for individuals in the test set, focusing on the risk of the primary
+event type (relapse) at <span class="math inline">\(t=5\)</span>
+years.</p>
+</div>
 <div id="comparing-predictions-at-t5" class="section level1">
 <h1>Comparing predictions at <span
 class="math inline">\(t=5\)</span></h1>
@@ -368,20 +393,13 @@ to similar predictions. RF exhibited the greatest discrepancy with
 respect to such methods above. Note that for the different BART
 approaches and DPWeibull, predicted probabilities may be affected by
 lack of convergence of the algorithm.</p>
+<p>The following code was used to create Figure 2:</p>
 <pre class="r"><code>library(GGally)
-#&gt; Registered S3 method overwritten by &#39;GGally&#39;:
-#&gt;   method from   
-#&gt;   +.gg   ggplot2
-#&gt; 
-#&gt; Attaching package: &#39;GGally&#39;
-#&gt; The following object is masked from &#39;package:pander&#39;:
-#&gt; 
-#&gt;     wrap
 
 # Code to control axis limits was adapted from: https://stackoverflow.com/questions/53277656/how-to-define-facet-axis-limits-in-ggpairs-function
 scatter_limitRange &lt;- function(data, mapping, ...) { 
   ggplot(data = data, mapping = mapping, ...) + 
-    geom_point(..., col = &quot;#1A5276&quot;, alpha = 0.5) + 
+    geom_point(..., col = &quot;gray&quot;, alpha = 0.5) + 
     geom_abline(intercept = 0, slope = 1) +
     scale_x_continuous(limits = c(min(pred_all[,-1]), max(pred_all[,-1]))) +
     scale_y_continuous(limits = c(min(pred_all[,-1]), max(pred_all[,-1]))) +
@@ -389,7 +407,7 @@ scatter_limitRange &lt;- function(data, mapping, ...) {
 }
 dens_limitRange &lt;- function(data, mapping, ...) {
   ggplot(data = data, mapping = mapping, ...) + 
-    geom_density(..., col = &quot;#1A5276&quot;, fill = &quot;#1A5276&quot;) + 
+    geom_density(..., col = &quot;gray&quot;, fill = &quot;gray&quot;) + 
     scale_x_continuous(limits = c(min(pred_all[,-1]), max(pred_all[,-1]))) +
     theme_classic()
 }
@@ -402,7 +420,7 @@ ggpairs(pred_all, columns = 2:11, progress = FALSE,
         lower = list(continuous = scatter_limitRange),
         diag = list(continuous = dens_limitRange),
         columnLabels = my.labels)</code></pre>
-<p><img src="Predictions_files/figure-html/unnamed-chunk-1-1.png" width="1152" /></p>
+<p><img src="Predictions_files/figure-html/unnamed-chunk-2-1.png" width="1152" /></p>
 <pre class="r"><code>
 if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
   ggsave(&quot;/Outputs/Comparison_predictions_t5.pdf&quot;, device = &quot;pdf&quot;)
@@ -414,6 +432,52 @@ if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
 follow the examples provided by <a
 href="https://github.com/survival-lumc/ValidationCompRisks">van Geloven
 et al</a>.</p>
+</div>
+<div id="predictions-versus-covariates" class="section level2">
+<h2>Predictions versus covariates</h2>
+<pre class="r"><code># combine test dataset with the predictions
+pred_all &lt;- cbind(pred_all, hd_test)
+
+library(tidyverse)
+library(patchwork)
+
+y.min &lt;- with(pred_all, min(FG_riskRegression, DPWeibull, RF_logrankCR))
+y.max &lt;- with(pred_all, max(FG_riskRegression, DPWeibull, RF_logrankCR))
+
+p_FG &lt;- ggplot(data = pred_all, 
+                aes(x = age, y = FG_riskRegression, 
+                    col = sex, pch = trtgiven)) +
+  geom_point(cex = 2) + theme_classic() +
+  ylab(&quot;Prob relapse before 5 years (Fine &amp; Gray)&quot;) +
+  ylim(y.min, y.max) +
+  scale_color_manual(values = c(&quot;#B3B6B7&quot;, &quot;#000000&quot;))
+
+p_DW &lt;- ggplot(data = pred_all, 
+                aes(x = age, y = DPWeibull, 
+                    col = sex, pch = trtgiven)) +
+  geom_point(cex = 2) + theme_classic() +
+  ylab(&quot;Prob relapse before 5 years (DPWeibull)&quot;) +
+  ylim(y.min, y.max) +
+  scale_color_manual(values = c(&quot;#B3B6B7&quot;, &quot;#000000&quot;))
+
+p_RF &lt;- ggplot(data = pred_all, 
+                aes(x = age, y = RF_logrankCR, 
+                    col = sex, pch = trtgiven)) +
+  geom_point(cex = 2) + theme_classic() +
+  ylab(&quot;Prob relapse before 5 years (RF; logrankCR)&quot;) +
+  ylim(y.min, y.max) +
+  scale_color_manual(values = c(&quot;#B3B6B7&quot;, &quot;#000000&quot;))
+
+p_FG + p_DW + p_RF + plot_annotation(tag_levels = &#39;A&#39;) + 
+  plot_layout(guides = &#39;collect&#39;)</code></pre>
+<p><img src="Predictions_files/figure-html/unnamed-chunk-3-1.png" width="1536" /></p>
+<pre class="r"><code>
+if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
+  ggsave(&quot;/Outputs/Comparison_predictions_t5_covariates.pdf&quot;, device = &quot;pdf&quot;)
+} else {
+  ggsave(&quot;../Outputs/Comparison_predictions_t5_covariates.pdf&quot;, device = &quot;pdf&quot;)
+}
+#&gt; Saving 16 x 5 in image</code></pre>
 </div>
 </div>
 <div id="references" class="section level1">
@@ -451,25 +515,25 @@ et al</a>.</p>
 #&gt; other attached packages:
 #&gt;  [1] GGally_2.1.2              randomForestSRC_3.2.2    
 #&gt;  [3] BART_2.9.4                nlme_3.1-162             
-#&gt;  [5] nnet_7.3-19               pander_0.6.5             
-#&gt;  [7] mboost_2.9-7              stabs_0.6-4              
-#&gt;  [9] glmnet_4.1-8              Matrix_1.6-1             
-#&gt; [11] pec_2023.04.12            rms_6.7-0                
-#&gt; [13] Hmisc_5.1-0               patchwork_1.1.3          
-#&gt; [15] lubridate_1.9.2.9000      forcats_1.0.0            
-#&gt; [17] stringr_1.5.0             dplyr_1.1.2              
-#&gt; [19] purrr_1.0.2               tidyr_1.3.0              
-#&gt; [21] tibble_3.2.1              ggplot2_3.4.3            
-#&gt; [23] tidyverse_2.0.0           coda_0.19-4              
-#&gt; [25] DPWeibull_1.8             timereg_2.0.5            
-#&gt; [27] pseudo_1.4.3              geepack_1.3.9            
-#&gt; [29] KMsurv_0.1-5              riskRegression_2023.03.22
-#&gt; [31] prodlim_2023.03.31        cmprsk_2.2-11            
-#&gt; [33] survival_3.5-5            splitstackshape_1.4.8    
-#&gt; [35] readr_2.1.4              
+#&gt;  [5] nnet_7.3-19               table1_1.4.3             
+#&gt;  [7] pander_0.6.5              mboost_2.9-7             
+#&gt;  [9] stabs_0.6-4               glmnet_4.1-8             
+#&gt; [11] Matrix_1.6-1              pec_2023.04.12           
+#&gt; [13] rms_6.7-0                 Hmisc_5.1-0              
+#&gt; [15] patchwork_1.1.3           lubridate_1.9.2.9000     
+#&gt; [17] forcats_1.0.0             stringr_1.5.0            
+#&gt; [19] dplyr_1.1.2               purrr_1.0.2              
+#&gt; [21] tidyr_1.3.0               tibble_3.2.1             
+#&gt; [23] ggplot2_3.4.3             tidyverse_2.0.0          
+#&gt; [25] coda_0.19-4               DPWeibull_1.8            
+#&gt; [27] timereg_2.0.5             pseudo_1.4.3             
+#&gt; [29] geepack_1.3.9             KMsurv_0.1-5             
+#&gt; [31] riskRegression_2023.03.22 prodlim_2023.08.28       
+#&gt; [33] cmprsk_2.2-11             survival_3.5-5           
+#&gt; [35] splitstackshape_1.4.8     readr_2.1.4              
 #&gt; 
 #&gt; loaded via a namespace (and not attached):
-#&gt;   [1] RColorBrewer_1.1-3  libcoin_1.0-9       rstudioapi_0.15.0  
+#&gt;   [1] libcoin_1.0-9       RColorBrewer_1.1-3  rstudioapi_0.15.0  
 #&gt;   [4] jsonlite_1.8.7      shape_1.4.6         magrittr_2.0.3     
 #&gt;   [7] TH.data_1.1-2       farver_2.1.1        rmarkdown_2.24     
 #&gt;  [10] ragg_1.2.5          vctrs_0.6.3         truncdist_1.0-2    
@@ -481,7 +545,7 @@ et al</a>.</p>
 #&gt;  [28] iterators_1.0.14    pkgconfig_2.0.3     R6_2.5.1           
 #&gt;  [31] fastmap_1.1.1       future_1.33.0       digest_0.6.33      
 #&gt;  [34] numDeriv_2016.8-1.1 reshape_0.8.9       colorspace_2.1-0   
-#&gt;  [37] textshaping_0.3.6   labeling_0.4.2      fansi_1.0.4        
+#&gt;  [37] textshaping_0.3.6   labeling_0.4.3      fansi_1.0.4        
 #&gt;  [40] timechange_0.2.0    nnls_1.4            compiler_4.3.1     
 #&gt;  [43] bit64_4.0.5         withr_2.5.0         htmlTable_2.4.1    
 #&gt;  [46] backports_1.4.1     highr_0.10          MASS_7.3-60        
@@ -500,9 +564,9 @@ et al</a>.</p>
 #&gt;  [85] codetools_0.2-19    data.tree_1.0.0     evd_2.3-6.1        
 #&gt;  [88] cli_3.6.1           rpart_4.1.19        systemfonts_1.0.4  
 #&gt;  [91] munsell_0.5.0       jquerylib_0.1.4     Rcpp_1.0.11        
-#&gt;  [94] globals_0.16.2      ellipsis_0.3.2      MatrixModels_0.5-2 
-#&gt;  [97] listenv_0.9.0       mvtnorm_1.2-2       scales_1.2.1       
-#&gt; [100] crayon_1.5.2        rlang_1.1.1         multcomp_1.4-25</code></pre>
+#&gt;  [94] globals_0.16.2      MatrixModels_0.5-2  listenv_0.9.0      
+#&gt;  [97] mvtnorm_1.2-3       scales_1.2.1        crayon_1.5.2       
+#&gt; [100] rlang_1.1.1         multcomp_1.4-25</code></pre>
 </div>
 
 
