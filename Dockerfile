@@ -8,6 +8,7 @@ LABEL "org.opencontainers.image.source"="https://github.com/vallejosgroup/CompRi
 
 RUN apt clean
 
+# Install system dependencies
 RUN apt-get update -qq && apt-get -y --no-install-recommends install \
   # Install XML2
   libxml2-dev  \
@@ -52,13 +53,12 @@ RUN install2.r --error \
     --skipinstalled \
     BiocManager littler
 
-# Packages from Bioconductor (will compile from source)
-RUN /usr/local/lib/R/site-library/littler/examples/installBioc.r S4Vectors
-RUN /usr/local/lib/R/site-library/littler/examples/installBioc.r biomaRt
-RUN /usr/local/lib/R/site-library/littler/examples/installBioc.r  KEGGgraph
-RUN /usr/local/lib/R/site-library/littler/examples/installBioc.r BiocVersion
+# Install packages from Bioconductor (will compile from source)
+RUN /usr/local/lib/R/site-library/littler/examples/installBioc.r S4Vectors \
+    biomaRt \
+    KEGGgraph \
+    BiocVersion
 
-# Install R packages from CRAN (will download binaries)
 # Install igraph first or amd64 build will fail
 RUN install2.r --error \
     --deps TRUE \
@@ -67,6 +67,7 @@ RUN install2.r --error \
     --skipinstalled \
     igraph
 
+# Install remotes to download packages from github
 RUN install2.r --error \
     --deps TRUE \
     --ncpus -1 \
@@ -74,14 +75,10 @@ RUN install2.r --error \
     --skipinstalled \
     remotes
 
-RUN Rscript -e "remotes::install_github('cran/ipw')"
-RUN Rscript -e "remotes::install_github('cran/HI')"
-RUN Rscript -e "remotes::install_github('cran/BSGW')"
+# Install archived packges (will compile from source)
+RUN Rscript -e "library(remotes); install_github('cran/ipw'); install_github('cran/HI'); install_github('cran/BSGW')" 
 
-#  Dependency for riskRegression. Removed from CRAN then resubmitted means no binary available
-RUN Rscript -e  "install.packages('casebase', type = 'source', repos = 'https://cloud.r-project.org/')"
-
-
+# Install R packages on CRAN (will download binaries)
 RUN install2.r --error \
     --deps TRUE \
     --ncpus -1 \
@@ -110,8 +107,9 @@ RUN install2.r --error \
     RcppProgress \
     tidyverse \
     patchwork \
-    GGally
-
+    GGally \
+    table1 \
+    casebase
 
 RUN install2.r --error \
     --deps FALSE \
@@ -122,6 +120,8 @@ RUN install2.r --error \
     partykit \
     mboost \
     CFC
+
+RUN Rscript -e "remotes::install_github('cran/binaryLogic'); remotes::install_github('cran/DPWeibull')"
 
 RUN rm -rf /tmp/downloaded_packages \
     && strip /usr/local/lib/R/site-library/*/libs/*.so
@@ -135,7 +135,6 @@ COPY Docker /
 RUN chmod u+x render
 RUN mkdir Data
 
-RUN Rscript -e "remotes::install_github('cran/binaryLogic'); remotes::install_github('cran/DPWeibull')"
 
 RUN chmod u+x render
 
