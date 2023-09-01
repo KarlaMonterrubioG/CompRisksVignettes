@@ -122,6 +122,7 @@ docker container run \
   --mount type=bind,source="$(pwd)"/Predictions,target=/Predictions \
   --mount type=bind,source="$(pwd)"/Outputs,target=/Outputs \
   -e PASSWORD=password \
+  -ti \
   -p 8787:8787 \
   ghcr.io/vallejosgroup/comprisksvignettes
 ```
@@ -138,8 +139,7 @@ can be achieved by running the below code in the Rstudio console:
 ``` R
 setwd("/")
 ```
-
-1. **Non-interactive**:
+2. **Non-interactive**:
 
 This can be used to reproduce our results by rendering the html reports. 
 To render the html reports, run
