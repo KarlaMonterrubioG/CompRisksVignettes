@@ -1,7 +1,6 @@
 # Competing risks
 
-This repository contains supplementary material for the paper: A review on
-competing risks methods for survival analysis.
+This repository contains supplementary material for the paper: A review on statistical and machine learning competing risks survival methods]{A review on statistical and machine learning competing risks methods.
 
 It includes R vignettes to illustrate the usage of the following methods:
 
@@ -25,19 +24,15 @@ It includes R vignettes to illustrate the usage of the following methods:
 ```
 .
 ├── README.md                       
-├── Data                               # Example dataset
+├── Data                                             # Example dataset
 │   └── HD                   
 │       └── hd.csv        
-├── Docker                             # Files for building/using Docker image
+├── Docker                                           # Files for building/using Docker image
 │   ├── README.md
 │   ├── examples.sh
 │   ├── render
 │   └── render.R
-├── Predictions                        # Resulting predictions in test set
-│   ├── pred_CIF.csv
-│   ├── pred_CS.csv
-│   └── pred_Others.csv
-├── Source                             # Vignettes, includes Rmd and html files
+├── Source                                           # Vignettes, includes Rmd and html files
 │   ├── CIF_specification.Rmd
 │   ├── CIF_specification.html
 │   ├── CS_specification.Rmd
@@ -46,12 +41,28 @@ It includes R vignettes to illustrate the usage of the following methods:
 │   ├── Discrete_specification.html
 │   ├── Others.Rmd
 │   ├── Others.html
+│   ├── DataPreparation.Rmd
+│   ├── DataPreparation.html
 │   ├── Predictions.Rmd
+│   ├── Predictions.html
 │   ├── head.html
 │   ├── index.Rmd
 │   ├── navbar.html
 │   ├── references.bib
 │   └── style.css
+├── Outputs                                           # Resulting images and csv files
+│   ├── Comparision_estimation_CIF.pdf
+│   ├── Comparision_estimation_CIF_BW.pdf
+│   ├── Comparision_estimation_CSH.pdf
+│   ├── Comparision_estimation_CSH_BW.pdf
+│   ├── Comparision_predictions_t5.pdf
+│   ├── Comparision_predictions_t5_covariates.pdf
+│   ├── pred_CIF.csv
+│   ├── pred_BART.csv
+│   ├── pred_CS.csv
+│   └── pred_Others.csv
+├── Aux                                              # Data preparation
+│   ├── data_prep.R
 ├── docs
 │   └── .nojekill
 ├── LICENSE
@@ -119,7 +130,6 @@ docker container run \
   --mount type=bind,source="$(pwd)"/Aux,target=/Aux \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
-  --mount type=bind,source="$(pwd)"/Predictions,target=/Predictions \
   --mount type=bind,source="$(pwd)"/Outputs,target=/Outputs \
   -e PASSWORD=password \
   -ti \
@@ -150,7 +160,6 @@ docker container run \
   --mount type=bind,source="$(pwd)"/Aux,target=/Aux \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
-  --mount type=bind,source="$(pwd)"/Predictions,target=/Predictions \
   --mount type=bind,source="$(pwd)"/Outputs,target=/Outputs \
   ghcr.io/vallejosgroup/comprisksvignettes ./render
 ```
