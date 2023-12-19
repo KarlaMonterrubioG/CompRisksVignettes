@@ -1,6 +1,6 @@
 # Competing risks
 
-This repository contains supplementary material for the paper: A review on statistical and machine learning competing risks survival methods]{A review on statistical and machine learning competing risks methods.
+This repository contains supplementary material for the paper: A review on statistical and machine learning competing risks survival methods.
 
 It includes R vignettes to illustrate the usage of the following methods:
 
@@ -8,7 +8,7 @@ It includes R vignettes to illustrate the usage of the following methods:
   + Cause-specific Cox PH
   + Sparse regression:
      - Lasso CPH
-     - Cox boosting
+     - Cox model-based boosting
 * [CIF formulation](https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/CIF_specification.Rmd)
   + Fine-Gray
   + Pseudo-values
