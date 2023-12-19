@@ -61,11 +61,12 @@ It includes R vignettes to illustrate the usage of the following methods:
 │   ├── pred_BART.csv
 │   ├── pred_CS.csv
 │   └── pred_Others.csv
-├── Aux                                              # Data preparation
+├── Aux                                               # Data preparation
 │   ├── data_prep.R
 ├── docs
 │   └── .nojekill
 ├── LICENSE
+├── session.log                                       # R session info
 ├── Dockerfile
 └── Competing_risks.Rproj
    
