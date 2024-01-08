@@ -91,6 +91,7 @@ functionality is documented in the help file for the `crisk2.bart()` function.
 
 
 ```{r, results='hide'}
+set.seed(99)
 bart1 <- crisk2.bart(x.train = xtrain, 
                      times = hd_train$time,   # needed if ytrain is not provided
                      delta = hd_train$status, # needed if ytrain is not provided
@@ -168,6 +169,7 @@ the training data as a test set (i.e. `x.test = xtrain`). The code required to
 this is provided below. 
 
 ```{r, results='hide', eval = FALSE}
+set.seed(99)
 bart1.chains <- crisk2.bart(x.train = xtrain, 
                      times = hd_train$time,   # needed if ytrain is not provided
                      delta = hd_train$status, # needed if ytrain is not provided
@@ -302,6 +304,7 @@ fit such model we use again `crisk2.bart()` function and set the `sparse`
 argument equal to `TRUE`.
 
 ```{r, results='hide'}
+set.seed(99)
 dart1 <- crisk2.bart(x.train = xtrain, 
                      times = hd_train$time,   # needed if ytrain is not provided
                      delta = hd_train$status, # needed if ytrain is not provided
@@ -357,6 +360,7 @@ the individual is still at risk and did not experience a type $k=1$ event.
 In this case, the model is fit with function `crisk.bart()`:
 
 ```{r, results='hide'}
+set.seed(99)
 bart2 <- crisk.bart(x.train = xtrain, times = hd_train$time, 
                     delta=hd_train$status,
                     x.test = xtest, 
