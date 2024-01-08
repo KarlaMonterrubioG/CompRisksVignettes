@@ -99,8 +99,7 @@ bart1 <- crisk2.bart(x.train = xtrain,
                      sparse = FALSE,          # set equal TRUE for variable selection 
                      type = 'pbart',
                      ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 500, keepevery = 5, 
-                     seed = 99)
+                     ndpost = 500, nskip = 500, keepevery = 5)
 ```
 
 Note that the code shown above does not use multi-threading, but BART permits 
@@ -177,8 +176,7 @@ bart1.chains <- crisk2.bart(x.train = xtrain,
                      sparse = FALSE,          # set equal TRUE for variable selection 
                      type = 'pbart',
                      ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 500, keepevery = 5, 
-                     seed = 99)
+                     ndpost = 500, nskip = 500, keepevery = 5)
 ```
 
 Similar plots for the Geweke diagnostic criteria can be then generated using 
@@ -194,6 +192,7 @@ individuals in the training set.
 ```{r, cache.lazy = FALSE}
 # prepare the data to the format required by BART
 # The training data is used as test dataset
+set.seed(99)
 pre <- surv.pre.bart(x.train = xtrain, x.test = xtrain,
                      times = hd_train$time, delta = hd_train$status)
 # generate predictions using 
@@ -312,8 +311,7 @@ dart1 <- crisk2.bart(x.train = xtrain,
                      sparse = TRUE,          # set equal TRUE for variable selection 
                      type = 'pbart',
                      ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 500, keepevery = 5, 
-                     seed = 99)  
+                     ndpost = 500, nskip = 500, keepevery = 5)  
 ```
 
 The output of the function is the same as discussed in the previous section. 
@@ -367,8 +365,7 @@ bart2 <- crisk.bart(x.train = xtrain, times = hd_train$time,
                     sparse=FALSE, 
                     type='pbart',
                     ntree = 30, numcut = 100, 
-                    ndpost = 500, nskip = 500, keepevery = 5, 
-                    seed=99)
+                    ndpost = 500, nskip = 500, keepevery = 5)
 # Parallel computation of the model is available using mc.crisk.bart
 ```
 
