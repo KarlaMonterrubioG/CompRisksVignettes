@@ -284,6 +284,7 @@ Note also that if a new test dataset is available, one can do predictions
 afterwards by making a call to the `predict.crisk2bart()` function. For instance:
 
 ```{r}
+set.seed(99)
 pre <- surv.pre.bart(x.train=xtrain, x.test=xtest, 
                      times=hd_train$time, 
                      delta =hd_train$status)
