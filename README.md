@@ -61,7 +61,7 @@ It includes R vignettes to illustrate the usage of the following methods:
 │   ├── pred_BART.csv
 │   ├── pred_CS.csv
 │   └── pred_Others.csv
-├── Aux                                               # Data preparation
+├── Data_prep                                          # Data preparation
 │   ├── data_prep.R
 ├── docs
 │   └── .nojekill
@@ -128,7 +128,7 @@ To do this, you can run:
 ``` bash
 docker container run \
   --mount type=bind,source="$(pwd)"/docs,target=/docs \
-  --mount type=bind,source="$(pwd)"/Aux,target=/Aux \
+  --mount type=bind,source="$(pwd)"/Data_prep,target=/Data_prep \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
   --mount type=bind,source="$(pwd)"/Outputs,target=/Outputs \
@@ -158,7 +158,7 @@ To render the html reports, run
 ``` bash
 docker container run \
   --mount type=bind,source="$(pwd)"/docs,target=/docs \
-  --mount type=bind,source="$(pwd)"/Aux,target=/Aux \
+  --mount type=bind,source="$(pwd)"/Data_prep,target=/Data_prep \
   --mount type=bind,source="$(pwd)"/Source,target=/Source \
   --mount type=bind,source="$(pwd)"/Data,target=/Data \
   --mount type=bind,source="$(pwd)"/Outputs,target=/Outputs \
