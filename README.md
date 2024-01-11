@@ -66,7 +66,6 @@ It includes R vignettes to illustrate the usage of the following methods:
 ├── docs
 │   └── .nojekill
 ├── LICENSE
-├── session.log                                       # R session info
 ├── Dockerfile
 └── Competing_risks.Rproj
    
