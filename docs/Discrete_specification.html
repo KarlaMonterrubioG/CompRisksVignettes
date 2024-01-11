@@ -11,7 +11,7 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2023-09-01" />
+<meta name="date" content="2024-01-11" />
 
 <title>Approaches based on a discrete survival times specification</title>
 
@@ -297,7 +297,7 @@ div.tocify {
 times specification</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2023-09-01</h4>
+<h4 class="date">2024-01-11</h4>
 
 </div>
 
@@ -317,7 +317,7 @@ testing set</li>
 </ul>
 <p>Details about data pre-processing steps can be found <a
 href="https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/DataPreparation.Rmd">here</a></p>
-<pre class="r"><code>source(&quot;../Aux/data_prep.R&quot;)
+<pre class="r"><code>source(&quot;../Data_prep/data_prep.R&quot;)
 #&gt; The sourced script has been used to load and pre-process the data.
 #&gt; The latter converts appropriate variables into factors.
 #&gt; Additionally, we randomly split the data into training and testing sets, 
@@ -368,15 +368,15 @@ can be passed directly when fitting the model through the argument
 <code>ndpost</code>, <code>nskip</code>, and <code>keepevery</code>.
 Their functionality is documented in the help file for the
 <code>crisk2.bart()</code> function.</p>
-<pre class="r"><code>bart1 &lt;- crisk2.bart(x.train = xtrain, 
+<pre class="r"><code>set.seed(99)
+bart1 &lt;- crisk2.bart(x.train = xtrain, 
                      times = hd_train$time,   # needed if ytrain is not provided
                      delta = hd_train$status, # needed if ytrain is not provided
                      x.test = xtest, 
                      sparse = FALSE,          # set equal TRUE for variable selection 
                      type = &#39;pbart&#39;,
                      ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 500, keepevery = 5, 
-                     seed = 99)</code></pre>
+                     ndpost = 500, nskip = 500, keepevery = 5)</code></pre>
 <p>Note that the code shown above does not use multi-threading, but BART
 permits its usage by using <code>mc.crisk2.bart()</code> function
 instead of <code>crisk2.bart()</code>.</p>
@@ -439,15 +439,15 @@ this, they suggested an alternative strategy. This requires fitting a
 new model, using the training data as a test set
 (i.e. <code>x.test = xtrain</code>). The code required to this is
 provided below.</p>
-<pre class="r"><code>bart1.chains &lt;- crisk2.bart(x.train = xtrain, 
+<pre class="r"><code>set.seed(99)
+bart1.chains &lt;- crisk2.bart(x.train = xtrain, 
                      times = hd_train$time,   # needed if ytrain is not provided
                      delta = hd_train$status, # needed if ytrain is not provided
                      x.test = xtrain,         
                      sparse = FALSE,          # set equal TRUE for variable selection 
                      type = &#39;pbart&#39;,
                      ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 500, keepevery = 5, 
-                     seed = 99)</code></pre>
+                     ndpost = 500, nskip = 500, keepevery = 5)</code></pre>
 <p>Similar plots for the Geweke diagnostic criteria can be then
 generated using the code above, replacing <code>bart1</code> by
 <code>bart1.chains</code>.</p>
@@ -461,6 +461,7 @@ data. This allows us to obtain estimates
 set.</p>
 <pre class="r"><code># prepare the data to the format required by BART
 # The training data is used as test dataset
+set.seed(99)
 pre &lt;- surv.pre.bart(x.train = xtrain, x.test = xtrain,
                      times = hd_train$time, delta = hd_train$status)
 # generate predictions using 
@@ -536,11 +537,12 @@ time-points present in the training dataset. Below, we show results for
 the first 5 subjects in the test set.</p>
 <pre class="r"><code>BART1.pred &lt;- matrix(bart1$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )
 BART1.pred[1:5, which(bart1$times == 5)]
-#&gt; [1] 0.2855420 0.3402614 0.2493487 0.2640729 0.2336196</code></pre>
+#&gt; [1] 0.3200795 0.3458437 0.2952182 0.2691998 0.2547399</code></pre>
 <p>Note also that if a new test dataset is available, one can do
 predictions afterwards by making a call to the
 <code>predict.crisk2bart()</code> function. For instance:</p>
-<pre class="r"><code>pre &lt;- surv.pre.bart(x.train=xtrain, x.test=xtest, 
+<pre class="r"><code>set.seed(99)
+pre &lt;- surv.pre.bart(x.train=xtrain, x.test=xtest, 
                      times=hd_train$time, 
                      delta =hd_train$status)
 
@@ -549,16 +551,16 @@ bart1.pred &lt;- predict(bart1, newdata=pre$tx.test, newdata2=pre$tx.test)
 # Same results are obtained if the same test dataset is used
 cif.pred[1:4, 1:4]
 #&gt;             [,1]       [,2]       [,3]       [,4]
-#&gt; [1,] 0.010784139 0.02144622 0.03198765 0.04240984
-#&gt; [2,] 0.013450486 0.02670823 0.03977608 0.05265686
-#&gt; [3,] 0.008831628 0.01758101 0.02624895 0.03483625
-#&gt; [4,] 0.009457712 0.01882133 0.02809184 0.03727020
+#&gt; [1,] 0.012018387 0.02388410 0.03559916 0.04716553
+#&gt; [2,] 0.013490303 0.02678276 0.03988044 0.05278634
+#&gt; [3,] 0.010450391 0.02078480 0.03100457 0.04111104
+#&gt; [4,] 0.009426601 0.01875810 0.02799552 0.03713985
 matrix(bart1.pred$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )[1:4, 1:4]
 #&gt;             [,1]       [,2]       [,3]       [,4]
-#&gt; [1,] 0.010784139 0.02144622 0.03198765 0.04240984
-#&gt; [2,] 0.013450486 0.02670823 0.03977608 0.05265686
-#&gt; [3,] 0.008831628 0.01758101 0.02624895 0.03483625
-#&gt; [4,] 0.009457712 0.01882133 0.02809184 0.03727020</code></pre>
+#&gt; [1,] 0.012018387 0.02388410 0.03559916 0.04716553
+#&gt; [2,] 0.013490303 0.02678276 0.03988044 0.05278634
+#&gt; [3,] 0.010450391 0.02078480 0.03100457 0.04111104
+#&gt; [4,] 0.009426601 0.01875810 0.02799552 0.03713985</code></pre>
 <div id="dart" class="section level3">
 <h3>DART</h3>
 <p>It is possible to employ a sparse Dirichlet prior for variable
@@ -566,15 +568,15 @@ selection (DART model). This will help us to determine variable
 importance. In order to fit such model we use again
 <code>crisk2.bart()</code> function and set the <code>sparse</code>
 argument equal to <code>TRUE</code>.</p>
-<pre class="r"><code>dart1 &lt;- crisk2.bart(x.train = xtrain, 
+<pre class="r"><code>set.seed(99)
+dart1 &lt;- crisk2.bart(x.train = xtrain, 
                      times = hd_train$time,   # needed if ytrain is not provided
                      delta = hd_train$status, # needed if ytrain is not provided
                      x.test = xtest, 
                      sparse = TRUE,          # set equal TRUE for variable selection 
                      type = &#39;pbart&#39;,
                      ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 500, keepevery = 5, 
-                     seed = 99)  </code></pre>
+                     ndpost = 500, nskip = 500, keepevery = 5)  </code></pre>
 <p>The output of the function is the same as discussed in the previous
 section. For simplicity, we have not evaluated convergence here, but the
 approach described above could be applied. CIF estimates can also be
@@ -585,7 +587,7 @@ posterior probabilities of inclusion associated to each input
 covariates:</p>
 <pre class="r"><code>dart1$varprob.mean[-1]
 #&gt;        age       sexM trtgivenRT  medwidsiN  medwidsiS  extranodY   clinstg2 
-#&gt; 0.14059677 0.27360683 0.06658708 0.04020347 0.07231300 0.08462784 0.09142389
+#&gt; 0.17246905 0.07388055 0.06406175 0.03695244 0.06917858 0.05304716 0.22277258
 
 plot(dart1$varprob.mean[-1], 
      ylab=&#39;Selection Probability&#39;, 
@@ -596,7 +598,7 @@ abline(h = 1/P, lty = 2)</code></pre>
 <pre class="r"><code>
 dart1$varprob.mean[-1] &gt; 1/P
 #&gt;        age       sexM trtgivenRT  medwidsiN  medwidsiS  extranodY   clinstg2 
-#&gt;      FALSE       TRUE      FALSE      FALSE      FALSE      FALSE      FALSE</code></pre>
+#&gt;       TRUE      FALSE      FALSE      FALSE      FALSE      FALSE       TRUE</code></pre>
 <p>According to the plot above only age and treatment are relevant (this
 assumes a <span class="math inline">\(1/P\)</span> threshold). However,
 note that these results should be interpreted with caution as
@@ -606,7 +608,7 @@ class="math inline">\(t=5\)</span> years for the test dataset
 (<code>hd_test</code>) can also be obtained.</p>
 <pre class="r"><code>DART1.pred &lt;- matrix(dart1$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )
 DART1.pred[1:5, which(dart1$times == 5)]
-#&gt; [1] 0.2729754 0.3308137 0.3141006 0.3029372 0.2679470</code></pre>
+#&gt; [1] 0.2701254 0.3576845 0.2583587 0.2803809 0.2396327</code></pre>
 </div>
 </div>
 <div id="model-formulation-2" class="section level2">
@@ -621,14 +623,14 @@ of type <span class="math inline">\(k=2\)</span> at a specific time,
 given that the individual is still at risk and did not experience a type
 <span class="math inline">\(k=1\)</span> event. In this case, the model
 is fit with function <code>crisk.bart()</code>:</p>
-<pre class="r"><code>bart2 &lt;- crisk.bart(x.train = xtrain, times = hd_train$time, 
+<pre class="r"><code>set.seed(99)
+bart2 &lt;- crisk.bart(x.train = xtrain, times = hd_train$time, 
                     delta=hd_train$status,
                     x.test = xtest, 
                     sparse=FALSE, 
                     type=&#39;pbart&#39;,
                     ntree = 30, numcut = 100, 
-                    ndpost = 500, nskip = 500, keepevery = 5, 
-                    seed=99)
+                    ndpost = 500, nskip = 500, keepevery = 5)
 # Parallel computation of the model is available using mc.crisk.bart</code></pre>
 <p>The output is the same as in model formulation 1 and an analysis of
 convergence can be performed as before. For simplicity, this is excluded
@@ -668,7 +670,7 @@ class="math inline">\(t=5\)</span> years). Note that predictions are
 only provided for time-points present in the training set.</p>
 <pre class="r"><code>BART2.pred &lt;- matrix(bart2$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )
 BART2.pred[1:5, which(bart2$times == 5)]
-#&gt; [1] 0.2742945 0.3353683 0.3822942 0.3318610 0.2702177</code></pre>
+#&gt; [1] 0.3103403 0.3376088 0.2854426 0.3364716 0.3155569</code></pre>
 <p>Note that the estimates of the 2 model formulations differ. The next
 plots compare CIFs for patient 1, under the 2 different models to show
 such differences:</p>
@@ -742,32 +744,32 @@ Bayesian Additive Regression Trees: The BART r Package.”</span>
 #&gt; 
 #&gt; other attached packages:
 #&gt;  [1] BART_2.9.4                nlme_3.1-162             
-#&gt;  [3] nnet_7.3-19               pander_0.6.5             
-#&gt;  [5] mboost_2.9-7              stabs_0.6-4              
-#&gt;  [7] glmnet_4.1-8              Matrix_1.6-1             
-#&gt;  [9] pec_2023.04.12            rms_6.7-0                
-#&gt; [11] Hmisc_5.1-0               patchwork_1.1.3          
-#&gt; [13] lubridate_1.9.2.9000      forcats_1.0.0            
-#&gt; [15] stringr_1.5.0             dplyr_1.1.2              
-#&gt; [17] purrr_1.0.2               tidyr_1.3.0              
-#&gt; [19] tibble_3.2.1              ggplot2_3.4.3            
-#&gt; [21] tidyverse_2.0.0           coda_0.19-4              
-#&gt; [23] DPWeibull_1.8             timereg_2.0.5            
-#&gt; [25] pseudo_1.4.3              geepack_1.3.9            
-#&gt; [27] KMsurv_0.1-5              riskRegression_2023.03.22
-#&gt; [29] prodlim_2023.03.31        cmprsk_2.2-11            
-#&gt; [31] survival_3.5-5            splitstackshape_1.4.8    
-#&gt; [33] readr_2.1.4              
+#&gt;  [3] nnet_7.3-19               table1_1.4.3             
+#&gt;  [5] pander_0.6.5              mboost_2.9-7             
+#&gt;  [7] stabs_0.6-4               glmnet_4.1-8             
+#&gt;  [9] Matrix_1.6-1              pec_2023.04.12           
+#&gt; [11] rms_6.7-0                 Hmisc_5.1-0              
+#&gt; [13] patchwork_1.1.3           lubridate_1.9.2.9000     
+#&gt; [15] forcats_1.0.0             stringr_1.5.0            
+#&gt; [17] dplyr_1.1.2               purrr_1.0.2              
+#&gt; [19] tidyr_1.3.0               tibble_3.2.1             
+#&gt; [21] ggplot2_3.4.3             tidyverse_2.0.0          
+#&gt; [23] coda_0.19-4               DPWeibull_1.8            
+#&gt; [25] timereg_2.0.5             pseudo_1.4.3             
+#&gt; [27] geepack_1.3.9             KMsurv_0.1-5             
+#&gt; [29] riskRegression_2023.03.22 prodlim_2023.08.28       
+#&gt; [31] cmprsk_2.2-11             survival_3.5-5           
+#&gt; [33] splitstackshape_1.4.8     readr_2.1.4              
 #&gt; 
 #&gt; loaded via a namespace (and not attached):
 #&gt;  [1] gridExtra_2.3       sandwich_3.0-2      rlang_1.1.1        
 #&gt;  [4] magrittr_2.0.3      multcomp_1.4-25     polspline_1.1.23   
 #&gt;  [7] compiler_4.3.1      systemfonts_1.0.4   vctrs_0.6.3        
 #&gt; [10] quadprog_1.5-8      quantreg_5.97       shape_1.4.6        
-#&gt; [13] crayon_1.5.2        pkgconfig_2.0.3     fastmap_1.1.1      
-#&gt; [16] backports_1.4.1     inum_1.0-5          labeling_0.4.2     
+#&gt; [13] pkgconfig_2.0.3     crayon_1.5.2        fastmap_1.1.1      
+#&gt; [16] backports_1.4.1     inum_1.0-5          labeling_0.4.3     
 #&gt; [19] utf8_1.2.3          rmarkdown_2.24      tzdb_0.4.0         
-#&gt; [22] ragg_1.2.5          bit_4.0.5           MatrixModels_0.5-2 
+#&gt; [22] ragg_1.2.5          MatrixModels_0.5-2  bit_4.0.5          
 #&gt; [25] xfun_0.40           cachem_1.0.8        jsonlite_1.8.7     
 #&gt; [28] highr_0.10          broom_1.0.5         cluster_2.1.4      
 #&gt; [31] R6_2.5.1            bslib_0.5.1         stringi_1.7.12     
@@ -784,7 +786,7 @@ Bayesian Additive Regression Trees: The BART r Package.”</span>
 #&gt; [64] hms_1.1.3           munsell_0.5.0       scales_1.2.1       
 #&gt; [67] globals_0.16.2      glue_1.6.2          binaryLogic_0.3.9  
 #&gt; [70] tools_4.3.1         data.table_1.14.8   SparseM_1.81       
-#&gt; [73] mvtnorm_1.2-2       grid_4.3.1          libcoin_1.0-9      
+#&gt; [73] mvtnorm_1.2-3       grid_4.3.1          libcoin_1.0-9      
 #&gt; [76] truncdist_1.0-2     colorspace_2.1-0    htmlTable_2.4.1    
 #&gt; [79] Formula_1.2-5       cli_3.6.1           evd_2.3-6.1        
 #&gt; [82] textshaping_0.3.6   fansi_1.0.4         lava_1.7.2.1       

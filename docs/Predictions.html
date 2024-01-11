@@ -11,7 +11,7 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2023-09-01" />
+<meta name="date" content="2024-01-11" />
 
 <title>Comparison of predictions</title>
 
@@ -296,7 +296,7 @@ div.tocify {
 <h1 class="title toc-ignore">Comparison of predictions</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2023-09-01</h4>
+<h4 class="date">2024-01-11</h4>
 
 </div>
 
@@ -316,7 +316,7 @@ testing set</li>
 </ul>
 <p>Details about data pre-processing steps can be found <a
 href="https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/DataPreparation.Rmd">here</a></p>
-<pre class="r"><code>source(&quot;../Aux/data_prep.R&quot;)
+<pre class="r"><code>source(&quot;../Data_prep/data_prep.R&quot;)
 #&gt; The sourced script has been used to load and pre-process the data.
 #&gt; The latter converts appropriate variables into factors.
 #&gt; Additionally, we randomly split the data into training and testing sets, 
@@ -395,6 +395,14 @@ approaches and DPWeibull, predicted probabilities may be affected by
 lack of convergence of the algorithm.</p>
 <p>The following code was used to create Figure 2:</p>
 <pre class="r"><code>library(GGally)
+#&gt; Registered S3 method overwritten by &#39;GGally&#39;:
+#&gt;   method from   
+#&gt;   +.gg   ggplot2
+#&gt; 
+#&gt; Attaching package: &#39;GGally&#39;
+#&gt; The following object is masked from &#39;package:pander&#39;:
+#&gt; 
+#&gt;     wrap
 
 # Code to control axis limits was adapted from: https://stackoverflow.com/questions/53277656/how-to-define-facet-axis-limits-in-ggpairs-function
 scatter_limitRange &lt;- function(data, mapping, ...) { 
@@ -533,7 +541,7 @@ if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
 #&gt; [35] splitstackshape_1.4.8     readr_2.1.4              
 #&gt; 
 #&gt; loaded via a namespace (and not attached):
-#&gt;   [1] libcoin_1.0-9       RColorBrewer_1.1-3  rstudioapi_0.15.0  
+#&gt;   [1] RColorBrewer_1.1-3  libcoin_1.0-9       rstudioapi_0.15.0  
 #&gt;   [4] jsonlite_1.8.7      shape_1.4.6         magrittr_2.0.3     
 #&gt;   [7] TH.data_1.1-2       farver_2.1.1        rmarkdown_2.24     
 #&gt;  [10] ragg_1.2.5          vctrs_0.6.3         truncdist_1.0-2    
@@ -564,9 +572,9 @@ if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
 #&gt;  [85] codetools_0.2-19    data.tree_1.0.0     evd_2.3-6.1        
 #&gt;  [88] cli_3.6.1           rpart_4.1.19        systemfonts_1.0.4  
 #&gt;  [91] munsell_0.5.0       jquerylib_0.1.4     Rcpp_1.0.11        
-#&gt;  [94] globals_0.16.2      MatrixModels_0.5-2  listenv_0.9.0      
-#&gt;  [97] mvtnorm_1.2-3       scales_1.2.1        crayon_1.5.2       
-#&gt; [100] rlang_1.1.1         multcomp_1.4-25</code></pre>
+#&gt;  [94] globals_0.16.2      ellipsis_0.3.2      MatrixModels_0.5-2 
+#&gt;  [97] listenv_0.9.0       mvtnorm_1.2-3       scales_1.2.1       
+#&gt; [100] crayon_1.5.2        rlang_1.1.1         multcomp_1.4-25</code></pre>
 </div>
 
 
