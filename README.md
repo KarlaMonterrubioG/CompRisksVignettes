@@ -213,145 +213,19 @@ If you are interested in adding a method to the list, please create a PR adding 
 
 ## Session info
 
-_version:_  R version 4.3.1 (2023-06-16)  
-_os:_       Ubuntu 22.04.3 LTS   
-_system:_   aarch64, linux-gnu  
-_ui:_       X11  
-_language:_ (EN)  
-_collate:_  en_US.UTF-8  
-_ctype:_    en_US.UTF-8  
-_tz:_       Etc/UTC  
-_date:_     2023-12-19    
-_pandoc:_   3.1.1 @ /usr/local/bin/ (via rmarkdown)
+**R version 4.3.1 (2023-06-16)**
 
+**Platform:** aarch64-unknown-linux-gnu (64-bit) 
 
- **Packages**
-|package     |   * version |   date (UTC) | lib source  |
-| ---------- |-------------|--------------|------------ | 
-|backports   |      1.4.1  |    2021-12-13 |[1] RSPM (R 4.3.1)|
-|BART        |    * 2.9.4  |    2023-03-25 |[1] RSPM (R 4.3.1)|
-|base64enc   |      0.1-3  |    2015-07-28 |[1] RSPM (R 4.3.1)|
-|binaryLogic |      0.3.9  |    2017-12-13 |[1] Github (cran/binaryLogic@5408915)|
-|broom       |      1.0.5  |    2023-06-09 |[1] RSPM (R 4.3.1)|
-|bslib       |      0.5.1  |    2023-08-11 |[1] RSPM (R 4.3.1)|
-|cachem      |      1.0.8  |    2023-05-01 |[1] RSPM (R 4.3.1)|
-|checkmate   |      2.2.0  |    2023-04-27 |[1] RSPM (R 4.3.1)|
-|cli         |      3.6.1  |   2023-03-23 |[1] RSPM (R 4.3.1)|
-|cluster     |      2.1.4  |    2022-08-22 |[2] CRAN (R 4.3.1)|
-|cmprsk      |    * 2.2-11 |    2022-01-06| [1] RSPM (R 4.3.1)|
-|coda        |    * 0.19-4 |    2020-09-30 |[1] RSPM (R 4.3.1)|
-|codetools   |      0.2-19 |    2023-02-01 |[2] CRAN (R 4.3.1)|
-|colorspace  |      2.1-0  |    2023-01-23 |[1] RSPM (R 4.3.1)|
-|data.table  |      1.14.8 |    2023-02-17 |[1] RSPM (R 4.3.1)|
-|data.tree   |      1.0.0  |    2020-08-03 |[1] RSPM (R 4.3.1)|
-|DiagrammeR  |      1.0.10 |    2023-05-18 |[1] RSPM (R 4.3.1)|
-|digest      |      0.6.33 |    2023-07-07 |[1] RSPM (R 4.3.1)|
-|dplyr       |    * 1.1.2  |    2023-04-20 |[1] RSPM (R 4.3.1)|
-|DPWeibull   |    * 1.8    |    2021-12-12 |[1] Github (cran/DPWeibull@fd09b45)|
-|evaluate    |      0.21   |    2023-05-05 |[1] RSPM (R 4.3.1)|
-|evd         |      2.3-6.1|    2022-07-04 |[1] RSPM (R 4.3.1)|
-|fansi       |      1.0.4  |   2023-01-22 |[1] RSPM (R 4.3.1)|
-|fastmap     |      1.1.1  |    2023-02-24 |[1] RSPM (R 4.3.1)|
-|forcats     |    * 1.0.0  |    2023-01-29 |[1] RSPM (R 4.3.1)|
-|foreach     |      1.5.2  |    2022-02-02 |[1] RSPM (R 4.3.1)|
-|foreign     |      0.8-84 |    2022-12-06 |[2] CRAN (R 4.3.1)|
-|Formula     |      1.2-5  |    2023-02-24 |[1] RSPM (R 4.3.1)|
-|future      |      1.33.0 |    2023-07-01 |[1] RSPM (R 4.3.1)|
-|future.apply |     1.11.0 |    2023-05-21 |[1] RSPM (R 4.3.1)|
-|geepack       |  * 1.3.9  |    2022-08-16 |[1] RSPM (R 4.3.1)|
-|generics      |    0.1.3  |    2022-07-05 |[1] RSPM (R 4.3.1)|
-|GGally        |  * 2.1.2  |    2021-06-21 |[1] RSPM (R 4.3.1)|
-|ggplot2       |  * 3.4.3  |    2023-08-14 |[1] RSPM (R 4.3.1)|
-|glmnet        |  * 4.1-8  |    2023-08-22 |[1] RSPM (R 4.3.1)|
-|globals       |    0.16.2 |    2022-11-21 |[1] RSPM (R 4.3.1)|
-|glue          |    1.6.2  |    2022-02-24 |[1] RSPM (R 4.3.1)|
-|gridExtra     |    2.3    |    2017-09-09 |[1] RSPM (R 4.3.1)|
-|gtable        |    0.3.4  |    2023-08-21 |[1] RSPM (R 4.3.1)|
-|Hmisc         |  * 5.1-0  |    2023-05-08 |[1] RSPM (R 4.3.1)|
-|hms           |    1.1.3  |    2023-03-21 |[1] RSPM (R 4.3.1)|
-|htmlTable     |    2.4.1  |    2022-07-07 |[1] RSPM (R 4.3.1)|
-|htmltools     |    0.5.6  |    2023-08-10 |[1] RSPM (R 4.3.1)|
-|htmlwidgets   |    1.6.2  |    2023-03-17 |[1] RSPM (R 4.3.1)|
-|inum         |     1.0-5    |  2023-03-09 |[1] RSPM (R 4.3.1)|
-|iterators    |     1.0.14   |  2022-02-05 |[1] RSPM (R 4.3.1)|
-|jquerylib    |     0.1.4    |  2021-04-26 |[1] RSPM (R 4.3.1)|
-|jsonlite     |     1.8.7    |  2023-06-29 |[1] RSPM (R 4.3.1)|
-|KMsurv       |   * 0.1-5    |  2012-12-03 |[1] RSPM (R 4.3.1)|
-|knitr        |     1.43     |  2023-05-25 |[1] RSPM (R 4.3.1)|
-|lattice     |      0.21-8   |  2023-04-05 |[2] CRAN (R 4.3.1)|
-|lava        |      1.7.2.1  |  2023-02-27 |[1] RSPM (R 4.3.1)|
-|libcoin     |      1.0-9    |  2021-09-27 |[1] RSPM (R 4.3.1)|
-|lifecycle   |      1.0.3    |  2022-10-07 |[1] RSPM (R 4.3.1)|
-|listenv      |     0.9.0    |  2022-12-16 |[1] RSPM (R 4.3.1)|
-|lubridate    |   * 1.9.2.9000 |2023-09-01 |[1] https://ropensci.r-universe.dev (R 4.3.1)|
-|magrittr     |     2.0.3    |  2022-03-30 |[1] RSPM (R 4.3.1)|
-|MASS         |     7.3-60   |  2023-05-04 |[2] CRAN (R 4.3.1)|
-|Matrix       |   * 1.6-1    |  2023-08-14 |[1] RSPM (R 4.3.1)|
-|MatrixModels |     0.5-2    |  2023-07-10 |[1] RSPM (R 4.3.1)|
-|mboost       |   * 2.9-7    |  2022-04-26 |[1] RSPM (R 4.3.1)|
-|mets         |     1.3.2    |  2023-01-17 |[1] RSPM (R 4.3.1)|
-|multcomp     |     1.4-25   |  2023-06-20 |[1] RSPM (R 4.3.1)|
-|munsell      |     0.5.0    |  2018-06-12 |[1] RSPM (R 4.3.1)|
-|mvtnorm      |     1.2-3    |  2023-08-25 |[1] RSPM (R 4.3.1)|
-|nlme         |   * 3.1-162  |  2023-01-31 |[2] CRAN (R 4.3.1)|
-|nnet         |   * 7.3-19   |  2023-05-03 |[2] CRAN (R 4.3.1)|
-|nnls         |     1.4      |  2012-03-19 |[1] RSPM (R 4.3.1)|
-|numDeriv     |     2016.8-1.1 |2019-06-06 |[1] RSPM (R 4.3.1)|
-|pander       |   * 0.6.5    |  2022-03-18 |[1] RSPM (R 4.3.1)|
-|parallelly   |     1.36.0   |  2023-05-26 |[1] RSPM (R 4.3.1)|
-|partykit     |     1.2-20   |  2023-04-14 |[1] RSPM (R 4.3.1)|
-|patchwork    |   * 1.1.3    |  2023-08-14 |[1] RSPM (R 4.3.1)|
-|pec          |   * 2023.04.12| 2023-04-11 |[1] RSPM (R 4.3.1)|
-|pillar       |     1.9.0    |  2023-03-22 |[1] RSPM (R 4.3.1)|
-|pkgconfig    |     2.0.3    |  2019-09-22 |[1] RSPM (R 4.3.1)|
-|plyr         |     1.8.8    |  2022-11-11 |[1] RSPM (R 4.3.1)|
-|polspline    |     1.1.23   |  2023-06-29 |[1] RSPM (R 4.3.1)|
-|prodlim      |   * 2023.08.28| 2023-08-28 |[1] RSPM (R 4.3.1)|
-|pseudo       |   * 1.4.3    |  2017-07-30 |[1] RSPM (R 4.3.1)|
-|purrr        |   * 1.0.2    |  2023-08-10 |[1] RSPM (R 4.3.1)|
-|quadprog     |     1.5-8    |  2019-11-20 |[1] RSPM (R 4.3.1)|
-|quantreg     |     5.97     |  2023-08-19 |[1] RSPM (R 4.3.1)|
-|R6          |      2.5.1     | 2021-08-19 |[1] RSPM (R 4.3.1)|
-|randomForestSRC| * 3.2.2    |  2023-05-23| [1] RSPM (R 4.3.1)|
-|RColorBrewer    |  1.1-3    |  2022-04-03| [1] RSPM (R 4.3.1)|
-|Rcpp            |  1.0.11   |  2023-07-06| [1] RSPM (R 4.3.1)|
-|readr          | * 2.1.4    |  2023-02-10| [1] RSPM (R 4.3.1)|
-|reshape         |  0.8.9    |  2022-04-12| [1] RSPM (R 4.3.1)|
-|riskRegression  |* 2023.03.22| 2023-03-20| [1] RSPM (R 4.3.1)|
-|rlang           |  1.1.1    |  2023-04-28| [1] RSPM (R 4.3.1)|
-|rmarkdown       |  2.24     |  2023-08-14| [1] RSPM (R 4.3.1)|
-|rms            | * 6.7-0    |  2023-05-08| [1] RSPM (R 4.3.1)|
-|rpart          |   4.1.19   |  2022-10-21| [2] CRAN (R 4.3.1)|
-|rstudioapi     |   0.15.0   |  2023-07-07| [1] RSPM (R 4.3.1)|
-|sandwich       |  3.0-2    |  2022-06-15 |[1] RSPM (R 4.3.1)|
-|sass           |   0.4.7   |   2023-07-15 |[1] RSPM (R 4.3.1)|
-|scales         |   1.2.1   |   2022-08-20 |[1] RSPM (R 4.3.1)|
-|sessioninfo    | * 1.2.2   |   2021-12-06 |[1] RSPM (R 4.3.1)|
-|shape           |  1.4.6   |   2021-05-19 |[1] RSPM (R 4.3.1)|
-|SparseM         |  1.81    |   2021-02-18 |[1] RSPM (R 4.3.1)|
-|splitstackshape |* 1.4.8   |   2019-04-21 |[1] RSPM (R 4.3.1)|
-|stabs           |* 0.6-4   |   2021-01-29 |[1] RSPM (R 4.3.1)|
-|stringi         |  1.7.12  |   2023-01-11 |[1] RSPM (R 4.3.1)|
-|stringr        | * 1.5.0   |   2022-12-02 |[1] RSPM (R 4.3.1)|
-|survival       | * 3.5-5   |   2023-03-12 |[2] CRAN (R 4.3.1)|
-|table1         | * 1.4.3   |   2023-01-06 |[1] RSPM (R 4.3.1)|
-|TH.data        |   1.1-2   |   2023-04-17 |[1] RSPM (R 4.3.1)|
-|tibble         | * 3.2.1   |   2023-03-20 |[1] RSPM (R 4.3.1)|
-|tidyr          | * 1.3.0   |   2023-01-24 |[1] RSPM (R 4.3.1)|
-|tidyselect      |  1.2.0   |   2022-10-10 |[1] RSPM (R 4.3.1)|
-|tidyverse       |* 2.0.0   |   2023-02-22 |[1] RSPM (R 4.3.1)|
-|timechange     |   0.2.0   |   2023-01-11 |[1] RSPM (R 4.3.1)|
-|timereg        | * 2.0.5   |   2023-01-17 |[1] RSPM (R 4.3.1)|
-|truncdist      |   1.0-2   |   2016-08-30 |[1] RSPM (R 4.3.1)|
-|tzdb           |   0.4.0   |   2023-05-12 |[1] RSPM (R 4.3.1)|
-|utf8           |   1.2.3   |   2023-01-31 |[1] RSPM (R 4.3.1)|
-|vctrs          |   0.6.3   |   2023-06-14 |[1] RSPM (R 4.3.1)|
-|visNetwork     |   2.1.2   |   2022-09-29 |[1] RSPM (R 4.3.1)|
-|withr          |   2.5.0   |   2022-03-03 |[1] RSPM (R 4.3.1)|
-|xfun           |   0.40    |   2023-08-09 |[1] RSPM (R 4.3.1)|
-|yaml           |   2.3.7   |   2023-01-23 |[1] RSPM (R 4.3.1)|
-|zoo            |   1.8-12  |   2023-04-13 |[1] RSPM (R 4.3.1)|
+**locale:**
+_LC_CTYPE=en_US.UTF-8_, _LC_NUMERIC=C_, _LC_TIME=en_US.UTF-8_, _LC_COLLATE=en_US.UTF-8_, _LC_MONETARY=en_US.UTF-8_, _LC_MESSAGES=en_US.UTF-8_, _LC_PAPER=en_US.UTF-8_, _LC_NAME=C_, _LC_ADDRESS=C_, _LC_TELEPHONE=C_, _LC_MEASUREMENT=en_US.UTF-8_ and _LC_IDENTIFICATION=C_
 
- [1] /usr/local/lib/R/site-library  
- [2] /usr/local/lib/R/library
-|
+**attached base packages:** 
+_parallel_, _stats_, _graphics_, _grDevices_, _utils_, _datasets_, _methods_ and _base_
+
+**other attached packages:** 
+_GGally(v.2.1.2)_, _randomForestSRC(v.3.2.2)_, _BART(v.2.9.4)_, _nlme(v.3.1-162)_, _nnet(v.7.3-19)_, _table1(v.1.4.3)_, _splitstackshape(v.1.4.8)_, _pander(v.0.6.5)_, _patchwork(v.1.1.3)_, _lubridate(v.1.9.2.9000)_, _forcats(v.1.0.0)_, _stringr(v.1.5.0)_, _dplyr(v.1.1.2)_, _purrr(v.1.0.2)_, _readr(v.2.1.4)_, _tidyr(v.1.3.0)_, _tibble(v.3.2.1)_, _ggplot2(v.3.4.3)_, _tidyverse(v.2.0.0)_, _coda(v.0.19-4)_, _DPWeibull(v.1.8)_, _timereg(v.2.0.5)_, _pseudo(v.1.4.3)_, _geepack(v.1.3.9)_, _KMsurv(v.0.1-5)_, _cmprsk(v.2.2-11)_, _mboost(v.2.9-7)_, _stabs(v.0.6-4)_, _glmnet(v.4.1-8)_, _Matrix(v.1.6-1)_, _pec(v.2023.04.12)_, _prodlim(v.2023.08.28)_, _riskRegression(v.2023.03.22)_, _rms(v.6.7-0)_, _Hmisc(v.5.1-0)_ and _survival(v.3.5-5)_
+
+**loaded via a namespace (and not attached):** 
+_gridExtra(v.2.3)_, _sandwich(v.3.0-2)_, _rlang(v.1.1.1)_, _magrittr(v.2.0.3)_, _multcomp(v.1.4-25)_, _polspline(v.1.1.23)_, _compiler(v.4.3.1)_, _vctrs(v.0.6.3)_, _quantreg(v.5.97)_, _quadprog(v.1.5-8)_, _pkgconfig(v.2.0.3)_, _shape(v.1.4.6)_, _fastmap(v.1.1.1)_, _backports(v.1.4.1)_, _inum(v.1.0-5)_, _utf8(v.1.2.3)_, _rmarkdown(v.2.24)_, _tzdb(v.0.4.0)_, _MatrixModels(v.0.5-2)_, _xfun(v.0.40)_, _jsonlite(v.1.8.7)_, _reshape(v.0.8.9)_, _data.tree(v.1.0.0)_, _broom(v.1.0.5)_, _cluster(v.2.1.4)_, _R6(v.2.5.1)_, _RColorBrewer(v.1.1-3)_, _stringi(v.1.7.12)_, _parallelly(v.1.36.0)_, _rpart(v.4.1.19)_, _numDeriv(v.2016.8-1.1)_, _Rcpp(v.1.0.11)_, _iterators(v.1.0.14)_, _knitr(v.1.43)_, _future.apply(v.1.11.0)_, _zoo(v.1.8-12)_, _base64enc(v.0.1-3)_, _timechange(v.0.2.0)_, _nnls(v.1.4)_, _splines(v.4.3.1)_, _tidyselect(v.1.2.0)_, _rstudioapi(v.0.15.0)_, _partykit(v.1.2-20)_, _codetools(v.0.2-19)_, _listenv(v.0.9.0)_, _plyr(v.1.8.8)_, _lattice(v.0.21-8)_, _withr(v.2.5.0)_, _evaluate(v.0.21)_, _foreign(v.0.8-84)_, _future(v.1.33.0)_, _pillar(v.1.9.0)_, _DiagrammeR(v.1.0.10)_, _checkmate(v.2.2.0)_, _foreach(v.1.5.2)_, _stats4(v.4.3.1)_, _generics(v.0.1.3)_, _hms(v.1.1.3)_, _munsell(v.0.5.0)_, _scales(v.1.2.1)_, _globals(v.0.16.2)_, _glue(v.1.6.2)_, _binaryLogic(v.0.3.9)_, _tools(v.4.3.1)_, _data.table(v.1.14.8)_, _SparseM(v.1.81)_, _visNetwork(v.2.1.2)_, _mvtnorm(v.1.2-3)_, _grid(v.4.3.1)_, _libcoin(v.1.0-9)_, _truncdist(v.1.0-2)_, _colorspace(v.2.1-0)_, _htmlTable(v.2.4.1)_, _Formula(v.1.2-5)_, _cli(v.3.6.1)_, _evd(v.2.3-6.1)_, _fansi(v.1.0.4)_, _lava(v.1.7.2.1)_, _mets(v.1.3.2)_, _gtable(v.0.3.4)_, _digest(v.0.6.33)_, _TH.data(v.1.1-2)_, _htmlwidgets(v.1.6.2)_, _htmltools(v.0.5.6)_, _lifecycle(v.1.0.3)_ and _MASS(v.7.3-60)_
+
