@@ -27,83 +27,29 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-    cache = TRUE
+    cache = FALSE
 )
 ```
 
 
-# Dataset
-
-In order to demonstrate the methods, we employ publicly available data. 
+# Introduction
 
 The dataset used here corresponds to the Hodgkin’s disease (HD) study described
-in @pintilie2006competing. The dataset comprises 865 patients diagnosed with 
-early stage (I or II) HD, and which were treated either with radiation (RT) or 
-with radiation and chemotherapy (CMT).
+in Pintilie, 2006. The data was loaded and pre-processed using the script that
+is sourced below. The latter creates three data objects:
 
-The recorded data includes:
+- `hd`: all the samples in the original data
+- `hd_train`: a random sample of the data to be used as a training set
+- `hd_test`: a random sample of the data to be used as a testing set
 
-* age: Age (years)
-* sex: Sex, F=female and M=Male.
-* trtgiven: Treatment given, RT=Radiation, CMT=Chemotherapy and radiation
-* medwidsi: Size of mediastinum involvement, N=No, S=Small, L=Large
-* extranod: Extranodal disease, Y=Extranodal disease, N= Nodal disease
-* clinstg: Clinical stage, 1=Stage I, 2=Stage II
-* time: time to failure (years) calculated from the date of diagnosis
-* status: 0=censoring, 1=relapse and 2=death.
-
-We now load and display the structure of the HD dataset:
-
-```{r, message=FALSE, warning=FALSE}
-library(readr)
-hd <- data.frame(read_csv("../Data/HD/hd.csv",
-                          col_types = cols(X1 = col_skip())))
-str(hd)
-```
-
-To proceed with the analysis, it is important to change the data type of sex,
-trtgiven, medwidsi, and extranod from character to factor. Similarly, we convert
-clinstg from numeric to factor.
+Details about data pre-processing steps can be found [here](https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/DataPreparation.Rmd)
 
 ```{r}
-hd$sex      <- as.factor(hd$sex)
-hd$trtgiven <- as.factor(hd$trtgiven)
-hd$medwidsi <- as.factor(hd$medwidsi)
-hd$extranod <- as.factor(hd$extranod)
-hd$clinstg  <- as.factor(hd$clinstg)
+source("../Data_prep/data_prep.R")
 ```
 
-Now, we explore the number of events for each event type:
-
-```{r, message=FALSE}
-require(pander)
-pander::pander(table(hd$status))
-```
-
-Thus, we have `r length(which(hd$status==0))` censored patients, `r `length(which(hd$status==1))` with relapse, and `r length(which(hd$status==2))` who died. From
-now on, we assume that the event of interest is relapse, i.e. status=1.
-
-In order to create a test set, we use stratified sampling to partition our
-dataset into 80% for train and 20% for test.
-
-```{r}
-library(splitstackshape)
-set.seed(2022)
-split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
-hd_train   <- split_data$SAMP1[,-1]
-hd_test    <- split_data$SAMP2[,-1]
-```
-
-Now, we explore the number of observations per status in both train and test
-set:
-
-
-```{r}
-pander::pander(table(hd_train$status))
-```
-```{r}
-pander::pander(table(hd_test$status))
-```
+The following sections illustrate the usage of different methods defined using 
+a CIF formulation.
 
 # Fine-Gray 
 
@@ -183,13 +129,13 @@ predictors_test <- model.matrix(~ age +
                                   clinstg,
                                 data = hd_test)[, -1]
 
-CIF_hat <- predict(object = FG_crr, cov1 = predictors_test)
+FG_CIF <- predict(object = FG_crr, cov1 = predictors_test)
 
-dim(CIF_hat)
+dim(FG_CIF)
 ```
 
-The first column in CIF_hat corresponds to the `r nrow(CIF_hat)` unique event 
-times and the remaining `r nrow(CIF_hat)-1` columns are the estimated CIFs for 
+The first column in CIF_hat corresponds to the `r nrow(FG_CIF)` unique event 
+times and the remaining `r nrow(FG_CIF)-1` columns are the estimated CIFs for 
 each patient (given their covariate values) at such event times. As an 
 illustration, the following code is used to plot the estimated CIF for events 
 type 1 for two patients in the training dataset. The first patient is 37 years 
@@ -200,15 +146,14 @@ stage 2.
 
 ```{r, fig.dim=c(6,4)}
 par(mar = c(4, 4, 2, 0.1))
-plot(CIF_hat[, 1],
-     CIF_hat[, 2],
+plot(FG_CIF[, 1],
+     FG_CIF[, 2],
      type = "l",
      col = "red",
      ylim = c(0, 0.6),
      xlab = "Time (years)",
      ylab = "Cumulative incidence")
-
-lines(CIF_hat[, 1], CIF_hat[, 4], col="blue")
+lines(FG_CIF[, 1], FG_CIF[, 4], col="blue")
 legend("topright", legend = c("Patient 1", "Patient 2"),
        lty = c(1,1), col = c("red", "blue"))
 ```
@@ -218,10 +163,10 @@ specific time point beyond the unique time-points present in the training data.
 
 ## `riskRegression`
 
-The function `FGR()` in this R package acts as a wrapper of the `crr()` function described above.
-However, it permits directly specifying the model through the formula argument,
-where we use `Hist()` to obtain the the response variable. When the cause
-argument is not passed, the default is 1.
+The function `FGR()` in this R package acts as a wrapper of the `crr()` function 
+described above. However, it permits directly specifying the model through the 
+formula argument, where we use `Hist()` to obtain the the response variable. 
+When the cause argument is not passed, the default event of interest is 1.
 
 Below we confirm that estimated coefficients are identical to those obtained
 with `cmprsk` package and the interpretation is the same.
@@ -243,56 +188,13 @@ print(FG_riskRegression)
 ```
 
 Differently to `cmprsk`,`riskRegression` permits to do predictions of the CIF at
-a specific time point (e.g. $t=5$ years) for a new dataset (e.g. `hd_test`). Below, 
-we show results for the first 5 subjects in the test set.
+a specific time point (e.g. $t=5$ years) for a new dataset (e.g. `hd_test`). 
+Below, we show results for the first 5 subjects in the test set.
 
 ```{r}
-FG.prediction <- predict(FG_riskRegression, newdata = hd_test,  times = 5)
-FG.prediction[c(1:5)]
+FG.pred <- predict(FG_riskRegression, newdata = hd_test,  times = 5)
+FG.pred[c(1:5)]
 ```
-
-Because the Fine-Gray model can be recovered when a complementary log-log link
-function is used in a transformation model (@gerds2012), we can use
-`riskRegression()` with `link = "prop"` as shown below:
-
-```{r}
-FG.prop <- riskRegression(formula = Hist(time, status) ~
-                            age +
-                            sex +
-                            trtgiven +
-                            medwidsi +
-                            extranod +
-                            clinstg,
-                          data = hd_train,
-                          cause = 1,
-                          link = "prop")
-summary(FG.prop)
-```
-
-In this case, `predict()` returns the risk at observed time points for each
-subject.
-
-```{r}
-prediction.FG.prop  <- predict(FG.prop, newdata = hd_test[c(1, 2), ])
-prediction.FG.prop
-```
-
-Below, we plot the CIF for patient 1 (red) and 2 (blue) in the test set.
-
-```{r, fig.dim=c(6,4)}
-par(mar = c(4, 4, 2, 0.1))
-plot(prediction.FG.prop$time,
-     prediction.FG.prop$risk[1, ],
-     type = "l",
-     col = "red",
-     ylim = c(0, 0.6),
-     xlab = "Time (years)",
-     ylab = "Cumulative incidence")
-lines(prediction.FG.prop$time, prediction.FG.prop$risk[2, ], col="blue")
-legend("topright", legend = c("Patient 1", "Patient 2"),
-       lty = c(1,1), col = c("red", "blue"))
-```
-
 
 # Sparse regression
 
@@ -320,8 +222,8 @@ pseudo <- pseudoci(hd_train$time,
 dim(pseudo)
 ```
 
-`pseudo` contains the pseudo-values of the `r nrow(pseudo)` patients (rows) at the `r ncol(pseudo)` different
-time points (columns) for relapse. 
+`pseudo` contains the pseudo-values of the `r nrow(pseudo)` patients (rows) at 
+the `r ncol(pseudo)` different time points (columns) for relapse. 
 
 The following code will merge the pseudo-values with our train dataset.
 
@@ -467,9 +369,11 @@ longer accessible**
 The formula definition uses `Hist()`.
 
 An indication of a competing risk setting must be passed by setting
-`comp = TRUE`.  Below, we run the MCMC chain for 5000 iterations, we discarded
-3000 as part of the burn-in period, and to reduce autocorrelation, a thinning of
-10 was used (default).
+`comp = TRUE`. Below, we run the MCMC chain for 2,500 iterations, we discarded
+500 as part of the burn-in period, and to reduce autocorrelation, a thinning of
+10 was used (default). These values were chosen for illustration purposes only.
+More iterations may be required for the algorithm to converge (the default in 
+the `DPWeibull` package is to burn-in the first 8,000 iterations).
 
 
 ```{r, warning=FALSE , results='hide'}
@@ -485,17 +389,11 @@ fit_DDP <- dpweib(Hist(time, status) ~
                     clinstg ,
                   data = hd_train,
                   comp = TRUE,
-                  burnin = 1000,
-                  iteration = 5000,
+                  burnin = 500,
+                  iteration = 2000,
                   predtime = seq(from = min(hd_train$time),
-                                 to = max(hd_train$time),
-                  length =  40))
+                                 to = max(hd_train$time), length =  40))
 ```
-
-```{r}
-summary(fit_DDP)
-```
-
 Note that in order to make valid inferences one should ensure that convergence 
 was achieved. One can explore trace plots of the estimated parameters using the 
 `coda` library. This will help us to determine if the MCMC parameters employed 
@@ -510,22 +408,56 @@ par(mar = c(4, 4, 2, 0.1))
 traceplot(as.mcmc(fit_DDP$alpharec1[, 1]))
 traceplot(as.mcmc(fit_DDP$lambda0rec1[, 1]))
 ```
+The summary below shows estimates for the log-hazard ratio at specific time-points:
+
+```{r}
+summary(fit_DDP)
+```
+
+The following plots show the estimated (non-linear) covariate effects on the
+scale of the log-subdistribution hazard ratio.
+
+```{r}
+plot(fit_DDP)
+```
+
+The latter plots can also be manually obtained as follows (here we add a 
+horizontal line at zero as a visual reference):
+
+```{r}
+plot(fit_DDP$predtime, fit_DDP$loghr.est[1,], type = "l",
+     main = "Log subdistribtion HR for covariate age, event 1",
+     ylim = c(min(fit_DDP$loghrl[1,]), max(fit_DDP$loghru[1,])))
+lines(fit_DDP$predtime, fit_DDP$loghrl[1,], lty = 2)
+lines(fit_DDP$predtime, fit_DDP$loghru[1,], lty = 2)
+abline(h = 0, col = "red")
+
+plot(fit_DDP$predtime, fit_DDP$loghr.est[2,], type = "l",
+     main = "Log subdistribtion HR for covariate sexM, event 1",
+     ylim = c(min(fit_DDP$loghrl[2,]), max(fit_DDP$loghru[2,])))
+lines(fit_DDP$predtime, fit_DDP$loghrl[2,], lty = 2)
+lines(fit_DDP$predtime, fit_DDP$loghru[2,], lty = 2)
+abline(h = 0, col = "red")
+```
+
+In the example above, age appears to have a diminishing effect over time. Note 
+also that, in all cases, there seems to be high posterior uncertainty and that 
+reported credible intervals contain zero.  
 
 Below, we illustrate how to do predictions with `DPWeibull`. First, we show how
 to estimate the CIF for two subjects in the test set at all observed event
 times.
 
 ```{r fig.dim=c(6,4)}
-par(mar = c(4, 4, 2, 0.1))
-
-pred_DDP <- predict(fit_DDP, newdata = as.data.frame(hd_test[c(1, 2), 1:6]))
+pred_DDP <- predict(fit_DDP, newdata = as.data.frame(hd_test[1:2, 1:6]))
 ```
 
-Note that `pred_DDP` contains posterior samples for the 2 subjects at 
-`r ncol(pred_DDP$tpred)` observed
-event times, as well as posterior estimated and credible intervals.
+Note that `pred_DDP` contains posterior samples for all the two subjects at 
+`r ncol(pred_DDP$tpred)` observed event times, as well as posterior estimated 
+and credible intervals.
 
-Below, we show the estimated CIF curves for patient 1 (red) and 2 (blue).
+Here we show how to manually extract and plot the estimated CIF curves for 
+patient 1 (red) and 2 (blue). Dashed lines show the associated credible intervals.
 
 ```{r fig.dim=c(6,4)}
 plot(pred_DDP$tpred,
@@ -535,13 +467,18 @@ plot(pred_DDP$tpred,
      xlab = "Time (years)",
      ylab = "Cumulative incidence",
      ylim = c(0, 0.6))
+lines(pred_DDP$tpred, pred_DDP$Fpredl[1,], col = "red", lty = 2)
+lines(pred_DDP$tpred, pred_DDP$Fpredu[1,], col = "red", lty = 2)
 lines(pred_DDP$tpred, pred_DDP$Fpred[2, ], col="blue")
+lines(pred_DDP$tpred, pred_DDP$Fpredl[2,], col = "blue", lty = 2)
+lines(pred_DDP$tpred, pred_DDP$Fpredu[2,], col = "blue", lty = 2)
 legend("topright", legend = c("Patient 1", "Patient 2"),
        lty = c(1,1), col = c("red", "blue"))
 ```
 
 Note that `DPWeibull` also provides a `plot` method that can generate similar 
-graphical summaries.
+graphical summaries. However, the previous code may be preferrable when 
+generating predictions for a large number of individuals.
 
 ```{r}
 plot(pred_DDP)
@@ -557,6 +494,111 @@ pred_DDP.t <- predict(fit_DDP,
 pred_DDP.t$Fpred[1:5]
 ```
 
+
+
+# Comparison: estimates of regression coefficients
+
+First, we compare estimated regression coefficients obtained above. Note that 
+this is only for (semi-)parametric approaches that follow the Fine & Gray 
+specification, with an linear effect in the log-scale of the sub-distribution
+hazard. As the estimates obtained for the Fine & Gray were the same regardless 
+of the choice of R library (`cmprsk` o `riskRegression`), we only store one
+of them (the ones for `cmprsk`).
+
+```{r}
+my.vars <- rownames(summary(FG_crr)$coef)
+
+# X1-3 is added so that the methods are plotted in the desired order
+df <- data.frame("X1.fg_est" = summary(FG_crr)$coef[,1],
+                 "X1.fg_se" = summary(FG_crr)$coef[,3],
+                 "X2.pseudo_est" = summary(fit_pseudo)$mean[my.vars,1],
+                 "X2.pseudo_se" = summary(fit_pseudo)$mean[my.vars,2],
+                 "X3.db_est" = coef(fit_DB)[,1],
+                 "X3.db_se" = coef(fit_DB)[,2])
+round(df, 2)
+df$variable <- rownames(df)
+
+library(tidyverse)
+df_long <- df %>%
+  pivot_longer(!variable, 
+               names_to = c("Method", ".value"), 
+               names_sep = "_")
+```
+
+The following code was used to create Figure 1B:
+
+```{r}
+# coloured version
+library(ggplot2)
+library(patchwork)
+
+p_all <- ggplot(df_long, aes(x = variable, y = est, col = Method)) +
+  geom_point(cex = 2.5, position = position_dodge(width=0.4)) +
+  geom_errorbar(aes(ymin = est - se, ymax = est + se), 
+                width=.1, position = position_dodge(width=0.4)) +
+  geom_hline(yintercept = 0, lty = 2, colour = "gray") +
+  theme_classic() +
+  ylab("Estimate") + xlab("Coefficient") +
+  scale_color_manual(values = c("#999999", "#1A5276", "#B9770E"),
+                     labels = c('Fine & Gray', 'Pseudo values', 'Direct binomial')) 
+
+p_age <- ggplot(df_long[df_long$variable == "age",], 
+                aes(x = variable, y = est, col = Method)) +
+  geom_point(cex = 2.5, position = position_dodge(width=0.6)) +
+  geom_errorbar(aes(ymin = est - se, ymax = est + se), 
+                width=.1, position = position_dodge(width=0.6)) +
+  theme_classic() +
+  ylab("Estimate") + xlab("Coefficient") +
+  scale_color_manual(values = c("#999999", "#1A5276", "#B9770E"),
+                     labels = c('Fine & Gray', 'Pseudo values', 'Direct binomial')) +
+  theme(legend.position="none", 
+        axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.background = element_rect(colour = "black", fill=NA, size=0.6))
+
+p_all + inset_element(p_age, left = 0.004, bottom = 0.6, right = 0.19, top = 1)
+
+if (file.exists("/.dockerenv")){ # running in docker
+  ggsave("/Outputs/Comparison_estimation_CIF.pdf", device = "pdf")
+} else {
+  ggsave("../Outputs/Comparison_estimation_CIF.pdf", device = "pdf")
+}
+```
+
+```{r}
+# black and white
+
+p_all <- ggplot(df_long, aes(x = variable, y = est, pch = Method)) +
+  geom_point(cex = 2.5, position = position_dodge(width=0.4)) +
+  geom_errorbar(aes(ymin = est - se, ymax = est + se), 
+                width=.1, position = position_dodge(width=0.4)) +
+  geom_hline(yintercept = 0, lty = 2, colour = "gray") +
+  theme_classic() +
+  ylab("Estimate") + xlab("Coefficient") +
+  scale_shape_manual(values = c(16, 15, 17), 
+                     labels = c('Fine & Gray', 'Pseudo values', 'Direct binomial')) 
+
+p_age <- ggplot(df_long[df_long$variable == "age",], 
+                aes(x = variable, y = est, pch = Method)) +
+  geom_point(cex = 2.5, position = position_dodge(width=0.6)) +
+  geom_errorbar(aes(ymin = est - se, ymax = est + se), 
+                width=.1, position = position_dodge(width=0.6)) +
+  theme_classic() +
+  ylab("Estimate") + xlab("Coefficient") +
+  scale_shape_manual(values = c(16, 15, 17), 
+                     labels = c('Fine & Gray', 'Pseudo values', 'Direct binomial'))  +
+  theme(legend.position="none", 
+        axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.background = element_rect(colour = "black", fill=NA, size=0.6))
+
+p_all + inset_element(p_age, left = 0.004, bottom = 0.6, right = 0.19, top = 1)
+
+if (file.exists("/.dockerenv")){ # running in docker
+  ggsave("/Outputs/Comparison_estimation_CIF_BW.pdf", device = "pdf")
+} else {
+  ggsave("../Outputs/Comparison_estimation_CIF_BW.pdf", device = "pdf")
+}
+```
+
 # Storing predictions
 
 In order to allow comparison with the predictions generated by other methods,
@@ -564,16 +606,15 @@ we save the predictions obtained in this vignette.
 
 ```{r save_pred}
 pred_CIF <- data.frame("testID" = seq_len(nrow(hd_test)),
-                      "FG_riskRegression" = FG.prediction,
-                      "DirectBinomal" = pred_DB.t$P1,
+                      "FG_riskRegression" = FG.pred,
+                      "DirectBinomial" = pred_DB.t$P1,
                       "DPWeibull" = pred_DDP.t$Fpred)
 if (file.exists("/.dockerenv")){ # running in docker
-  write.csv(pred_CIF, "/Predictions/pred_CIF.csv", row.names = FALSE)
+  write.csv(pred_CIF, "/Outputs/pred_CIF.csv", row.names = FALSE)
 } else {
-  write.csv(pred_CIF, "../Predictions/pred_CIF.csv", row.names = FALSE)
+  write.csv(pred_CIF, "../Outputs/pred_CIF.csv", row.names = FALSE)
 }
 ```
-
 
 # References
 

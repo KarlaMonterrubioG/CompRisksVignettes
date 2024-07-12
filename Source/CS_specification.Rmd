@@ -27,82 +27,28 @@ vignette: "%\\VignetteIndexEntry{Vignette Title} %\\VignetteEngine{knitr::rmarkd
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  cache = TRUE
+  cache = FALSE
 )
 ```
 
-# Data
-
-In order to demonstrate methods using a proportional cause-specific hazard
-specification, we employ publicly available data. 
+# Introduction
 
 The dataset used here corresponds to the Hodgkin’s disease (HD) study described
-in Pintilie, 2006. The dataset comprises 865 patients diagnosed with early stage
-(I or II) HD, and which were treated either with radiation (RT) or with
-radiation and chemotherapy (CMT).
+in Pintilie, 2006. The data was loaded and pre-processed using the script that
+is sourced below. The latter creates three data objects:
 
-The recorded data includes:
+- `hd`: all the samples in the original data
+- `hd_train`: a random sample of the data to be used as a training set
+- `hd_test`: a random sample of the data to be used as a testing set
 
-* age: Age (years)
-* sex: Sex, F=female and M=Male.
-* trtgiven: Treatment given, RT=Radiation, CMT=Chemotherapy and radiation
-* medwidsi: Size of mediastinum involvement, N=No, S=Small, L=Large
-* extranod: Extranodal disease, Y=Extranodal disease, N= Nodal disease
-* clinstg: Clinical stage, 1=Stage I, 2=Stage II
-* time: time to failure (years) calculated from the date of diagnosis
-* status: 0=censoring, 1=relapse and 2=death.
-
-We now load and display the structure of the HD dataset:
-
-```{r, message = FALSE, warning = FALSE}
-require(readr)
-hd <- data.frame(read_csv("../Data/HD/hd.csv",
-                          col_types = cols(X1 = col_skip())))
-str(hd)
-```
-
-To procede with the analysis, it is important to change the data type of sex,
-trtgiven, medwidsi, and extranod from `character` to `factor`. Similarly, we
-convert clinstg from `numeric` to `factor`.
+Details about data pre-processing steps can be found [here](https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/DataPreparation.Rmd)
 
 ```{r}
-  hd$sex      <- as.factor(hd$sex)
-  hd$trtgiven <- as.factor(hd$trtgiven)
-  hd$medwidsi <- as.factor(hd$medwidsi)
-  hd$extranod <- as.factor(hd$extranod)
-  hd$clinstg  <- as.factor(hd$clinstg)
+source("../Data_prep/data_prep.R")
 ```
 
-Now, we explore the number of events for each event type:
-
-```{r, message=FALSE}
-require(pander)
-pander::pander(table(hd$status))
-```
-
-Thus, we have `r length(which(hd$status==0))` censored patients, `r length(which(hd$status==1))` with relapse and `r length(which(hd$status==2))` who died. From now on, we assume that the event of interest is relapse, i.e. `status=1`.
-
-In order to create a test set, we use stratified sampling to partition our
-data in 80% for train and 20% for test.
-
-```{r}
-require(splitstackshape)
-set.seed(2022)
-split_data <- stratified(hd, c("status"), 0.8, bothSets = TRUE)
-hd_train   <- split_data$SAMP1[,-1]
-hd_test    <- split_data$SAMP2[,-1]
-```
-
-Now, we explore the number of observations per status in both train and test
-set:
-
-```{r}
-pander::pander(table(hd_train$status))
-```
-```{r}
-pander::pander(table(hd_test$status))
-```
-
+The following sections illustrate the usage of different methods defined using 
+a cause-specific hazards formulation. 
 
 # Cause-specific Cox Proportional-Hazards
 
@@ -142,25 +88,22 @@ summary(csh_survival)
 The above output summarises the fitted model. First, it shows that out of the
 `r nrow(hd_train)` patients, `r sum(hd_train$status == 1)` experienced the event 
 of interest (relapse). Second, it shows the coefficients and hazard ratios 
-(`exp(coef)`) for each covariate, along with a significance test. The results 
-suggest that age, treatment, and clinical stage are significantly associated 
-with the hazard of relapse. For instance, being in clinical stage 2 increases 
-the cause-specific hazard (rate) of relapse by 
-`r round((exp(coef(csh_survival)[7]) - 1)*100,2)`%
-when compared to a patient in stage 1. It is important to emphasise that one 
-should be cautious when interpreting these covariate effects as this modelling 
-strategy only permits to do inference of the effects on the
-hazard but not on the prognosis or survival (see more details in @Austin2016).
-Finally, the output also reports model fitness statistics. The concordance
-index, which summaries the in-sample discriminative ability of the model (a
-value close to 1 is preferred), and  three tests to check if (overall) the model
-is significant.
+(`exp(coef)`) for each covariate, along with the results of a marginal 
+significance test. The results suggest that age, treatment, and clinical stage 
+are significantly associated with the hazard of relapse. For instance, being in 
+clinical stage 2 increases the cause-specific hazard (rate) of relapse by 
+`r round((exp(coef(csh_survival)[7]) - 1)*100,2)`% when compared to a patient in 
+stage 1. It is important to emphasise that one should be cautious when 
+interpreting these covariate effects as this modelling strategy only permits to 
+do inference of the effects on the hazard but not on the prognosis or survival 
+(see more details in @Austin2016). Naively estimating survival/risk probabilities 
+from this model, will result in overestimation of the survival function, as 
+competing risks are not taken into account. See the [riskRegression section](#the-riskregression-package) for a valid approach.
+Finally, the output also reports model fitness statistics, including the 
+concordance index, which summaries the in-sample discriminative ability of the 
+model (a value close to 1 is preferred).b Note, however, that none of these 
+metrics account for competing events. 
  
-Note that naively estimating survival/risk probabilities from this model, will 
-result in overestimation of the survival function, as competing risks are not 
-taken into account. See the [riskRegression section](#the-riskregression-package) 
-for a valid approach.
-
 ## The `rms` package
 
 Another package that permits to fit the model is `rms`. This package provides
@@ -357,19 +300,23 @@ print(csh_riskRegression2)
 
 The `glmnet()` function permits to fit different Cox sparse regression models
 through the argument `family="cox"`. It is possible to use lasso, ridge and
-elastic net regularization. Here, we focus on describing lasso. 
+elastic net regularization. Here, we used lasso.
 
-As in previous examples, the code below fits models for the first event type only.
+As in previous examples, the code below fits a cause-specific proportional 
+hazards model for the first event type only.
 
-First, we employ `makeX()` to construct the design matrix with no intercept.
-Second, the response variable is defined using a `Surv` object. Finally, the
-argument `alpha = 1` indicates that a lasso penalty will be used. Note that, 
-users can set `alpha = 0` to select a ridge penalty. If the value of `alpha` 
-lies between 0 and 1, an elastic net penalty will be used instead. 
+First, as `glmnet` cannot directly handle factor variables, we extract the
+design matrix used in previous models (with re-codes factor variables into
+dummy binary variables). Second, the response variable is defined using a 
+`Surv` object. Finally, the argument `alpha = 1` indicates that a lasso penalty 
+will be used. Note that, users can set `alpha = 0` to select a ridge penalty. 
+If the value of `alpha` lies between 0 and 1, an elastic net penalty will be 
+used instead. 
 
 ```{r}
 require(glmnet)
-x <- makeX(hd_train[, 1:6]) #Note that makeX() permits mean imputation for missing values
+
+x <- model.matrix(csh_survival) 
 
 lasso.fit <- glmnet(x = x,
                     y = Surv(hd_train$time, hd_train$status == 1),
@@ -378,8 +325,8 @@ lasso.fit <- glmnet(x = x,
                     alpha = 1)
 ```
 
-The output of the fitted model shows degrees of freedom, deviance and $\lambda$ 
-for the iterations.
+The output of the fitted model shows degrees of freedom and deviance for different
+values of $\lambda$.
 
 ```{r}
 print(lasso.fit)
@@ -394,24 +341,19 @@ plot(lasso.fit, label = TRUE)
 ```
 
 The estimated coefficients for specific $\lambda$ values can be obtained using
-`coef()`. 
+`coef()`. For example, for $\lambda = 0.06$:
 
 ```{r}
 coef(lasso.fit, s = 0.06) # s:=\lambda
 ```
 
-Note that due to the lack of intercept in the design matrix, the interpretation
-of the regression coefficients differs from those presented in earlier sections.
-For example, two separate coefficients are reported for sex (one for males; one
-for females). Instead, previous models used females as a reference, reporting a
-single regression coefficient to quantify the difference between males and 
-females (in terms of the hazard). 
-
+Note that the interpretation of the regression coefficients is similar to those 
+presented in earlier sections.  
 
 One can also employ k-fold cross-validation to select the optimal value of
 $\lambda$. Below, we show how to do that using 10 folds and Harrel's concordance
-index; however, one can also employ a deviance loss measure. Note, however,
-that none of these metrics account for competing events. 
+index (one can also employ a deviance loss measure). Note, however, that none of 
+these metrics account for competing events. 
 
 ```{r}
 set.seed(1)
@@ -435,35 +377,45 @@ the plot shown above, can be obtained with the following commands.
 lassoCV.fit$lambda.min; lassoCV.fit$lambda.1se
 ```
 
-The first value corresponds to the $\lambda$ value where the error reaches its
-minimum. The second value corresponds to 1 standard deviation of the minimum
-error. In this case, including only 2 covariates is within 1 sd of the minimum.
+The first value (`lambda.min`) corresponds to the $\lambda$ value for which the 
+cross-validation performance is best, i.e. it leads to the highest C-index in 
+this example. In principle, `lambda.min` can be used as an optimal choice. In
+such case, the final model includes all covariates (only the coefficient 
+associated to `medwidsiN` is shrunk to be exactly equal to zero):
 
-The estimated coefficients for $\lambda=$ `r lassoCV.fit$lambda.1se` are
-shown below, where we see that lasso selects age and treatment.
+```{r}
+coef(lassoCV.fit, s = lassoCV.fit$lambda.min)
+```
+
+Note that, for these data, several values of $\lambda$ (leading to models with 
+varying levels of sparsity) result in similar cross-validated performance. 
+Hence, choosing `lambda.min` may not be appropriate. An alternative, more
+parsimonious, choice can be selected by using `lambda.1se` [@hastie2009elements]. 
+In such case, `lambda.1se` represents the highest value of $\lambda$ (i.e. the 
+strongest regularisation) such that the chosen performance metric (C-index here) 
+is within 1 standard deviation of the one associated to `lambda.min`. In this 
+example, the selected model only contains 3 covariates (`age`, `trtgiven` and
+`medwidsi`):
 
 ```{r}
 coef(lassoCV.fit, s = lassoCV.fit$lambda.1se)
 ```
 
-
 ## Cox model-based boosting - The `mboost` package
  
 A cause-specific CPH model that employs model-based boosting is showcased here
 by using the `glmboost()` function. As with other approaches, one should first
-create the response variable using `Surv()`. Because `mboost` is an R package
-that can fit models beyond survival analysis, one should specify
-`family = CoxPH()`. The parameters of the boosting algorithm are set by the
-`control` argument. In the example below we have used 900 boosting
-iterations with the step-length (referred as $\lambda$ in the manuscript) set at
-0.2. In addition, we indicate that continuous variables have not been previously
-centered. 
+create the response variable using `Surv()`. 
+
+Because `mboost` is an R package that can fit models beyond survival analysis, 
+one should specify `family = CoxPH()`. The parameters of the boosting algorithm 
+are then set by the `control` argument. In the example below we have used 1000 
+boosting iterations with the step-length (referred as $\lambda$ in the 
+manuscript; `nu` in the code below) set at 0.3. In addition, we indicate that 
+continuous variables have not been previously centered. 
 
 As before, for illustration purposes, we only fit the model associated to the 
 first event type.
-
-The output of the model indicates the estimated regression coefficients from
-which the estimated HR can be computed
 
 ```{r mboost, message = FALSE}
 require(mboost)
@@ -474,17 +426,13 @@ csh_mboost <- glmboost(Surv(time, status == 1) ~ age +
                          medwidsi +
                          extranod +
                          clinstg,
-                       data = hd,
+                       data = hd_train,
                        family = CoxPH(),
-                       control = boost_control(mstop = 900,
-                                               nu = 0.3,
-                                               trace = FALSE),
+                       control = boost_control(mstop = 1000,
+                                               nu = 0.3),
                        center = FALSE)
 
 print(csh_mboost)
-
-knitr::kable(round(exp(coef(csh_mboost, off2int = TRUE)), 4),
-             col.names = c("HR"))
 ```
 
 A plot of the coefficients across boosting iterations is shown:
@@ -495,7 +443,7 @@ plot(csh_mboost, main = "Coefficient paths", ylim = range(coef(csh_mboost)))
 
 To do variable selection one can use the `varimp()` function. In the plot below
 we observe that age, treatment given, clinical stage and size of mediastinum
-involvement appear to be relevant.
+involvement appear to be the most relevant covariates.
 
 ```{r, fig.width = 6, fig.height = 4}
 plot(varimp(csh_mboost))
@@ -503,22 +451,176 @@ plot(varimp(csh_mboost))
 
 `mboost` permits cross-validation for hyper-parameter selection; specifically, 
 the number of boosting iterations. Here, we show how to do this using 25 
-bootstrap samples (default). Estimation is done sequentially:
+bootstrap samples (default). Note that the value of the second hyper-parameter, 
+`nu`, is not critical as long as it is sufficiently large. As such 
+cross-validation for `nu` is not generally recommended.  
 
 ```{r,  echo=T, results='hide'}
 set.seed(1)
 cv.boost <- cvrisk(csh_mboost, papply = lapply)
 ```
 
+The next plot shows how the (negative) cross-validated likelihood (cvl) 
+[@verweij1993cross] changes as the number of boosting iterations increases. 
+Light grey lines represent each of the 25 boostrap samples. The black line shows 
+average values across all boostrap samples.
+
 ```{r}
 plot(cv.boost)
+```
+
+The function `mstop` can be used to identify the optimal number of boosting
+iteration. As a default, this is chosen to minimize the negative cvl. 
+
+```{r}
 stop.B <- mstop(cv.boost)  # can serve to obtain optimal stopping parameter
 stop.B 
 ```
 
-The above output shows that `r stop.B` boosting iterations is enough. Once the 
-number is obtained one can use `glmboost()` with the resulting number of 
-boosting iterations.
+To better visualise the behavior of cvl, we also plot the black line alone 
+(i.e. the mean of cvl across boostrap samples):
+
+```{r}
+mean.cvl <- colMeans(cv.boost)
+plot(mean.cvl, ylab = "cvl", xlab = "Number of boosting iterations", type = "l")
+abline(v = stop.B, col = "red")
+```
+
+In some cases, cvl may be a relatively flat function of the number of boosting 
+iterations (within certain range). In those cases, similar to the use of 
+`lambda.1se` in penalised regression (see previous section), it may 
+also be possible to select a more parsimonious model with similar 
+cross-validated error. For example, 250 boosting iterations lead to 
+similar (to 3 decimal points) as 292 iterations (`stop.B`).
+
+```{r}
+mean.cvl[250+1]
+mean.cvl[stop.B+1]
+```
+
+Once the number of boosting iterations has been selected, the associated 
+regression coefficients can be directly obtained from the model object.
+
+```{r}
+coef(csh_mboost[250])
+coef(csh_mboost[stop.B])
+```
+
+Note, if the plots above suggest that cvl has not yet achieved stable values,
+a larger number of boosting iterations may be required. The latter can be 
+obtained through the fitted model, without the need to re-run the initial 
+iterations. For example, the following code returns a model with 1200 boosting
+iterations:
+
+```{r}
+csh_mboost[1200]
+```
+
+# Comparison: estimates of regression coefficients
+
+First, we compare estimated regression coefficients obtained above. As the 
+estimates obtained for the cause-specific Cox PH were the same regardless of the 
+choice of R library (`survival`, `rms` o `riskRegression`), we only store one
+of them (the ones for `survival`)
+
+```{r}
+# Adds zeros for the results of mboost as only non-zero coefficients are returned
+coef_boost_250 <- coef(csh_mboost[250])
+coef_boost_250 <- c(coef_boost_250[1], 0, coef_boost_250[2:6])
+df <- data.frame("cox" = summary(csh_survival)$coefficients[,1],
+                 "cox_se" = summary(csh_survival)$coefficients[,3],
+                 "lasso_min" = coef(lassoCV.fit, s = lassoCV.fit$lambda.min)[,1],
+                 "lasso_1se" = coef(lassoCV.fit, s = lassoCV.fit$lambda.1se)[,1],
+                 "mboost_stopb" = coef(csh_mboost[stop.B]),
+                 "mboost_250" = coef_boost_250)
+round(df, 2)
+df$variable <- rownames(df)
+```
+
+
+The following code was used to create Figure 1A:
+
+```{r}
+# colour version
+library(ggplot2)
+library(patchwork)
+
+p_all <- ggplot(df, aes(x=variable, y=cox, col = "Cox")) + 
+  geom_errorbar(aes(ymin = cox - cox_se, ymax = cox + cox_se), width=.1) +
+  geom_point(cex = 2.5) + 
+  geom_point(aes(x = variable, y = lasso_min, col = "lasso_min"), cex = 2.5) +
+  geom_point(aes(x = variable, y = lasso_1se, colour = "lasso_1se"), cex = 2.5) +
+  geom_point(aes(x = variable, y = mboost_stopb, colour = "mboost_min"), cex = 2.5) + 
+  geom_point(aes(x = variable, y = mboost_250, colour = "mboost_other"), cex = 2.5) +
+  geom_hline(yintercept = 0, lty = 2, colour = "gray") +
+  theme_classic() +
+  ylab("Estimate") + xlab("Coefficient") +
+  labs(color="Method") +
+  scale_color_manual(values=c("#999999", "#1A5276", "#2980B9", "#B9770E", "#F5B041"))
+
+p_age <- ggplot(df[df$variable == "age",], aes(x=variable, y=cox, col = "Cox")) + 
+  geom_errorbar(aes(ymin = cox - cox_se, ymax = cox + cox_se), width=.1) +
+  geom_point(cex = 2.5) + 
+  geom_point(aes(x = variable, y = lasso_min, col = "lasso_min"), cex = 2.5) +
+  geom_point(aes(x = variable, y = lasso_1se, colour = "lasso_1se"), cex = 2.5) +
+  geom_point(aes(x = variable, y = mboost_stopb, colour = "mboost_min"), cex = 2.5) + 
+  geom_point(aes(x = variable, y = mboost_250, colour = "mboost_other"), cex = 2.5) +
+  theme_classic() +
+  ylab("Estimate") + xlab("Coefficient") +
+  labs(color="Method") +
+  scale_color_manual(values=c("#999999", "#1A5276", "#2980B9", "#B9770E", "#F5B041")) +
+  theme(legend.position="none", 
+        axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.background = element_rect(colour = "black", fill=NA, size=0.6))
+
+p_all + inset_element(p_age, left = 0.01, bottom = 0.6, right = 0.2, top = 1)
+
+if (file.exists("/.dockerenv")){ # running in docker
+  ggsave("/Outputs/Comparison_estimation_CSH.pdf", device = "pdf")
+} else {
+  ggsave("../Outputs/Comparison_estimation_CSH.pdf", device = "pdf")
+}
+```
+
+```{r}
+# black and white
+
+p_all <- ggplot(df, aes(x=variable, y=cox, pch = "Cox")) + 
+  geom_errorbar(aes(ymin = cox - cox_se, ymax = cox + cox_se), width=.1) +
+  geom_point(cex = 2.5) + 
+  geom_point(aes(x = variable, y = lasso_min, pch = "lasso_min"), cex = 2.5) +
+  geom_point(aes(x = variable, y = lasso_1se, pch =  "lasso_1se"), cex = 2.5) +
+  geom_point(aes(x = variable, y = mboost_stopb, pch =  "mboost_min"), cex = 2.5) + 
+  geom_point(aes(x = variable, y = mboost_250, pch = "mboost_other"), cex = 2.5) +
+  geom_hline(yintercept = 0, lty = 2, colour = "gray") +
+  theme_classic() +
+  ylab("Estimate") + xlab("Coefficient") +
+  labs(pch="Method") +
+  scale_shape_manual(values = c(16, 15, 17, 1, 2)) 
+
+p_age <- ggplot(df[df$variable == "age",], aes(x=variable, y=cox, pch = "Cox")) + 
+  geom_errorbar(aes(ymin = cox - cox_se, ymax = cox + cox_se), width=.1) +
+  geom_point(cex = 2.5) + 
+  geom_point(aes(x = variable, y = lasso_min, pch = "lasso_min"), cex = 2.5) +
+  geom_point(aes(x = variable, y = lasso_1se, pch = "lasso_1se"), cex = 2.5) +
+  geom_point(aes(x = variable, y = mboost_stopb, pch = "mboost_min"), cex = 2.5) + 
+  geom_point(aes(x = variable, y = mboost_250, pch = "mboost_other"), cex = 2.5) +
+  theme_classic() +
+  ylab("Estimate") + xlab("Coefficient") +
+  labs(pch="Method") +
+  theme(legend.position="none", 
+        axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.background = element_rect(colour = "black", fill=NA, size=0.6)) +
+  scale_shape_manual(values = c(16, 15, 17, 1, 2)) 
+
+p_all + inset_element(p_age, left = 0.01, bottom = 0.6, right = 0.2, top = 1)
+
+if (file.exists("/.dockerenv")){ # running in docker
+  ggsave("/Outputs/Comparison_estimation_CSH_BW.pdf", device = "pdf")
+} else {
+  ggsave("../Outputs/Comparison_estimation_CSH_BW.pdf", device = "pdf")
+}
+```
 
 # Storing predictions
 
@@ -528,11 +630,11 @@ we save the predictions obtained in this vignette.
 ```{r save_pred}
 pred_CS <- data.frame("testID" = seq_len(nrow(hd_test)),
                       "coxph_riskRegression" = risk.coxph,
-                      "coxphPL_riskRegression" = risk.coxphPL)
+                      "coxphPL_riskRegression" = risk.pec)
 if (file.exists("/.dockerenv")){ # running in docker
-  write.csv(pred_CS, "/Predictions/pred_CS.csv", row.names = FALSE)
+  write.csv(pred_CS, "/Outputs/pred_CS.csv", row.names = FALSE)
 } else {
-  write.csv(pred_CS, "../Predictions/pred_CS.csv", row.names = FALSE)
+  write.csv(pred_CS, "../Outputs/pred_CS.csv", row.names = FALSE)
 }
 ```
 

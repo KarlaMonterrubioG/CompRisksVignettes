@@ -27,46 +27,167 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  cache = TRUE
+  cache = FALSE
 )
 ```
 
+# Introduction
 
-# Loading predictions
+The dataset used here corresponds to the Hodgkin’s disease (HD) study described
+in Pintilie, 2006. The data was loaded and pre-processed using the script that
+is sourced below. The latter creates three data objects:
+
+- `hd`: all the samples in the original data
+- `hd_train`: a random sample of the data to be used as a training set
+- `hd_test`: a random sample of the data to be used as a testing set
+
+Details about data pre-processing steps can be found [here](https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/DataPreparation.Rmd)
+
+```{r}
+source("../Data_prep/data_prep.R")
+```
+
+This document compares predictions generated the different approaches for individuals in the test set, focusing on the risk of the primary event type
+(relapse) at $t=5$ years. 
+
+# Comparing predictions at $t=5$
+
+## Loading the predictions
 
 Here, we load the predicted probabilities of observing an event of type 1 by
 $t=5$ that were obtained by different methods
 
-
 ```{r load_pred}
 if (file.exists("/.dockerenv")){
-  pred_CIF <- read.csv("/Predictions/pred_CIF.csv")
-  pred_Others <- read.csv("/Predictions/pred_Others.csv")
-  pred_BART <- read.csv("/Predictions/pred_BART.csv")
+  pred_CS <- read.csv("/Outputs/pred_CS.csv")
+  pred_CIF <- read.csv("/Outputs/pred_CIF.csv")
+  pred_Others <- read.csv("/Outputs/pred_Others.csv")
+  pred_BART <- read.csv("/Outputs/pred_BART.csv")
 } else {
-  pred_CIF <- read.csv("../Predictions/pred_CIF.csv")
-  pred_Others <- read.csv("../Predictions/pred_Others.csv")
-  pred_BART <- read.csv("../Predictions/pred_BART.csv")
+  pred_CS <- read.csv("../Outputs/pred_CS.csv")
+  pred_CIF <- read.csv("../Outputs/pred_CIF.csv")
+  pred_Others <- read.csv("../Outputs/pred_Others.csv")
+  pred_BART <- read.csv("../Outputs/pred_BART.csv")
 }
 
-pred_All <- merge(pred_CIF, pred_Others, by = "testID")
-pred_All <- merge(pred_All, pred_BART, by = "testID")
+pred_all <- merge(pred_CS, pred_CIF, by = "testID")
+pred_all <- merge(pred_all, pred_Others, by = "testID")
+pred_all <- merge(pred_all, pred_BART, by = "testID")
+
+names(pred_all)
 ```
 
-# Comparing predictions
+The data above includes predictions obtained using the following methods:
 
-As shown below, all methods led to correlated predictions. As expected we 
-observe greater similarity between methods based on the CIF specification
-(Fine and Gray regression, direct binomial and DPWeibul). The three BART 
-variations also led to similar predictions (discrepancies may be due to lack
-of convergence). 
+* `coxph_riskRegression`: Cause-specific Cox PH (CS Cox) model 
+* `coxphPL_riskRegression`: Cause-specific Cox PH (CS Cox) model using a product
+limit (PL) approach to calculated predicted probabilities. The latter ensures
+that (in the limit) the event-specific probabilities sum up to 1 across events. 
+* `FG_riskRegression`: Fine & Gray (F&G) regression   
+* `DirectBinomial`: Direct binomial        
+* `DPWeibull`: Dependent Dirichlet Process        
+* `RF_logrankCR`: Random Forests (RF) using a modified Gray's criteria as the 
+splitting rule, focusing on the first event type. The latter aims to identify 
+covariates that affect the CIF for the first event type.
+* `RF_logrankCR.av`: as above, but the splitting rule considers the average 
+between the first and second event types.
+* `crisk2.bart`: BART using its first formulation    
+* `crisk2.bart_dart`: DART - a variation of BART (first formulation) that
+enables feature selection
+* `crisk.bart`: BART using its second formulation    
 
-```{r cor_pred, fig.height=8, fig.width=8}
-plot(pred_All[,-1], xlim = c(0, 0.65), ylim = c(0, 0.65))
+## Pairwise comparison
+
+As shown below, all methods led to correlated predictions. The greatest similarity was between the classical approaches (CS Cox, F&G, Direct binomial).
+BART, under its second formulation, also led to similar predictions. RF 
+exhibited the greatest discrepancy with respect to such methods above.
+Note that for the different BART approaches and DPWeibull, predicted probabilities may be affected by lack of convergence of the algorithm. 
+
+The following code was used to create Figure 2:
+
+```{r, fig.width=12, fig.height=12}
+library(GGally)
+
+# Code to control axis limits was adapted from: https://stackoverflow.com/questions/53277656/how-to-define-facet-axis-limits-in-ggpairs-function
+scatter_limitRange <- function(data, mapping, ...) { 
+  ggplot(data = data, mapping = mapping, ...) + 
+    geom_point(..., col = "gray", alpha = 0.5) + 
+    geom_abline(intercept = 0, slope = 1) +
+    scale_x_continuous(limits = c(min(pred_all[,-1]), max(pred_all[,-1]))) +
+    scale_y_continuous(limits = c(min(pred_all[,-1]), max(pred_all[,-1]))) +
+    theme_classic()
+}
+dens_limitRange <- function(data, mapping, ...) {
+  ggplot(data = data, mapping = mapping, ...) + 
+    geom_density(..., col = "gray", fill = "gray") + 
+    scale_x_continuous(limits = c(min(pred_all[,-1]), max(pred_all[,-1]))) +
+    theme_classic()
+}
+
+my.labels <- c("CS Cox", "CS Cox (PL)", "F&G", "Direct Binomial", 
+               "DPWeibull", "RF logrankCR (1)", "RF logrankCR (av)", 
+               "BART (1)", "DART (1)", "BART (2)")
+
+ggpairs(pred_all, columns = 2:11, progress = FALSE,
+        lower = list(continuous = scatter_limitRange),
+        diag = list(continuous = dens_limitRange),
+        columnLabels = my.labels)
+
+if (file.exists("/.dockerenv")){ # running in docker
+  ggsave("/Outputs/Comparison_predictions_t5.pdf", device = "pdf")
+} else {
+  ggsave("../Outputs/Comparison_predictions_t5.pdf", device = "pdf")
+}
 ```
 
 To evaluate the predictive performance for each methods, users can follow the
 examples provided by [van Geloven et al](https://github.com/survival-lumc/ValidationCompRisks).
+
+## Predictions versus covariates
+
+```{r, fig.width=16, fig.height=5}
+# combine test dataset with the predictions
+pred_all <- cbind(pred_all, hd_test)
+
+library(tidyverse)
+library(patchwork)
+
+y.min <- with(pred_all, min(FG_riskRegression, DPWeibull, RF_logrankCR))
+y.max <- with(pred_all, max(FG_riskRegression, DPWeibull, RF_logrankCR))
+
+p_FG <- ggplot(data = pred_all, 
+                aes(x = age, y = FG_riskRegression, 
+                    col = sex, pch = trtgiven)) +
+  geom_point(cex = 2) + theme_classic() +
+  ylab("Prob relapse before 5 years (Fine & Gray)") +
+  ylim(y.min, y.max) +
+  scale_color_manual(values = c("#B3B6B7", "#000000"))
+
+p_DW <- ggplot(data = pred_all, 
+                aes(x = age, y = DPWeibull, 
+                    col = sex, pch = trtgiven)) +
+  geom_point(cex = 2) + theme_classic() +
+  ylab("Prob relapse before 5 years (DPWeibull)") +
+  ylim(y.min, y.max) +
+  scale_color_manual(values = c("#B3B6B7", "#000000"))
+
+p_RF <- ggplot(data = pred_all, 
+                aes(x = age, y = RF_logrankCR, 
+                    col = sex, pch = trtgiven)) +
+  geom_point(cex = 2) + theme_classic() +
+  ylab("Prob relapse before 5 years (RF; logrankCR)") +
+  ylim(y.min, y.max) +
+  scale_color_manual(values = c("#B3B6B7", "#000000"))
+
+p_FG + p_DW + p_RF + plot_annotation(tag_levels = 'A') + 
+  plot_layout(guides = 'collect')
+
+if (file.exists("/.dockerenv")){ # running in docker
+  ggsave("/Outputs/Comparison_predictions_t5_covariates.pdf", device = "pdf")
+} else {
+  ggsave("../Outputs/Comparison_predictions_t5_covariates.pdf", device = "pdf")
+}
+```
 
 # References
 <div id="refs"></div>

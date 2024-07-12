@@ -11,11 +11,11 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2022-12-08" />
+<meta name="date" content="2024-01-11" />
 
 <title>Comparison of predictions</title>
 
-<script src="Predictions_files/header-attrs-2.18/header-attrs.js"></script>
+<script src="Predictions_files/header-attrs-2.24/header-attrs.js"></script>
 <script src="Predictions_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="Predictions_files/bootstrap-3.3.5/css/simplex.min.css" rel="stylesheet" />
@@ -31,7 +31,7 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
-<script src="Predictions_files/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<script src="Predictions_files/jqueryui-1.13.2/jquery-ui.min.js"></script>
 <link href="Predictions_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="Predictions_files/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="Predictions_files/navigation-1.1/tabsets.js"></script>
@@ -271,12 +271,13 @@ div.tocify {
 <div id = "nav">
   <ul>
     <li><a href="index.html">Home</a></li>
+    <li><a href="DataPreparation.html">Data Preparation</a></li>
     <li><a href="CIF_specification.html">Cumulative Incidence</a></li>
     <li><a href="CS_specification.html">Cause Specific</a></li>
     <li><a href="Discrete_specification.html">Discrete</a></li>
     <li><a href="Others.html">Other</a></li>
     <li><a href="Predictions.html">Predictions</a></li>
-    <li style="float:right"><a href="https://github.com/KarlaMonterrubioG/Competing_risks"><i style="font-size: 20px; padding-top: 0px; padding-bottom: 0px;" class="fa-brands fa-github"></i></a></li>
+    <li style="float:right"><a href="https://github.com/VallejosGroup/CompRisksVignettes"><i style="font-size: 20px; padding-top: 0px; padding-bottom: 0px;" class="fa-brands fa-github"></i></a></li>
   </ul>
 </div>
 
@@ -295,42 +296,197 @@ div.tocify {
 <h1 class="title toc-ignore">Comparison of predictions</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2022-12-08</h4>
+<h4 class="date">2024-01-11</h4>
 
 </div>
 
 
-<div id="loading-predictions" class="section level1">
-<h1>Loading predictions</h1>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>The dataset used here corresponds to the Hodgkin’s disease (HD) study
+described in Pintilie, 2006. The data was loaded and pre-processed using
+the script that is sourced below. The latter creates three data
+objects:</p>
+<ul>
+<li><code>hd</code>: all the samples in the original data</li>
+<li><code>hd_train</code>: a random sample of the data to be used as a
+training set</li>
+<li><code>hd_test</code>: a random sample of the data to be used as a
+testing set</li>
+</ul>
+<p>Details about data pre-processing steps can be found <a
+href="https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/DataPreparation.Rmd">here</a></p>
+<pre class="r"><code>source(&quot;../Data_prep/data_prep.R&quot;)
+#&gt; The sourced script has been used to load and pre-process the data.
+#&gt; The latter converts appropriate variables into factors.
+#&gt; Additionally, we randomly split the data into training and testing sets, 
+#&gt; enabling us to evaluate out-of-sample predictive performance when comparing different approaches.</code></pre>
+<p>This document compares predictions generated the different approaches
+for individuals in the test set, focusing on the risk of the primary
+event type (relapse) at <span class="math inline">\(t=5\)</span>
+years.</p>
+</div>
+<div id="comparing-predictions-at-t5" class="section level1">
+<h1>Comparing predictions at <span
+class="math inline">\(t=5\)</span></h1>
+<div id="loading-the-predictions" class="section level2">
+<h2>Loading the predictions</h2>
 <p>Here, we load the predicted probabilities of observing an event of
 type 1 by <span class="math inline">\(t=5\)</span> that were obtained by
 different methods</p>
 <pre class="r"><code>if (file.exists(&quot;/.dockerenv&quot;)){
-  pred_CIF &lt;- read.csv(&quot;/Predictions/pred_CIF.csv&quot;)
-  pred_Others &lt;- read.csv(&quot;/Predictions/pred_Others.csv&quot;)
-  pred_BART &lt;- read.csv(&quot;/Predictions/pred_BART.csv&quot;)
+  pred_CS &lt;- read.csv(&quot;/Outputs/pred_CS.csv&quot;)
+  pred_CIF &lt;- read.csv(&quot;/Outputs/pred_CIF.csv&quot;)
+  pred_Others &lt;- read.csv(&quot;/Outputs/pred_Others.csv&quot;)
+  pred_BART &lt;- read.csv(&quot;/Outputs/pred_BART.csv&quot;)
 } else {
-  pred_CIF &lt;- read.csv(&quot;../Predictions/pred_CIF.csv&quot;)
-  pred_Others &lt;- read.csv(&quot;../Predictions/pred_Others.csv&quot;)
-  pred_BART &lt;- read.csv(&quot;../Predictions/pred_BART.csv&quot;)
+  pred_CS &lt;- read.csv(&quot;../Outputs/pred_CS.csv&quot;)
+  pred_CIF &lt;- read.csv(&quot;../Outputs/pred_CIF.csv&quot;)
+  pred_Others &lt;- read.csv(&quot;../Outputs/pred_Others.csv&quot;)
+  pred_BART &lt;- read.csv(&quot;../Outputs/pred_BART.csv&quot;)
 }
 
-pred_All &lt;- merge(pred_CIF, pred_Others, by = &quot;testID&quot;)
-pred_All &lt;- merge(pred_All, pred_BART, by = &quot;testID&quot;)</code></pre>
+pred_all &lt;- merge(pred_CS, pred_CIF, by = &quot;testID&quot;)
+pred_all &lt;- merge(pred_all, pred_Others, by = &quot;testID&quot;)
+pred_all &lt;- merge(pred_all, pred_BART, by = &quot;testID&quot;)
+
+names(pred_all)
+#&gt;  [1] &quot;testID&quot;                 &quot;coxph_riskRegression&quot;   &quot;coxphPL_riskRegression&quot;
+#&gt;  [4] &quot;FG_riskRegression&quot;      &quot;DirectBinomial&quot;         &quot;DPWeibull&quot;             
+#&gt;  [7] &quot;RF_logrankCR&quot;           &quot;RF_logrankCR.av&quot;        &quot;crisk2.bart&quot;           
+#&gt; [10] &quot;crisk2.bart_dart&quot;       &quot;crisk.bart&quot;</code></pre>
+<p>The data above includes predictions obtained using the following
+methods:</p>
+<ul>
+<li><code>coxph_riskRegression</code>: Cause-specific Cox PH (CS Cox)
+model</li>
+<li><code>coxphPL_riskRegression</code>: Cause-specific Cox PH (CS Cox)
+model using a product limit (PL) approach to calculated predicted
+probabilities. The latter ensures that (in the limit) the event-specific
+probabilities sum up to 1 across events.</li>
+<li><code>FG_riskRegression</code>: Fine &amp; Gray (F&amp;G)
+regression<br />
+</li>
+<li><code>DirectBinomial</code>: Direct binomial<br />
+</li>
+<li><code>DPWeibull</code>: Dependent Dirichlet Process<br />
+</li>
+<li><code>RF_logrankCR</code>: Random Forests (RF) using a modified
+Gray’s criteria as the splitting rule, focusing on the first event type.
+The latter aims to identify covariates that affect the CIF for the first
+event type.</li>
+<li><code>RF_logrankCR.av</code>: as above, but the splitting rule
+considers the average between the first and second event types.</li>
+<li><code>crisk2.bart</code>: BART using its first formulation<br />
+</li>
+<li><code>crisk2.bart_dart</code>: DART - a variation of BART (first
+formulation) that enables feature selection</li>
+<li><code>crisk.bart</code>: BART using its second formulation</li>
+</ul>
 </div>
-<div id="comparing-predictions" class="section level1">
-<h1>Comparing predictions</h1>
-<p>As shown below, all methods led to correlated predictions. As
-expected we observe greater similarity between methods based on the CIF
-specification (Fine and Gray regression, direct binomial and DPWeibul).
-The three BART variations also led to similar predictions (discrepancies
-may be due to lack of convergence).</p>
-<pre class="r"><code>plot(pred_All[,-1], xlim = c(0, 0.65), ylim = c(0, 0.65))</code></pre>
-<p><img src="Predictions_files/figure-html/cor_pred-1.png" width="768" /></p>
+<div id="pairwise-comparison" class="section level2">
+<h2>Pairwise comparison</h2>
+<p>As shown below, all methods led to correlated predictions. The
+greatest similarity was between the classical approaches (CS Cox,
+F&amp;G, Direct binomial). BART, under its second formulation, also led
+to similar predictions. RF exhibited the greatest discrepancy with
+respect to such methods above. Note that for the different BART
+approaches and DPWeibull, predicted probabilities may be affected by
+lack of convergence of the algorithm.</p>
+<p>The following code was used to create Figure 2:</p>
+<pre class="r"><code>library(GGally)
+#&gt; Registered S3 method overwritten by &#39;GGally&#39;:
+#&gt;   method from   
+#&gt;   +.gg   ggplot2
+#&gt; 
+#&gt; Attaching package: &#39;GGally&#39;
+#&gt; The following object is masked from &#39;package:pander&#39;:
+#&gt; 
+#&gt;     wrap
+
+# Code to control axis limits was adapted from: https://stackoverflow.com/questions/53277656/how-to-define-facet-axis-limits-in-ggpairs-function
+scatter_limitRange &lt;- function(data, mapping, ...) { 
+  ggplot(data = data, mapping = mapping, ...) + 
+    geom_point(..., col = &quot;gray&quot;, alpha = 0.5) + 
+    geom_abline(intercept = 0, slope = 1) +
+    scale_x_continuous(limits = c(min(pred_all[,-1]), max(pred_all[,-1]))) +
+    scale_y_continuous(limits = c(min(pred_all[,-1]), max(pred_all[,-1]))) +
+    theme_classic()
+}
+dens_limitRange &lt;- function(data, mapping, ...) {
+  ggplot(data = data, mapping = mapping, ...) + 
+    geom_density(..., col = &quot;gray&quot;, fill = &quot;gray&quot;) + 
+    scale_x_continuous(limits = c(min(pred_all[,-1]), max(pred_all[,-1]))) +
+    theme_classic()
+}
+
+my.labels &lt;- c(&quot;CS Cox&quot;, &quot;CS Cox (PL)&quot;, &quot;F&amp;G&quot;, &quot;Direct Binomial&quot;, 
+               &quot;DPWeibull&quot;, &quot;RF logrankCR (1)&quot;, &quot;RF logrankCR (av)&quot;, 
+               &quot;BART (1)&quot;, &quot;DART (1)&quot;, &quot;BART (2)&quot;)
+
+ggpairs(pred_all, columns = 2:11, progress = FALSE,
+        lower = list(continuous = scatter_limitRange),
+        diag = list(continuous = dens_limitRange),
+        columnLabels = my.labels)</code></pre>
+<p><img src="Predictions_files/figure-html/unnamed-chunk-2-1.png" width="1152" /></p>
+<pre class="r"><code>
+if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
+  ggsave(&quot;/Outputs/Comparison_predictions_t5.pdf&quot;, device = &quot;pdf&quot;)
+} else {
+  ggsave(&quot;../Outputs/Comparison_predictions_t5.pdf&quot;, device = &quot;pdf&quot;)
+}
+#&gt; Saving 12 x 12 in image</code></pre>
 <p>To evaluate the predictive performance for each methods, users can
 follow the examples provided by <a
 href="https://github.com/survival-lumc/ValidationCompRisks">van Geloven
 et al</a>.</p>
+</div>
+<div id="predictions-versus-covariates" class="section level2">
+<h2>Predictions versus covariates</h2>
+<pre class="r"><code># combine test dataset with the predictions
+pred_all &lt;- cbind(pred_all, hd_test)
+
+library(tidyverse)
+library(patchwork)
+
+y.min &lt;- with(pred_all, min(FG_riskRegression, DPWeibull, RF_logrankCR))
+y.max &lt;- with(pred_all, max(FG_riskRegression, DPWeibull, RF_logrankCR))
+
+p_FG &lt;- ggplot(data = pred_all, 
+                aes(x = age, y = FG_riskRegression, 
+                    col = sex, pch = trtgiven)) +
+  geom_point(cex = 2) + theme_classic() +
+  ylab(&quot;Prob relapse before 5 years (Fine &amp; Gray)&quot;) +
+  ylim(y.min, y.max) +
+  scale_color_manual(values = c(&quot;#B3B6B7&quot;, &quot;#000000&quot;))
+
+p_DW &lt;- ggplot(data = pred_all, 
+                aes(x = age, y = DPWeibull, 
+                    col = sex, pch = trtgiven)) +
+  geom_point(cex = 2) + theme_classic() +
+  ylab(&quot;Prob relapse before 5 years (DPWeibull)&quot;) +
+  ylim(y.min, y.max) +
+  scale_color_manual(values = c(&quot;#B3B6B7&quot;, &quot;#000000&quot;))
+
+p_RF &lt;- ggplot(data = pred_all, 
+                aes(x = age, y = RF_logrankCR, 
+                    col = sex, pch = trtgiven)) +
+  geom_point(cex = 2) + theme_classic() +
+  ylab(&quot;Prob relapse before 5 years (RF; logrankCR)&quot;) +
+  ylim(y.min, y.max) +
+  scale_color_manual(values = c(&quot;#B3B6B7&quot;, &quot;#000000&quot;))
+
+p_FG + p_DW + p_RF + plot_annotation(tag_levels = &#39;A&#39;) + 
+  plot_layout(guides = &#39;collect&#39;)</code></pre>
+<p><img src="Predictions_files/figure-html/unnamed-chunk-3-1.png" width="1536" /></p>
+<pre class="r"><code>
+if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
+  ggsave(&quot;/Outputs/Comparison_predictions_t5_covariates.pdf&quot;, device = &quot;pdf&quot;)
+} else {
+  ggsave(&quot;../Outputs/Comparison_predictions_t5_covariates.pdf&quot;, device = &quot;pdf&quot;)
+}
+#&gt; Saving 16 x 5 in image</code></pre>
+</div>
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>
@@ -341,13 +497,13 @@ et al</a>.</p>
 <div id="session-info" class="section level1">
 <h1>Session Info</h1>
 <pre class="r"><code>sessionInfo()
-#&gt; R version 4.2.2 (2022-10-31)
-#&gt; Platform: x86_64-pc-linux-gnu (64-bit)
-#&gt; Running under: Ubuntu 22.04.1 LTS
+#&gt; R version 4.3.1 (2023-06-16)
+#&gt; Platform: aarch64-unknown-linux-gnu (64-bit)
+#&gt; Running under: Ubuntu 22.04.3 LTS
 #&gt; 
 #&gt; Matrix products: default
-#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
-#&gt; LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so
+#&gt; BLAS:   /usr/lib/aarch64-linux-gnu/openblas-pthread/libblas.so.3 
+#&gt; LAPACK: /usr/lib/aarch64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0
 #&gt; 
 #&gt; locale:
 #&gt;  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
@@ -357,62 +513,68 @@ et al</a>.</p>
 #&gt;  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
 #&gt; [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 #&gt; 
+#&gt; time zone: Etc/UTC
+#&gt; tzcode source: system (glibc)
+#&gt; 
 #&gt; attached base packages:
 #&gt; [1] parallel  stats     graphics  grDevices utils     datasets  methods  
 #&gt; [8] base     
 #&gt; 
 #&gt; other attached packages:
-#&gt;  [1] randomForestSRC_3.1.1     BART_2.9                 
-#&gt;  [3] nlme_3.1-160              nnet_7.3-18              
-#&gt;  [5] mboost_2.9-7              stabs_0.6-4              
-#&gt;  [7] glmnet_4.1-6              Matrix_1.5-1             
-#&gt;  [9] pec_2022.05.04            rms_6.3-0                
-#&gt; [11] SparseM_1.81              Hmisc_4.7-2              
-#&gt; [13] ggplot2_3.4.0             Formula_1.2-4            
-#&gt; [15] lattice_0.20-45           coda_0.19-4              
-#&gt; [17] DPWeibull_1.8             timereg_2.0.4            
-#&gt; [19] pseudo_1.4.3              geepack_1.3.9            
-#&gt; [21] KMsurv_0.1-5              riskRegression_2022.11.28
-#&gt; [23] prodlim_2019.11.13        cmprsk_2.2-11            
-#&gt; [25] survival_3.4-0            splitstackshape_1.4.8    
-#&gt; [27] pander_0.6.5              readr_2.1.3              
+#&gt;  [1] GGally_2.1.2              randomForestSRC_3.2.2    
+#&gt;  [3] BART_2.9.4                nlme_3.1-162             
+#&gt;  [5] nnet_7.3-19               table1_1.4.3             
+#&gt;  [7] pander_0.6.5              mboost_2.9-7             
+#&gt;  [9] stabs_0.6-4               glmnet_4.1-8             
+#&gt; [11] Matrix_1.6-1              pec_2023.04.12           
+#&gt; [13] rms_6.7-0                 Hmisc_5.1-0              
+#&gt; [15] patchwork_1.1.3           lubridate_1.9.2.9000     
+#&gt; [17] forcats_1.0.0             stringr_1.5.0            
+#&gt; [19] dplyr_1.1.2               purrr_1.0.2              
+#&gt; [21] tidyr_1.3.0               tibble_3.2.1             
+#&gt; [23] ggplot2_3.4.3             tidyverse_2.0.0          
+#&gt; [25] coda_0.19-4               DPWeibull_1.8            
+#&gt; [27] timereg_2.0.5             pseudo_1.4.3             
+#&gt; [29] geepack_1.3.9             KMsurv_0.1-5             
+#&gt; [31] riskRegression_2023.03.22 prodlim_2023.08.28       
+#&gt; [33] cmprsk_2.2-11             survival_3.5-5           
+#&gt; [35] splitstackshape_1.4.8     readr_2.1.4              
 #&gt; 
 #&gt; loaded via a namespace (and not attached):
-#&gt;   [1] TH.data_1.1-1       colorspace_2.0-3    deldir_1.0-6       
-#&gt;   [4] ellipsis_0.3.2      evd_2.3-6.1         htmlTable_2.4.1    
-#&gt;   [7] base64enc_0.1-3     rstudioapi_0.14     listenv_0.8.0      
-#&gt;  [10] MatrixModels_0.5-1  bit64_4.0.5         fansi_1.0.3        
-#&gt;  [13] mvtnorm_1.1-3       codetools_0.2-18    splines_4.2.2      
-#&gt;  [16] cachem_1.0.6        libcoin_1.0-9       knitr_1.41         
-#&gt;  [19] jsonlite_1.8.3      broom_1.0.1         cluster_2.1.4      
-#&gt;  [22] png_0.1-8           data.tree_1.0.0     DiagrammeR_1.0.9   
-#&gt;  [25] compiler_4.2.2      backports_1.4.1     assertthat_0.2.1   
-#&gt;  [28] fastmap_1.1.0       cli_3.4.1           visNetwork_2.1.2   
-#&gt;  [31] htmltools_0.5.3     quantreg_5.94       tools_4.2.2        
-#&gt;  [34] partykit_1.2-16     gtable_0.3.1        glue_1.6.2         
-#&gt;  [37] dplyr_1.0.10        Rcpp_1.0.9          jquerylib_0.1.4    
-#&gt;  [40] vctrs_0.5.1         iterators_1.0.14    inum_1.0-4         
-#&gt;  [43] xfun_0.35           stringr_1.5.0       globals_0.16.2     
-#&gt;  [46] lifecycle_1.0.3     future_1.29.0       polspline_1.1.22   
-#&gt;  [49] MASS_7.3-58.1       zoo_1.8-11          scales_1.2.1       
-#&gt;  [52] vroom_1.6.0         hms_1.1.2           sandwich_3.0-2     
-#&gt;  [55] RColorBrewer_1.1-3  yaml_2.3.6          gridExtra_2.3      
-#&gt;  [58] sass_0.4.4          truncdist_1.0-2     rpart_4.1.19       
-#&gt;  [61] latticeExtra_0.6-30 stringi_1.7.8       highr_0.9          
-#&gt;  [64] foreach_1.5.2       checkmate_2.1.0     shape_1.4.6        
-#&gt;  [67] lava_1.7.0          mets_1.3.1          rlang_1.0.6        
-#&gt;  [70] pkgconfig_2.0.3     evaluate_0.18       purrr_0.3.5        
-#&gt;  [73] htmlwidgets_1.5.4   bit_4.0.5           tidyselect_1.2.0   
-#&gt;  [76] parallelly_1.32.1   magrittr_2.0.3      R6_2.5.1           
-#&gt;  [79] nnls_1.4            generics_0.1.3      multcomp_1.4-20    
-#&gt;  [82] DBI_1.1.3           pillar_1.8.1        foreign_0.8-83     
-#&gt;  [85] withr_2.5.0         tibble_3.1.8        future.apply_1.10.0
-#&gt;  [88] crayon_1.5.2        interp_1.1-3        utf8_1.2.2         
-#&gt;  [91] tzdb_0.3.0          rmarkdown_2.18      jpeg_0.1-10        
-#&gt;  [94] grid_4.2.2          data.table_1.14.6   binaryLogic_0.3.9  
-#&gt;  [97] digest_0.6.30       tidyr_1.2.1         numDeriv_2016.8-1.1
-#&gt; [100] stats4_4.2.2        munsell_0.5.0       bslib_0.4.1        
-#&gt; [103] quadprog_1.5-8</code></pre>
+#&gt;   [1] RColorBrewer_1.1-3  libcoin_1.0-9       rstudioapi_0.15.0  
+#&gt;   [4] jsonlite_1.8.7      shape_1.4.6         magrittr_2.0.3     
+#&gt;   [7] TH.data_1.1-2       farver_2.1.1        rmarkdown_2.24     
+#&gt;  [10] ragg_1.2.5          vctrs_0.6.3         truncdist_1.0-2    
+#&gt;  [13] binaryLogic_0.3.9   base64enc_0.1-3     htmltools_0.5.6    
+#&gt;  [16] polspline_1.1.23    broom_1.0.5         Formula_1.2-5      
+#&gt;  [19] sass_0.4.7          parallelly_1.36.0   bslib_0.5.1        
+#&gt;  [22] htmlwidgets_1.6.2   plyr_1.8.8          sandwich_3.0-2     
+#&gt;  [25] zoo_1.8-12          cachem_1.0.8        lifecycle_1.0.3    
+#&gt;  [28] iterators_1.0.14    pkgconfig_2.0.3     R6_2.5.1           
+#&gt;  [31] fastmap_1.1.1       future_1.33.0       digest_0.6.33      
+#&gt;  [34] numDeriv_2016.8-1.1 reshape_0.8.9       colorspace_2.1-0   
+#&gt;  [37] textshaping_0.3.6   labeling_0.4.3      fansi_1.0.4        
+#&gt;  [40] timechange_0.2.0    nnls_1.4            compiler_4.3.1     
+#&gt;  [43] bit64_4.0.5         withr_2.5.0         htmlTable_2.4.1    
+#&gt;  [46] backports_1.4.1     highr_0.10          MASS_7.3-60        
+#&gt;  [49] lava_1.7.2.1        quantreg_5.97       tools_4.3.1        
+#&gt;  [52] foreign_0.8-84      future.apply_1.11.0 glue_1.6.2         
+#&gt;  [55] quadprog_1.5-8      DiagrammeR_1.0.10   mets_1.3.2         
+#&gt;  [58] inum_1.0-5          grid_4.3.1          checkmate_2.2.0    
+#&gt;  [61] cluster_2.1.4       generics_0.1.3      gtable_0.3.4       
+#&gt;  [64] tzdb_0.4.0          data.table_1.14.8   hms_1.1.3          
+#&gt;  [67] utf8_1.2.3          foreach_1.5.2       pillar_1.9.0       
+#&gt;  [70] vroom_1.6.3         partykit_1.2-20     splines_4.3.1      
+#&gt;  [73] lattice_0.21-8      bit_4.0.5           SparseM_1.81       
+#&gt;  [76] tidyselect_1.2.0    knitr_1.43          gridExtra_2.3      
+#&gt;  [79] stats4_4.3.1        xfun_0.40           visNetwork_2.1.2   
+#&gt;  [82] stringi_1.7.12      yaml_2.3.7          evaluate_0.21      
+#&gt;  [85] codetools_0.2-19    data.tree_1.0.0     evd_2.3-6.1        
+#&gt;  [88] cli_3.6.1           rpart_4.1.19        systemfonts_1.0.4  
+#&gt;  [91] munsell_0.5.0       jquerylib_0.1.4     Rcpp_1.0.11        
+#&gt;  [94] globals_0.16.2      ellipsis_0.3.2      MatrixModels_0.5-2 
+#&gt;  [97] listenv_0.9.0       mvtnorm_1.2-3       scales_1.2.1       
+#&gt; [100] crayon_1.5.2        rlang_1.1.1         multcomp_1.4-25</code></pre>
 </div>
 
 

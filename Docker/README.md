@@ -6,6 +6,7 @@ This directory contains files useful for building or using Docker images.
 
 ```
 Docker
+├── Dockerfile-old
 ├── README.md
 ├── examples.sh
 ├── render
@@ -25,3 +26,7 @@ instructions on how to use the Docker image.
 render all of the Rmarkdown files found in `/Source` to the `/docs`
 directory. `render` is a simple bash script which calls `render.R`. `render.R` 
 contains the basic logic for rendering all R markdown files in `/Source`.  
+
+[`Dockerfile-old`](Dockerfile-old) is the dockerfile used to generate the
+original docker image. The `latest` image uses this image as a base but adds
+an additional R dependency (`{markdown}`). 

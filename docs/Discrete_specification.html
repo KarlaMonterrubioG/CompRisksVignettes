@@ -11,11 +11,11 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2022-12-08" />
+<meta name="date" content="2024-01-11" />
 
 <title>Approaches based on a discrete survival times specification</title>
 
-<script src="Discrete_specification_files/header-attrs-2.18/header-attrs.js"></script>
+<script src="Discrete_specification_files/header-attrs-2.24/header-attrs.js"></script>
 <script src="Discrete_specification_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="Discrete_specification_files/bootstrap-3.3.5/css/simplex.min.css" rel="stylesheet" />
@@ -31,7 +31,7 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
-<script src="Discrete_specification_files/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<script src="Discrete_specification_files/jqueryui-1.13.2/jquery-ui.min.js"></script>
 <link href="Discrete_specification_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="Discrete_specification_files/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="Discrete_specification_files/navigation-1.1/tabsets.js"></script>
@@ -271,12 +271,13 @@ div.tocify {
 <div id = "nav">
   <ul>
     <li><a href="index.html">Home</a></li>
+    <li><a href="DataPreparation.html">Data Preparation</a></li>
     <li><a href="CIF_specification.html">Cumulative Incidence</a></li>
     <li><a href="CS_specification.html">Cause Specific</a></li>
     <li><a href="Discrete_specification.html">Discrete</a></li>
     <li><a href="Others.html">Other</a></li>
     <li><a href="Predictions.html">Predictions</a></li>
-    <li style="float:right"><a href="https://github.com/KarlaMonterrubioG/Competing_risks"><i style="font-size: 20px; padding-top: 0px; padding-bottom: 0px;" class="fa-brands fa-github"></i></a></li>
+    <li style="float:right"><a href="https://github.com/VallejosGroup/CompRisksVignettes"><i style="font-size: 20px; padding-top: 0px; padding-bottom: 0px;" class="fa-brands fa-github"></i></a></li>
   </ul>
 </div>
 
@@ -296,147 +297,42 @@ div.tocify {
 times specification</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2022-12-08</h4>
+<h4 class="date">2024-01-11</h4>
 
 </div>
 
 
-<div id="dataset" class="section level1">
-<h1>Dataset</h1>
-<p>In order to demonstrate the methods, we employ publicly available
-data.</p>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
 <p>The dataset used here corresponds to the Hodgkin’s disease (HD) study
-described in Pintilie, 2006. The dataset comprises 865 patients
-diagnosed with early stage (I or II) HD, and which were treated either
-with radiation (RT) or with radiation and chemotherapy (CMT).</p>
-<p>The recorded data includes:</p>
+described in Pintilie, 2006. The data was loaded and pre-processed using
+the script that is sourced below. The latter creates three data
+objects:</p>
 <ul>
-<li>age: Age (years)</li>
-<li>sex: Sex, F=female and M=Male.</li>
-<li>trtgiven: Treatment given, RT=Radiation, CMT=Chemotherapy and
-radiation</li>
-<li>medwidsi: Size of mediastinum involvement, N=No, S=Small,
-L=Large</li>
-<li>extranod: Extranodal disease, Y=Extranodal disease, N= Nodal
-disease</li>
-<li>clinstg: Clinical stage, 1=Stage I, 2=Stage II</li>
-<li>time: time to failure (years) calculated from the date of
-diagnosis</li>
-<li>status: 0=censoring, 1=relapse and 2=death.</li>
+<li><code>hd</code>: all the samples in the original data</li>
+<li><code>hd_train</code>: a random sample of the data to be used as a
+training set</li>
+<li><code>hd_test</code>: a random sample of the data to be used as a
+testing set</li>
 </ul>
-<p>We now load and display the structure of the HD dataset:</p>
-<pre class="r"><code>library(readr)
-hd &lt;- data.frame(read_csv(&quot;../Data/HD/hd.csv&quot;,
-                          col_types = cols(X1 = col_skip())))
-str(hd)
-#&gt; &#39;data.frame&#39;:    865 obs. of  9 variables:
-#&gt;  $ ...1    : num  1 2 3 4 5 6 7 8 9 10 ...
-#&gt;  $ age     : num  64 63 17 63 21 37 41 35 27 32 ...
-#&gt;  $ sex     : chr  &quot;F&quot; &quot;M&quot; &quot;M&quot; &quot;M&quot; ...
-#&gt;  $ trtgiven: chr  &quot;RT&quot; &quot;RT&quot; &quot;RT&quot; &quot;RT&quot; ...
-#&gt;  $ medwidsi: chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
-#&gt;  $ extranod: chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
-#&gt;  $ clinstg : num  1 1 2 2 2 1 2 2 2 2 ...
-#&gt;  $ time    : num  3.1 15.9 0.9 13.1 35.9 1.1 2.5 0.003 4.1 28.1 ...
-#&gt;  $ status  : num  2 2 1 2 0 1 1 1 1 0 ...</code></pre>
-<p>To proceed with the analysis, it is important to change the data type
-of sex, trtgiven, medwidsi, and extranod from character to factor.
-Similarly, we convert clinstg from numeric to factor.</p>
-<pre class="r"><code>hd$sex      &lt;- as.factor(hd$sex)
-hd$trtgiven &lt;- as.factor(hd$trtgiven)
-hd$medwidsi &lt;- as.factor(hd$medwidsi)
-hd$extranod &lt;- as.factor(hd$extranod)
-hd$clinstg  &lt;- as.factor(hd$clinstg)</code></pre>
-<p>Now, we explore the number of events for each event type:</p>
-<pre class="r"><code>require(pander)
-pander::pander(table(hd$status))</code></pre>
-<table style="width:25%;">
-<colgroup>
-<col width="8%" />
-<col width="8%" />
-<col width="8%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">0</th>
-<th align="center">1</th>
-<th align="center">2</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">439</td>
-<td align="center">291</td>
-<td align="center">135</td>
-</tr>
-</tbody>
-</table>
-<p>Thus, we have 439 censored patients, 291 with relapse, and 135 who
-died. From now on, we assume that the event of interest is relapse,
-i.e. status=1.</p>
-<p>In order to create a test set, we use stratified sampling to
-partition our dataset into 80% for train and 20% for test.</p>
-<pre class="r"><code>library(splitstackshape)
-set.seed(2022)
-split_data &lt;- stratified(hd, c(&quot;status&quot;), 0.8, bothSets = TRUE)
-hd_train   &lt;- split_data$SAMP1[,-1]
-hd_test    &lt;- split_data$SAMP2[,-1]</code></pre>
-<p>Now, we explore the number of observations per status in both train
-and test set:</p>
-<pre class="r"><code>pander::pander(table(hd_train$status))</code></pre>
-<table style="width:25%;">
-<colgroup>
-<col width="8%" />
-<col width="8%" />
-<col width="8%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">0</th>
-<th align="center">1</th>
-<th align="center">2</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">351</td>
-<td align="center">233</td>
-<td align="center">108</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>pander::pander(table(hd_test$status))</code></pre>
-<table style="width:21%;">
-<colgroup>
-<col width="6%" />
-<col width="6%" />
-<col width="6%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">0</th>
-<th align="center">1</th>
-<th align="center">2</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">88</td>
-<td align="center">58</td>
-<td align="center">27</td>
-</tr>
-</tbody>
-</table>
+<p>Details about data pre-processing steps can be found <a
+href="https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/DataPreparation.Rmd">here</a></p>
+<pre class="r"><code>source(&quot;../Data_prep/data_prep.R&quot;)
+#&gt; The sourced script has been used to load and pre-process the data.
+#&gt; The latter converts appropriate variables into factors.
+#&gt; Additionally, we randomly split the data into training and testing sets, 
+#&gt; enabling us to evaluate out-of-sample predictive performance when comparing different approaches.</code></pre>
+<p>The following sections illustrate the usage of methods that use
+discrete time specification when modelling competing risks data.</p>
 </div>
 <div id="bart" class="section level1">
 <h1>BART</h1>
 <p>BART has a well documented vignette (<span
 class="citation">Sparapani, Spanbauer, and McCulloch (<a
-href="#ref-sparapani2021" role="doc-biblioref">2021</a>)</span>). Here,
-we focus only on demonstrating its usage for a CR setting, which
-corresponds to Section 5.3 in <span class="citation">Sparapani,
-Spanbauer, and McCulloch (<a href="#ref-sparapani2021"
-role="doc-biblioref">2021</a>)</span>. In the following, we fit the
+href="#ref-sparapani2021">2021</a>)</span>). Here, we focus only on
+demonstrating its usage for a CR setting, which corresponds to Section
+5.3 in <span class="citation">Sparapani, Spanbauer, and McCulloch (<a
+href="#ref-sparapani2021">2021</a>)</span>. In the following, we fit the
 model with the two different likelihood formulations to compare the
 obtained estimates.</p>
 <p>The first step is to recast the data creating dummy variables for all
@@ -445,6 +341,11 @@ categorical covariates. This is done for both train and test sets:</p>
 library(survival)
 library(BART)
 #&gt; Loading required package: nlme
+#&gt; 
+#&gt; Attaching package: &#39;nlme&#39;
+#&gt; The following object is masked from &#39;package:dplyr&#39;:
+#&gt; 
+#&gt;     collapse
 library(stats)
 
 xtrain = model.matrix(~. , hd_train[,c(1:6)])[,-1]
@@ -467,15 +368,15 @@ can be passed directly when fitting the model through the argument
 <code>ndpost</code>, <code>nskip</code>, and <code>keepevery</code>.
 Their functionality is documented in the help file for the
 <code>crisk2.bart()</code> function.</p>
-<pre class="r"><code>bart1 &lt;- crisk2.bart(x.train = xtrain, 
+<pre class="r"><code>set.seed(99)
+bart1 &lt;- crisk2.bart(x.train = xtrain, 
                      times = hd_train$time,   # needed if ytrain is not provided
                      delta = hd_train$status, # needed if ytrain is not provided
                      x.test = xtest, 
                      sparse = FALSE,          # set equal TRUE for variable selection 
                      type = &#39;pbart&#39;,
                      ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 500, keepevery = 5, 
-                     seed = 99)</code></pre>
+                     ndpost = 500, nskip = 500, keepevery = 5)</code></pre>
 <p>Note that the code shown above does not use multi-threading, but BART
 permits its usage by using <code>mc.crisk2.bart()</code> function
 instead of <code>crisk2.bart()</code>.</p>
@@ -511,7 +412,7 @@ aux &lt;- sample(seq_len(nrow(hd_test)), size = 5)
 for(i in aux) {
   plot(bart1$yhat.test[ , (i-1)*n.times + 1], type = &quot;l&quot;)
 }</code></pre>
-<p><img src="Discrete_specification_files/figure-html/unnamed-chunk-9-1.png" width="672" /><img src="Discrete_specification_files/figure-html/unnamed-chunk-9-2.png" width="672" /><img src="Discrete_specification_files/figure-html/unnamed-chunk-9-3.png" width="672" /><img src="Discrete_specification_files/figure-html/unnamed-chunk-9-4.png" width="672" /><img src="Discrete_specification_files/figure-html/unnamed-chunk-9-5.png" width="672" /></p>
+<p><img src="Discrete_specification_files/figure-html/unnamed-chunk-4-1.png" width="672" /><img src="Discrete_specification_files/figure-html/unnamed-chunk-4-2.png" width="672" /><img src="Discrete_specification_files/figure-html/unnamed-chunk-4-3.png" width="672" /><img src="Discrete_specification_files/figure-html/unnamed-chunk-4-4.png" width="672" /><img src="Discrete_specification_files/figure-html/unnamed-chunk-4-5.png" width="672" /></p>
 <p>We can use Geweke diagnostics to assess converge across all
 time-points for our randomly selected individuals.</p>
 <pre class="r"><code># code adapted from the example in `demo(&quot;geweke.lung.surv.bart&quot;, package = &quot;BART&quot;)`
@@ -532,21 +433,21 @@ for(i in aux) {
   lines(bart1$times, rep(1.96, n.times), type=&#39;l&#39;, lty=2)
   lines(bart1$times, rep(-1.96, n.times), type=&#39;l&#39;, lty=2)
 }</code></pre>
-<p><img src="Discrete_specification_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="Discrete_specification_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <p>Alternatively, when contacting the authors to ask their advice about
 this, they suggested an alternative strategy. This requires fitting a
 new model, using the training data as a test set
 (i.e. <code>x.test = xtrain</code>). The code required to this is
 provided below.</p>
-<pre class="r"><code>bart1.chains &lt;- crisk2.bart(x.train = xtrain, 
+<pre class="r"><code>set.seed(99)
+bart1.chains &lt;- crisk2.bart(x.train = xtrain, 
                      times = hd_train$time,   # needed if ytrain is not provided
                      delta = hd_train$status, # needed if ytrain is not provided
                      x.test = xtrain,         
                      sparse = FALSE,          # set equal TRUE for variable selection 
                      type = &#39;pbart&#39;,
                      ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 500, keepevery = 5, 
-                     seed = 99)</code></pre>
+                     ndpost = 500, nskip = 500, keepevery = 5)</code></pre>
 <p>Similar plots for the Geweke diagnostic criteria can be then
 generated using the code above, replacing <code>bart1</code> by
 <code>bart1.chains</code>.</p>
@@ -560,6 +461,7 @@ data. This allows us to obtain estimates
 set.</p>
 <pre class="r"><code># prepare the data to the format required by BART
 # The training data is used as test dataset
+set.seed(99)
 pre &lt;- surv.pre.bart(x.train = xtrain, x.test = xtrain,
                      times = hd_train$time, delta = hd_train$status)
 # generate predictions using 
@@ -583,7 +485,7 @@ for(i in aux) {
   lines(pred.train$times, rep(1.96, n.times), type=&#39;l&#39;, lty=2)
   lines(pred.train$times, rep(-1.96, n.times), type=&#39;l&#39;, lty=2)
 }</code></pre>
-<p><img src="Discrete_specification_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p><img src="Discrete_specification_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 <p>In both cases, we notice that the Geweke statistics exceed the <span
 class="math inline">\(95\%\)</span> limits several times, suggesting the
 chains have not converged. Thus, the MCMC should be run for a longer
@@ -626,7 +528,7 @@ points(bart1$times,cif.025[2,], col = &quot;blue&quot;, type =&#39;s&#39;, lwd =
 points(bart1$times,cif.975[2,], col = &quot;blue&quot;, type = &#39;s&#39;, lwd = 1, lty = 2)
 legend(&quot;bottomright&quot;, legend = c(&quot;Patient 1&quot;, &quot;Patient 2&quot;),
        lty = c(1,1), col = c(&quot;red&quot;, &quot;blue&quot;))</code></pre>
-<p><img src="Discrete_specification_files/figure-html/unnamed-chunk-15-1.png" width="576" /></p>
+<p><img src="Discrete_specification_files/figure-html/unnamed-chunk-10-1.png" width="576" /></p>
 <p>Similar to other approaches, BART permits to do predictions of the
 CIF at a specific time point (e.g. <span
 class="math inline">\(t=5\)</span> years) for a new dataset
@@ -635,11 +537,12 @@ time-points present in the training dataset. Below, we show results for
 the first 5 subjects in the test set.</p>
 <pre class="r"><code>BART1.pred &lt;- matrix(bart1$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )
 BART1.pred[1:5, which(bart1$times == 5)]
-#&gt; [1] 0.2855420 0.3402614 0.2493487 0.2640729 0.2336196</code></pre>
+#&gt; [1] 0.3200795 0.3458437 0.2952182 0.2691998 0.2547399</code></pre>
 <p>Note also that if a new test dataset is available, one can do
 predictions afterwards by making a call to the
 <code>predict.crisk2bart()</code> function. For instance:</p>
-<pre class="r"><code>pre &lt;- surv.pre.bart(x.train=xtrain, x.test=xtest, 
+<pre class="r"><code>set.seed(99)
+pre &lt;- surv.pre.bart(x.train=xtrain, x.test=xtest, 
                      times=hd_train$time, 
                      delta =hd_train$status)
 
@@ -648,16 +551,16 @@ bart1.pred &lt;- predict(bart1, newdata=pre$tx.test, newdata2=pre$tx.test)
 # Same results are obtained if the same test dataset is used
 cif.pred[1:4, 1:4]
 #&gt;             [,1]       [,2]       [,3]       [,4]
-#&gt; [1,] 0.010784139 0.02144622 0.03198765 0.04240984
-#&gt; [2,] 0.013450486 0.02670823 0.03977608 0.05265686
-#&gt; [3,] 0.008831628 0.01758101 0.02624895 0.03483625
-#&gt; [4,] 0.009457712 0.01882133 0.02809184 0.03727020
+#&gt; [1,] 0.012018387 0.02388410 0.03559916 0.04716553
+#&gt; [2,] 0.013490303 0.02678276 0.03988044 0.05278634
+#&gt; [3,] 0.010450391 0.02078480 0.03100457 0.04111104
+#&gt; [4,] 0.009426601 0.01875810 0.02799552 0.03713985
 matrix(bart1.pred$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )[1:4, 1:4]
 #&gt;             [,1]       [,2]       [,3]       [,4]
-#&gt; [1,] 0.010784139 0.02144622 0.03198765 0.04240984
-#&gt; [2,] 0.013450486 0.02670823 0.03977608 0.05265686
-#&gt; [3,] 0.008831628 0.01758101 0.02624895 0.03483625
-#&gt; [4,] 0.009457712 0.01882133 0.02809184 0.03727020</code></pre>
+#&gt; [1,] 0.012018387 0.02388410 0.03559916 0.04716553
+#&gt; [2,] 0.013490303 0.02678276 0.03988044 0.05278634
+#&gt; [3,] 0.010450391 0.02078480 0.03100457 0.04111104
+#&gt; [4,] 0.009426601 0.01875810 0.02799552 0.03713985</code></pre>
 <div id="dart" class="section level3">
 <h3>DART</h3>
 <p>It is possible to employ a sparse Dirichlet prior for variable
@@ -665,15 +568,15 @@ selection (DART model). This will help us to determine variable
 importance. In order to fit such model we use again
 <code>crisk2.bart()</code> function and set the <code>sparse</code>
 argument equal to <code>TRUE</code>.</p>
-<pre class="r"><code>dart1 &lt;- crisk2.bart(x.train = xtrain, 
+<pre class="r"><code>set.seed(99)
+dart1 &lt;- crisk2.bart(x.train = xtrain, 
                      times = hd_train$time,   # needed if ytrain is not provided
                      delta = hd_train$status, # needed if ytrain is not provided
                      x.test = xtest, 
                      sparse = TRUE,          # set equal TRUE for variable selection 
                      type = &#39;pbart&#39;,
                      ntree = 30, numcut = 100, 
-                     ndpost = 500, nskip = 500, keepevery = 5, 
-                     seed = 99)  </code></pre>
+                     ndpost = 500, nskip = 500, keepevery = 5)  </code></pre>
 <p>The output of the function is the same as discussed in the previous
 section. For simplicity, we have not evaluated convergence here, but the
 approach described above could be applied. CIF estimates can also be
@@ -684,18 +587,18 @@ posterior probabilities of inclusion associated to each input
 covariates:</p>
 <pre class="r"><code>dart1$varprob.mean[-1]
 #&gt;        age       sexM trtgivenRT  medwidsiN  medwidsiS  extranodY   clinstg2 
-#&gt; 0.14059677 0.27360683 0.06658708 0.04020347 0.07231300 0.08462784 0.09142389
+#&gt; 0.17246905 0.07388055 0.06406175 0.03695244 0.06917858 0.05304716 0.22277258
 
 plot(dart1$varprob.mean[-1], 
      ylab=&#39;Selection Probability&#39;, 
      ylim=c(0, 1))
 P &lt;- ncol(xtrain)    # use to set thereshold probability for each covariate
 abline(h = 1/P, lty = 2)</code></pre>
-<p><img src="Discrete_specification_files/figure-html/unnamed-chunk-19-1.png" width="576" /></p>
+<p><img src="Discrete_specification_files/figure-html/unnamed-chunk-14-1.png" width="576" /></p>
 <pre class="r"><code>
 dart1$varprob.mean[-1] &gt; 1/P
 #&gt;        age       sexM trtgivenRT  medwidsiN  medwidsiS  extranodY   clinstg2 
-#&gt;      FALSE       TRUE      FALSE      FALSE      FALSE      FALSE      FALSE</code></pre>
+#&gt;       TRUE      FALSE      FALSE      FALSE      FALSE      FALSE       TRUE</code></pre>
 <p>According to the plot above only age and treatment are relevant (this
 assumes a <span class="math inline">\(1/P\)</span> threshold). However,
 note that these results should be interpreted with caution as
@@ -705,14 +608,14 @@ class="math inline">\(t=5\)</span> years for the test dataset
 (<code>hd_test</code>) can also be obtained.</p>
 <pre class="r"><code>DART1.pred &lt;- matrix(dart1$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )
 DART1.pred[1:5, which(dart1$times == 5)]
-#&gt; [1] 0.2729754 0.3308137 0.3141006 0.3029372 0.2679470</code></pre>
+#&gt; [1] 0.2701254 0.3576845 0.2583587 0.2803809 0.2396327</code></pre>
 </div>
 </div>
 <div id="model-formulation-2" class="section level2">
 <h2>Model formulation 2</h2>
 <p>This approach is discussed in Section 3.2 of <span
-class="citation">Sparapani et al. (<a href="#ref-Bart2020"
-role="doc-biblioref">2020</a>)</span> and fits also two separate BART
+class="citation">Sparapani et al. (<a
+href="#ref-Bart2020">2020</a>)</span> and fits also two separate BART
 probit models. The first model, corresponds to the conditional
 probability of a cause <span class="math inline">\(k=1\)</span> event at
 a given time. The second, models the conditional probability of an event
@@ -720,14 +623,14 @@ of type <span class="math inline">\(k=2\)</span> at a specific time,
 given that the individual is still at risk and did not experience a type
 <span class="math inline">\(k=1\)</span> event. In this case, the model
 is fit with function <code>crisk.bart()</code>:</p>
-<pre class="r"><code>bart2 &lt;- crisk.bart(x.train = xtrain, times = hd_train$time, 
+<pre class="r"><code>set.seed(99)
+bart2 &lt;- crisk.bart(x.train = xtrain, times = hd_train$time, 
                     delta=hd_train$status,
                     x.test = xtest, 
                     sparse=FALSE, 
                     type=&#39;pbart&#39;,
                     ntree = 30, numcut = 100, 
-                    ndpost = 500, nskip = 500, keepevery = 5, 
-                    seed=99)
+                    ndpost = 500, nskip = 500, keepevery = 5)
 # Parallel computation of the model is available using mc.crisk.bart</code></pre>
 <p>The output is the same as in model formulation 1 and an analysis of
 convergence can be performed as before. For simplicity, this is excluded
@@ -760,14 +663,14 @@ points(bart2$times,cif2.975[1,], col = &quot;red&quot;, type = &#39;s&#39;, lwd 
 lines(bart2$times,  cif2.pred[2,], col=&quot;blue&quot;)
 points(bart2$times,cif2.025[2,], col = &quot;blue&quot;, type =&#39;s&#39;, lwd = 1, lty = 2)
 points(bart2$times,cif2.975[2,], col = &quot;blue&quot;, type = &#39;s&#39;, lwd = 1, lty = 2)</code></pre>
-<p><img src="Discrete_specification_files/figure-html/unnamed-chunk-23-1.png" width="576" /></p>
+<p><img src="Discrete_specification_files/figure-html/unnamed-chunk-18-1.png" width="576" /></p>
 <p>Below, we show predictions for 5 subjects in a new dataset
 (e.g. <code>hd_test</code>) at a specific time point (e.g. <span
 class="math inline">\(t=5\)</span> years). Note that predictions are
 only provided for time-points present in the training set.</p>
 <pre class="r"><code>BART2.pred &lt;- matrix(bart2$cif.test.mean, nrow=nrow(xtest), byrow = TRUE )
 BART2.pred[1:5, which(bart2$times == 5)]
-#&gt; [1] 0.2742945 0.3353683 0.3822942 0.3318610 0.2702177</code></pre>
+#&gt; [1] 0.3103403 0.3376088 0.2854426 0.3364716 0.3155569</code></pre>
 <p>Note that the estimates of the 2 model formulations differ. The next
 plots compare CIFs for patient 1, under the 2 different models to show
 such differences:</p>
@@ -778,7 +681,7 @@ lines(bart1$times, cif2.pred[2,], col=&quot;#FFCC00&quot;,lwd=3)
       legend(&quot;topright&quot;, 
        legend=c(&quot;Formulation 1&quot;, &quot;Formulation 2&quot;),
        col=c(&quot;#009999&quot;, &quot;#FFCC00&quot;), lty=c(1,1))</code></pre>
-<p><img src="Discrete_specification_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
+<p><img src="Discrete_specification_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
 </div>
 </div>
 <div id="storing-predictions" class="section level1">
@@ -790,9 +693,9 @@ methods, we save the predictions obtained in this vignette.</p>
                       &quot;crisk2.bart_dart&quot; = DART1.pred[, which(dart1$times == 5)],
                       &quot;crisk.bart&quot; = BART2.pred[, which(bart1$times == 5)])
 if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
-  write.csv(pred_BART, &quot;/Predictions/pred_BART.csv&quot;, row.names = FALSE)
+  write.csv(pred_BART, &quot;/Outputs/pred_BART.csv&quot;, row.names = FALSE)
 } else {
-  write.csv(pred_BART, &quot;../Predictions/pred_BART.csv&quot;, row.names = FALSE)
+  write.csv(pred_BART, &quot;../Outputs/pred_BART.csv&quot;, row.names = FALSE)
 }</code></pre>
 </div>
 <div id="references" class="section level1">
@@ -816,13 +719,13 @@ Bayesian Additive Regression Trees: The BART r Package.”</span>
 <div id="session-info" class="section level1">
 <h1>Session Info</h1>
 <pre class="r"><code>sessionInfo()
-#&gt; R version 4.2.2 (2022-10-31)
-#&gt; Platform: x86_64-pc-linux-gnu (64-bit)
-#&gt; Running under: Ubuntu 22.04.1 LTS
+#&gt; R version 4.3.1 (2023-06-16)
+#&gt; Platform: aarch64-unknown-linux-gnu (64-bit)
+#&gt; Running under: Ubuntu 22.04.3 LTS
 #&gt; 
 #&gt; Matrix products: default
-#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
-#&gt; LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so
+#&gt; BLAS:   /usr/lib/aarch64-linux-gnu/openblas-pthread/libblas.so.3 
+#&gt; LAPACK: /usr/lib/aarch64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0
 #&gt; 
 #&gt; locale:
 #&gt;  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
@@ -832,61 +735,65 @@ Bayesian Additive Regression Trees: The BART r Package.”</span>
 #&gt;  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
 #&gt; [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 #&gt; 
+#&gt; time zone: Etc/UTC
+#&gt; tzcode source: system (glibc)
+#&gt; 
 #&gt; attached base packages:
 #&gt; [1] parallel  stats     graphics  grDevices utils     datasets  methods  
 #&gt; [8] base     
 #&gt; 
 #&gt; other attached packages:
-#&gt;  [1] BART_2.9                  nlme_3.1-160             
-#&gt;  [3] nnet_7.3-18               mboost_2.9-7             
-#&gt;  [5] stabs_0.6-4               glmnet_4.1-6             
-#&gt;  [7] Matrix_1.5-1              pec_2022.05.04           
-#&gt;  [9] rms_6.3-0                 SparseM_1.81             
-#&gt; [11] Hmisc_4.7-2               ggplot2_3.4.0            
-#&gt; [13] Formula_1.2-4             lattice_0.20-45          
-#&gt; [15] coda_0.19-4               DPWeibull_1.8            
-#&gt; [17] timereg_2.0.4             pseudo_1.4.3             
-#&gt; [19] geepack_1.3.9             KMsurv_0.1-5             
-#&gt; [21] riskRegression_2022.11.28 prodlim_2019.11.13       
-#&gt; [23] cmprsk_2.2-11             survival_3.4-0           
-#&gt; [25] splitstackshape_1.4.8     pander_0.6.5             
-#&gt; [27] readr_2.1.3              
+#&gt;  [1] BART_2.9.4                nlme_3.1-162             
+#&gt;  [3] nnet_7.3-19               table1_1.4.3             
+#&gt;  [5] pander_0.6.5              mboost_2.9-7             
+#&gt;  [7] stabs_0.6-4               glmnet_4.1-8             
+#&gt;  [9] Matrix_1.6-1              pec_2023.04.12           
+#&gt; [11] rms_6.7-0                 Hmisc_5.1-0              
+#&gt; [13] patchwork_1.1.3           lubridate_1.9.2.9000     
+#&gt; [15] forcats_1.0.0             stringr_1.5.0            
+#&gt; [17] dplyr_1.1.2               purrr_1.0.2              
+#&gt; [19] tidyr_1.3.0               tibble_3.2.1             
+#&gt; [21] ggplot2_3.4.3             tidyverse_2.0.0          
+#&gt; [23] coda_0.19-4               DPWeibull_1.8            
+#&gt; [25] timereg_2.0.5             pseudo_1.4.3             
+#&gt; [27] geepack_1.3.9             KMsurv_0.1-5             
+#&gt; [29] riskRegression_2023.03.22 prodlim_2023.08.28       
+#&gt; [31] cmprsk_2.2-11             survival_3.5-5           
+#&gt; [33] splitstackshape_1.4.8     readr_2.1.4              
 #&gt; 
 #&gt; loaded via a namespace (and not attached):
-#&gt;   [1] TH.data_1.1-1       colorspace_2.0-3    deldir_1.0-6       
-#&gt;   [4] ellipsis_0.3.2      evd_2.3-6.1         htmlTable_2.4.1    
-#&gt;   [7] base64enc_0.1-3     rstudioapi_0.14     listenv_0.8.0      
-#&gt;  [10] MatrixModels_0.5-1  bit64_4.0.5         fansi_1.0.3        
-#&gt;  [13] mvtnorm_1.1-3       codetools_0.2-18    splines_4.2.2      
-#&gt;  [16] cachem_1.0.6        libcoin_1.0-9       knitr_1.41         
-#&gt;  [19] jsonlite_1.8.3      broom_1.0.1         cluster_2.1.4      
-#&gt;  [22] png_0.1-8           compiler_4.2.2      backports_1.4.1    
-#&gt;  [25] assertthat_0.2.1    fastmap_1.1.0       cli_3.4.1          
-#&gt;  [28] htmltools_0.5.3     quantreg_5.94       tools_4.2.2        
-#&gt;  [31] partykit_1.2-16     gtable_0.3.1        glue_1.6.2         
-#&gt;  [34] dplyr_1.0.10        Rcpp_1.0.9          jquerylib_0.1.4    
-#&gt;  [37] vctrs_0.5.1         iterators_1.0.14    inum_1.0-4         
-#&gt;  [40] xfun_0.35           stringr_1.5.0       globals_0.16.2     
-#&gt;  [43] lifecycle_1.0.3     future_1.29.0       polspline_1.1.22   
-#&gt;  [46] MASS_7.3-58.1       zoo_1.8-11          scales_1.2.1       
-#&gt;  [49] vroom_1.6.0         hms_1.1.2           sandwich_3.0-2     
-#&gt;  [52] RColorBrewer_1.1-3  yaml_2.3.6          gridExtra_2.3      
-#&gt;  [55] sass_0.4.4          truncdist_1.0-2     rpart_4.1.19       
-#&gt;  [58] latticeExtra_0.6-30 stringi_1.7.8       highr_0.9          
-#&gt;  [61] foreach_1.5.2       checkmate_2.1.0     shape_1.4.6        
-#&gt;  [64] lava_1.7.0          mets_1.3.1          rlang_1.0.6        
-#&gt;  [67] pkgconfig_2.0.3     evaluate_0.18       purrr_0.3.5        
-#&gt;  [70] htmlwidgets_1.5.4   bit_4.0.5           tidyselect_1.2.0   
-#&gt;  [73] parallelly_1.32.1   magrittr_2.0.3      R6_2.5.1           
-#&gt;  [76] nnls_1.4            generics_0.1.3      multcomp_1.4-20    
-#&gt;  [79] DBI_1.1.3           pillar_1.8.1        foreign_0.8-83     
-#&gt;  [82] withr_2.5.0         tibble_3.1.8        future.apply_1.10.0
-#&gt;  [85] crayon_1.5.2        interp_1.1-3        utf8_1.2.2         
-#&gt;  [88] tzdb_0.3.0          rmarkdown_2.18      jpeg_0.1-10        
-#&gt;  [91] grid_4.2.2          data.table_1.14.6   binaryLogic_0.3.9  
-#&gt;  [94] digest_0.6.30       tidyr_1.2.1         numDeriv_2016.8-1.1
-#&gt;  [97] stats4_4.2.2        munsell_0.5.0       bslib_0.4.1        
-#&gt; [100] quadprog_1.5-8</code></pre>
+#&gt;  [1] gridExtra_2.3       sandwich_3.0-2      rlang_1.1.1        
+#&gt;  [4] magrittr_2.0.3      multcomp_1.4-25     polspline_1.1.23   
+#&gt;  [7] compiler_4.3.1      systemfonts_1.0.4   vctrs_0.6.3        
+#&gt; [10] quadprog_1.5-8      quantreg_5.97       shape_1.4.6        
+#&gt; [13] pkgconfig_2.0.3     crayon_1.5.2        fastmap_1.1.1      
+#&gt; [16] backports_1.4.1     inum_1.0-5          labeling_0.4.3     
+#&gt; [19] utf8_1.2.3          rmarkdown_2.24      tzdb_0.4.0         
+#&gt; [22] ragg_1.2.5          MatrixModels_0.5-2  bit_4.0.5          
+#&gt; [25] xfun_0.40           cachem_1.0.8        jsonlite_1.8.7     
+#&gt; [28] highr_0.10          broom_1.0.5         cluster_2.1.4      
+#&gt; [31] R6_2.5.1            bslib_0.5.1         stringi_1.7.12     
+#&gt; [34] parallelly_1.36.0   rpart_4.1.19        jquerylib_0.1.4    
+#&gt; [37] numDeriv_2016.8-1.1 Rcpp_1.0.11         iterators_1.0.14   
+#&gt; [40] knitr_1.43          future.apply_1.11.0 zoo_1.8-12         
+#&gt; [43] base64enc_0.1-3     nnls_1.4            timechange_0.2.0   
+#&gt; [46] splines_4.3.1       tidyselect_1.2.0    rstudioapi_0.15.0  
+#&gt; [49] yaml_2.3.7          partykit_1.2-20     codetools_0.2-19   
+#&gt; [52] listenv_0.9.0       lattice_0.21-8      withr_2.5.0        
+#&gt; [55] evaluate_0.21       foreign_0.8-84      future_1.33.0      
+#&gt; [58] pillar_1.9.0        checkmate_2.2.0     foreach_1.5.2      
+#&gt; [61] stats4_4.3.1        generics_0.1.3      vroom_1.6.3        
+#&gt; [64] hms_1.1.3           munsell_0.5.0       scales_1.2.1       
+#&gt; [67] globals_0.16.2      glue_1.6.2          binaryLogic_0.3.9  
+#&gt; [70] tools_4.3.1         data.table_1.14.8   SparseM_1.81       
+#&gt; [73] mvtnorm_1.2-3       grid_4.3.1          libcoin_1.0-9      
+#&gt; [76] truncdist_1.0-2     colorspace_2.1-0    htmlTable_2.4.1    
+#&gt; [79] Formula_1.2-5       cli_3.6.1           evd_2.3-6.1        
+#&gt; [82] textshaping_0.3.6   fansi_1.0.4         lava_1.7.2.1       
+#&gt; [85] mets_1.3.2          gtable_0.3.4        sass_0.4.7         
+#&gt; [88] digest_0.6.33       TH.data_1.1-2       farver_2.1.1       
+#&gt; [91] htmlwidgets_1.6.2   htmltools_0.5.6     lifecycle_1.0.3    
+#&gt; [94] bit64_4.0.5         MASS_7.3-60</code></pre>
 </div>
 
 

@@ -11,11 +11,11 @@
 
 <meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
 
-<meta name="date" content="2022-12-08" />
+<meta name="date" content="2024-01-11" />
 
 <title>Approaches based on a proportional cause-specific hazard specification</title>
 
-<script src="CS_specification_files/header-attrs-2.18/header-attrs.js"></script>
+<script src="CS_specification_files/header-attrs-2.24/header-attrs.js"></script>
 <script src="CS_specification_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="CS_specification_files/bootstrap-3.3.5/css/simplex.min.css" rel="stylesheet" />
@@ -31,7 +31,7 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
-<script src="CS_specification_files/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<script src="CS_specification_files/jqueryui-1.13.2/jquery-ui.min.js"></script>
 <link href="CS_specification_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="CS_specification_files/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="CS_specification_files/navigation-1.1/tabsets.js"></script>
@@ -271,12 +271,13 @@ div.tocify {
 <div id = "nav">
   <ul>
     <li><a href="index.html">Home</a></li>
+    <li><a href="DataPreparation.html">Data Preparation</a></li>
     <li><a href="CIF_specification.html">Cumulative Incidence</a></li>
     <li><a href="CS_specification.html">Cause Specific</a></li>
     <li><a href="Discrete_specification.html">Discrete</a></li>
     <li><a href="Others.html">Other</a></li>
     <li><a href="Predictions.html">Predictions</a></li>
-    <li style="float:right"><a href="https://github.com/KarlaMonterrubioG/Competing_risks"><i style="font-size: 20px; padding-top: 0px; padding-bottom: 0px;" class="fa-brands fa-github"></i></a></li>
+    <li style="float:right"><a href="https://github.com/VallejosGroup/CompRisksVignettes"><i style="font-size: 20px; padding-top: 0px; padding-bottom: 0px;" class="fa-brands fa-github"></i></a></li>
   </ul>
 </div>
 
@@ -296,138 +297,33 @@ div.tocify {
 cause-specific hazard specification</h1>
 <h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
 and Catalina Vallejos</h4>
-<h4 class="date">2022-12-08</h4>
+<h4 class="date">2024-01-11</h4>
 
 </div>
 
 
-<div id="data" class="section level1">
-<h1>Data</h1>
-<p>In order to demonstrate methods using a proportional cause-specific
-hazard specification, we employ publicly available data.</p>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
 <p>The dataset used here corresponds to the Hodgkin’s disease (HD) study
-described in Pintilie, 2006. The dataset comprises 865 patients
-diagnosed with early stage (I or II) HD, and which were treated either
-with radiation (RT) or with radiation and chemotherapy (CMT).</p>
-<p>The recorded data includes:</p>
+described in Pintilie, 2006. The data was loaded and pre-processed using
+the script that is sourced below. The latter creates three data
+objects:</p>
 <ul>
-<li>age: Age (years)</li>
-<li>sex: Sex, F=female and M=Male.</li>
-<li>trtgiven: Treatment given, RT=Radiation, CMT=Chemotherapy and
-radiation</li>
-<li>medwidsi: Size of mediastinum involvement, N=No, S=Small,
-L=Large</li>
-<li>extranod: Extranodal disease, Y=Extranodal disease, N= Nodal
-disease</li>
-<li>clinstg: Clinical stage, 1=Stage I, 2=Stage II</li>
-<li>time: time to failure (years) calculated from the date of
-diagnosis</li>
-<li>status: 0=censoring, 1=relapse and 2=death.</li>
+<li><code>hd</code>: all the samples in the original data</li>
+<li><code>hd_train</code>: a random sample of the data to be used as a
+training set</li>
+<li><code>hd_test</code>: a random sample of the data to be used as a
+testing set</li>
 </ul>
-<p>We now load and display the structure of the HD dataset:</p>
-<pre class="r"><code>require(readr)
-hd &lt;- data.frame(read_csv(&quot;../Data/HD/hd.csv&quot;,
-                          col_types = cols(X1 = col_skip())))
-str(hd)
-#&gt; &#39;data.frame&#39;:    865 obs. of  9 variables:
-#&gt;  $ ...1    : num  1 2 3 4 5 6 7 8 9 10 ...
-#&gt;  $ age     : num  64 63 17 63 21 37 41 35 27 32 ...
-#&gt;  $ sex     : chr  &quot;F&quot; &quot;M&quot; &quot;M&quot; &quot;M&quot; ...
-#&gt;  $ trtgiven: chr  &quot;RT&quot; &quot;RT&quot; &quot;RT&quot; &quot;RT&quot; ...
-#&gt;  $ medwidsi: chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
-#&gt;  $ extranod: chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
-#&gt;  $ clinstg : num  1 1 2 2 2 1 2 2 2 2 ...
-#&gt;  $ time    : num  3.1 15.9 0.9 13.1 35.9 1.1 2.5 0.003 4.1 28.1 ...
-#&gt;  $ status  : num  2 2 1 2 0 1 1 1 1 0 ...</code></pre>
-<p>To procede with the analysis, it is important to change the data type
-of sex, trtgiven, medwidsi, and extranod from <code>character</code> to
-<code>factor</code>. Similarly, we convert clinstg from
-<code>numeric</code> to <code>factor</code>.</p>
-<pre class="r"><code>  hd$sex      &lt;- as.factor(hd$sex)
-  hd$trtgiven &lt;- as.factor(hd$trtgiven)
-  hd$medwidsi &lt;- as.factor(hd$medwidsi)
-  hd$extranod &lt;- as.factor(hd$extranod)
-  hd$clinstg  &lt;- as.factor(hd$clinstg)</code></pre>
-<p>Now, we explore the number of events for each event type:</p>
-<pre class="r"><code>require(pander)
-pander::pander(table(hd$status))</code></pre>
-<table style="width:25%;">
-<colgroup>
-<col width="8%" />
-<col width="8%" />
-<col width="8%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">0</th>
-<th align="center">1</th>
-<th align="center">2</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">439</td>
-<td align="center">291</td>
-<td align="center">135</td>
-</tr>
-</tbody>
-</table>
-<p>Thus, we have 439 censored patients, 291 with relapse and 135 who
-died. From now on, we assume that the event of interest is relapse,
-i.e. <code>status=1</code>.</p>
-<p>In order to create a test set, we use stratified sampling to
-partition our data in 80% for train and 20% for test.</p>
-<pre class="r"><code>require(splitstackshape)
-set.seed(2022)
-split_data &lt;- stratified(hd, c(&quot;status&quot;), 0.8, bothSets = TRUE)
-hd_train   &lt;- split_data$SAMP1[,-1]
-hd_test    &lt;- split_data$SAMP2[,-1]</code></pre>
-<p>Now, we explore the number of observations per status in both train
-and test set:</p>
-<pre class="r"><code>pander::pander(table(hd_train$status))</code></pre>
-<table style="width:25%;">
-<colgroup>
-<col width="8%" />
-<col width="8%" />
-<col width="8%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">0</th>
-<th align="center">1</th>
-<th align="center">2</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">351</td>
-<td align="center">233</td>
-<td align="center">108</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>pander::pander(table(hd_test$status))</code></pre>
-<table style="width:21%;">
-<colgroup>
-<col width="6%" />
-<col width="6%" />
-<col width="6%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">0</th>
-<th align="center">1</th>
-<th align="center">2</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">88</td>
-<td align="center">58</td>
-<td align="center">27</td>
-</tr>
-</tbody>
-</table>
+<p>Details about data pre-processing steps can be found <a
+href="https://github.com/VallejosGroup/CompRisksVignettes/blob/main/Source/DataPreparation.Rmd">here</a></p>
+<pre class="r"><code>source(&quot;../Data_prep/data_prep.R&quot;)
+#&gt; The sourced script has been used to load and pre-process the data.
+#&gt; The latter converts appropriate variables into factors.
+#&gt; Additionally, we randomly split the data into training and testing sets, 
+#&gt; enabling us to evaluate out-of-sample predictive performance when comparing different approaches.</code></pre>
+<p>The following sections illustrate the usage of different methods
+defined using a cause-specific hazards formulation.</p>
 </div>
 <div id="cause-specific-cox-proportional-hazards"
 class="section level1">
@@ -498,32 +394,33 @@ summary(csh_survival)
 <p>The above output summarises the fitted model. First, it shows that
 out of the 692 patients, 233 experienced the event of interest
 (relapse). Second, it shows the coefficients and hazard ratios
-(<code>exp(coef)</code>) for each covariate, along with a significance
-test. The results suggest that age, treatment, and clinical stage are
-significantly associated with the hazard of relapse. For instance, being
-in clinical stage 2 increases the cause-specific hazard (rate) of
-relapse by 44.96% when compared to a patient in stage 1. It is important
-to emphasise that one should be cautious when interpreting these
-covariate effects as this modelling strategy only permits to do
-inference of the effects on the hazard but not on the prognosis or
-survival (see more details in <span class="citation">Austin, Lee, and
-Fine (<a href="#ref-Austin2016" role="doc-biblioref">2016</a>)</span>).
-Finally, the output also reports model fitness statistics. The
-concordance index, which summaries the in-sample discriminative ability
-of the model (a value close to 1 is preferred), and three tests to check
-if (overall) the model is significant.</p>
-<p>Note that naively estimating survival/risk probabilities from this
-model, will result in overestimation of the survival function, as
-competing risks are not taken into account. See the <a
+(<code>exp(coef)</code>) for each covariate, along with the results of a
+marginal significance test. The results suggest that age, treatment, and
+clinical stage are significantly associated with the hazard of relapse.
+For instance, being in clinical stage 2 increases the cause-specific
+hazard (rate) of relapse by 44.96% when compared to a patient in stage
+1. It is important to emphasise that one should be cautious when
+interpreting these covariate effects as this modelling strategy only
+permits to do inference of the effects on the hazard but not on the
+prognosis or survival (see more details in <span
+class="citation">Austin, Lee, and Fine (<a
+href="#ref-Austin2016">2016</a>)</span>). Naively estimating
+survival/risk probabilities from this model, will result in
+overestimation of the survival function, as competing risks are not
+taken into account. See the <a
 href="#the-riskregression-package">riskRegression section</a> for a
-valid approach.</p>
+valid approach. Finally, the output also reports model fitness
+statistics, including the concordance index, which summaries the
+in-sample discriminative ability of the model (a value close to 1 is
+preferred).b Note, however, that none of these metrics account for
+competing events.</p>
 </div>
 <div id="the-rms-package" class="section level2">
 <h2>The <code>rms</code> package</h2>
 <p>Another package that permits to fit the model is <code>rms</code>.
 This package provides useful functions for model validation, and
 plotting which are well documented in <span class="citation">Harrell (<a
-href="#ref-harrell2017" role="doc-biblioref">2017</a>)</span>.</p>
+href="#ref-harrell2017">2017</a>)</span>.</p>
 <p>Before fitting the model, it is important to compute summary
 statistics of the covariates that will be employed. Such statistics will
 be used when plotting or doing predictions. These summary statistics are
@@ -552,28 +449,27 @@ csh_rms &lt;- cph(Surv(time, status == 1) ~ age +
 
 print(csh_rms)
 #&gt; Cox Proportional Hazards Model
-#&gt;  
-#&gt;  cph(formula = Surv(time, status == 1) ~ age + sex + trtgiven + 
-#&gt;      medwidsi + extranod + clinstg, data = hd_train, method = &quot;efron&quot;, 
-#&gt;      x = TRUE, y = TRUE, surv = TRUE)
-#&gt;  
-#&gt;                         Model Tests    Discrimination    
-#&gt;                                               Indexes    
-#&gt;  Obs       692    LR chi2     37.91    R2       0.054    
-#&gt;  Events    233    d.f.            7    R2(7,692)0.044    
-#&gt;  Center 1.2434    Pr(&gt; chi2) 0.0000    R2(7,233)0.124    
-#&gt;                   Score chi2  38.95    Dxy      0.219    
-#&gt;                   Pr(&gt; chi2) 0.0000                      
-#&gt;  
-#&gt;              Coef    S.E.   Wald Z Pr(&gt;|Z|)
-#&gt;  age          0.0159 0.0042  3.74  0.0002  
-#&gt;  sex=M        0.0875 0.1348  0.65  0.5162  
-#&gt;  trtgiven=RT  0.7139 0.1946  3.67  0.0002  
-#&gt;  medwidsi=N  -0.0443 0.2564 -0.17  0.8628  
-#&gt;  medwidsi=S  -0.4027 0.2534 -1.59  0.1120  
-#&gt;  extranod=Y   0.3264 0.2392  1.36  0.1724  
-#&gt;  clinstg=2    0.3713 0.1564  2.37  0.0176  
-#&gt; </code></pre>
+#&gt; 
+#&gt; cph(formula = Surv(time, status == 1) ~ age + sex + trtgiven + 
+#&gt;     medwidsi + extranod + clinstg, data = hd_train, method = &quot;efron&quot;, 
+#&gt;     x = TRUE, y = TRUE, surv = TRUE)
+#&gt; 
+#&gt;                        Model Tests    Discrimination    
+#&gt;                                              Indexes    
+#&gt; Obs       692    LR chi2     37.91    R2       0.054    
+#&gt; Events    233    d.f.            7    R2(7,692)0.044    
+#&gt; Center 1.2434    Pr(&gt; chi2) 0.0000    R2(7,233)0.124    
+#&gt;                  Score chi2  38.95    Dxy      0.219    
+#&gt;                  Pr(&gt; chi2) 0.0000                      
+#&gt; 
+#&gt;             Coef    S.E.   Wald Z Pr(&gt;|Z|)
+#&gt; age          0.0159 0.0042  3.74  0.0002  
+#&gt; sex=M        0.0875 0.1348  0.65  0.5162  
+#&gt; trtgiven=RT  0.7139 0.1946  3.67  0.0002  
+#&gt; medwidsi=N  -0.0443 0.2564 -0.17  0.8628  
+#&gt; medwidsi=S  -0.4027 0.2534 -1.59  0.1120  
+#&gt; extranod=Y   0.3264 0.2392  1.36  0.1724  
+#&gt; clinstg=2    0.3713 0.1564  2.37  0.0176</code></pre>
 <p>In this case, printing the fitted model, gives a slightly different
 output. First, the output includes several discrimination indices. Note
 that, the concordance index can be recovered using the <code>Dxy</code>
@@ -778,53 +674,52 @@ print(csh_riskRegression.cph)
 #&gt; ----------&gt; Cause:  1 
 #&gt; 
 #&gt; Cox Proportional Hazards Model
-#&gt;  
-#&gt;  cph(formula = survival::Surv(time, status) ~ age + sex + trtgiven + 
-#&gt;      medwidsi + extranod + clinstg, x = TRUE, y = TRUE, surv = TRUE)
-#&gt;  
-#&gt;                         Model Tests    Discrimination    
-#&gt;                                               Indexes    
-#&gt;  Obs       692    LR chi2     37.91    R2       0.054    
-#&gt;  Events    233    d.f.            7    R2(7,692)0.044    
-#&gt;  Center 1.2434    Pr(&gt; chi2) 0.0000    R2(7,233)0.124    
-#&gt;                   Score chi2  38.95    Dxy      0.219    
-#&gt;                   Pr(&gt; chi2) 0.0000                      
-#&gt;  
-#&gt;              Coef    S.E.   Wald Z Pr(&gt;|Z|)
-#&gt;  age          0.0159 0.0042  3.74  0.0002  
-#&gt;  sex=M        0.0875 0.1348  0.65  0.5162  
-#&gt;  trtgiven=RT  0.7139 0.1946  3.67  0.0002  
-#&gt;  medwidsi=N  -0.0443 0.2564 -0.17  0.8628  
-#&gt;  medwidsi=S  -0.4027 0.2534 -1.59  0.1120  
-#&gt;  extranod=Y   0.3264 0.2392  1.36  0.1724  
-#&gt;  clinstg=2    0.3713 0.1564  2.37  0.0176  
-#&gt;  
+#&gt; 
+#&gt; cph(formula = survival::Surv(time, status) ~ age + sex + trtgiven + 
+#&gt;     medwidsi + extranod + clinstg, x = TRUE, y = TRUE, surv = TRUE)
+#&gt; 
+#&gt;                        Model Tests    Discrimination    
+#&gt;                                              Indexes    
+#&gt; Obs       692    LR chi2     37.91    R2       0.054    
+#&gt; Events    233    d.f.            7    R2(7,692)0.044    
+#&gt; Center 1.2434    Pr(&gt; chi2) 0.0000    R2(7,233)0.124    
+#&gt;                  Score chi2  38.95    Dxy      0.219    
+#&gt;                  Pr(&gt; chi2) 0.0000                      
+#&gt; 
+#&gt;             Coef    S.E.   Wald Z Pr(&gt;|Z|)
+#&gt; age          0.0159 0.0042  3.74  0.0002  
+#&gt; sex=M        0.0875 0.1348  0.65  0.5162  
+#&gt; trtgiven=RT  0.7139 0.1946  3.67  0.0002  
+#&gt; medwidsi=N  -0.0443 0.2564 -0.17  0.8628  
+#&gt; medwidsi=S  -0.4027 0.2534 -1.59  0.1120  
+#&gt; extranod=Y   0.3264 0.2392  1.36  0.1724  
+#&gt; clinstg=2    0.3713 0.1564  2.37  0.0176  
+#&gt; 
 #&gt; 
 #&gt; 
 #&gt; ----------&gt; Cause:  2 
 #&gt; 
 #&gt; Cox Proportional Hazards Model
-#&gt;  
-#&gt;  cph(formula = survival::Surv(time, status) ~ age + sex + trtgiven + 
-#&gt;      medwidsi + extranod + clinstg, x = TRUE, y = TRUE, surv = TRUE)
-#&gt;  
-#&gt;                         Model Tests    Discrimination    
-#&gt;                                               Indexes    
-#&gt;  Obs       692    LR chi2    159.59    R2       0.247    
-#&gt;  Events    108    d.f.            7    R2(7,692)0.198    
-#&gt;  Center 3.5568    Pr(&gt; chi2) 0.0000    R2(7,108)0.757    
-#&gt;                   Score chi2 211.82    Dxy      0.631    
-#&gt;                   Pr(&gt; chi2) 0.0000                      
-#&gt;  
-#&gt;              Coef    S.E.   Wald Z Pr(&gt;|Z|)
-#&gt;  age          0.0778 0.0069 11.33  &lt;0.0001 
-#&gt;  sex=M        0.6449 0.2091  3.09  0.0020  
-#&gt;  trtgiven=RT -0.0629 0.2419 -0.26  0.7948  
-#&gt;  medwidsi=N   0.2642 0.4081  0.65  0.5175  
-#&gt;  medwidsi=S   0.1884 0.4046  0.47  0.6415  
-#&gt;  extranod=Y  -0.1405 0.3835 -0.37  0.7141  
-#&gt;  clinstg=2    0.4513 0.2289  1.97  0.0487  
-#&gt; </code></pre>
+#&gt; 
+#&gt; cph(formula = survival::Surv(time, status) ~ age + sex + trtgiven + 
+#&gt;     medwidsi + extranod + clinstg, x = TRUE, y = TRUE, surv = TRUE)
+#&gt; 
+#&gt;                        Model Tests    Discrimination    
+#&gt;                                              Indexes    
+#&gt; Obs       692    LR chi2    159.59    R2       0.247    
+#&gt; Events    108    d.f.            7    R2(7,692)0.198    
+#&gt; Center 3.5568    Pr(&gt; chi2) 0.0000    R2(7,108)0.757    
+#&gt;                  Score chi2 211.82    Dxy      0.631    
+#&gt;                  Pr(&gt; chi2) 0.0000                      
+#&gt; 
+#&gt;             Coef    S.E.   Wald Z Pr(&gt;|Z|)
+#&gt; age          0.0778 0.0069 11.33  &lt;0.0001 
+#&gt; sex=M        0.6449 0.2091  3.09  0.0020  
+#&gt; trtgiven=RT -0.0629 0.2419 -0.26  0.7948  
+#&gt; medwidsi=N   0.2642 0.4081  0.65  0.5175  
+#&gt; medwidsi=S   0.1884 0.4046  0.47  0.6415  
+#&gt; extranod=Y  -0.1405 0.3835 -0.37  0.7141  
+#&gt; clinstg=2    0.4513 0.2289  1.97  0.0487</code></pre>
 <p>Assume that we are interested in making risk predictions at time
 <span class="math inline">\(t=5\)</span> years for a new set of patients
 (i.e. the test dataset <code>hd_test</code>). As an illustration, we
@@ -880,6 +775,12 @@ risk.coxphPL[1:5]
 <code>predictEventProb()</code> available in <code>pec</code>
 package.</p>
 <pre class="r"><code>require(pec)
+#&gt; Loading required package: pec
+#&gt; 
+#&gt; Attaching package: &#39;pec&#39;
+#&gt; The following objects are masked from &#39;package:riskRegression&#39;:
+#&gt; 
+#&gt;     ipcw, selectCox
 risk.pec &lt;- predictEventProb(csh_riskRegression.cph,
                              newdata = hd_test,
                              cause = 1,
@@ -978,26 +879,37 @@ print(csh_riskRegression2)
 <p>The <code>glmnet()</code> function permits to fit different Cox
 sparse regression models through the argument <code>family="cox"</code>.
 It is possible to use lasso, ridge and elastic net regularization. Here,
-we focus on describing lasso.</p>
-<p>As in previous examples, the code below fits models for the first
-event type only.</p>
-<p>First, we employ <code>makeX()</code> to construct the design matrix
-with no intercept. Second, the response variable is defined using a
-<code>Surv</code> object. Finally, the argument <code>alpha = 1</code>
-indicates that a lasso penalty will be used. Note that, users can set
-<code>alpha = 0</code> to select a ridge penalty. If the value of
-<code>alpha</code> lies between 0 and 1, an elastic net penalty will be
-used instead.</p>
+we used lasso.</p>
+<p>As in previous examples, the code below fits a cause-specific
+proportional hazards model for the first event type only.</p>
+<p>First, as <code>glmnet</code> cannot directly handle factor
+variables, we extract the design matrix used in previous models (with
+re-codes factor variables into dummy binary variables). Second, the
+response variable is defined using a <code>Surv</code> object. Finally,
+the argument <code>alpha = 1</code> indicates that a lasso penalty will
+be used. Note that, users can set <code>alpha = 0</code> to select a
+ridge penalty. If the value of <code>alpha</code> lies between 0 and 1,
+an elastic net penalty will be used instead.</p>
 <pre class="r"><code>require(glmnet)
-x &lt;- makeX(hd_train[, 1:6]) #Note that makeX() permits mean imputation for missing values
+#&gt; Loading required package: glmnet
+#&gt; Loading required package: Matrix
+#&gt; 
+#&gt; Attaching package: &#39;Matrix&#39;
+#&gt; The following objects are masked from &#39;package:tidyr&#39;:
+#&gt; 
+#&gt;     expand, pack, unpack
+#&gt; Loaded glmnet 4.1-8
+
+x &lt;- model.matrix(csh_survival) 
 
 lasso.fit &lt;- glmnet(x = x,
                     y = Surv(hd_train$time, hd_train$status == 1),
                     family = &quot;cox&quot;,
                     # alpha=0 for ridge and  0&lt;alpha&lt;1 for elastic net
                     alpha = 1)</code></pre>
-<p>The output of the fitted model shows degrees of freedom, deviance and
-<span class="math inline">\(\lambda\)</span> for the iterations.</p>
+<p>The output of the fitted model shows degrees of freedom and deviance
+for different values of <span
+class="math inline">\(\lambda\)</span>.</p>
 <pre class="r"><code>print(lasso.fit)
 #&gt; 
 #&gt; Call:  glmnet(x = x, y = Surv(hd_train$time, hd_train$status == 1),      family = &quot;cox&quot;, alpha = 1) 
@@ -1005,88 +917,77 @@ lasso.fit &lt;- glmnet(x = x,
 #&gt;    Df %Dev   Lambda
 #&gt; 1   0 0.00 0.086820
 #&gt; 2   1 0.14 0.079100
-#&gt; 3   3 0.27 0.072080
-#&gt; 4   3 0.43 0.065670
-#&gt; 5   3 0.57 0.059840
-#&gt; 6   3 0.68 0.054520
-#&gt; 7   3 0.77 0.049680
-#&gt; 8   3 0.84 0.045270
-#&gt; 9   4 0.92 0.041240
-#&gt; 10  4 0.99 0.037580
-#&gt; 11  4 1.05 0.034240
-#&gt; 12  4 1.10 0.031200
-#&gt; 13  4 1.14 0.028430
-#&gt; 14  5 1.19 0.025900
-#&gt; 15  5 1.26 0.023600
-#&gt; 16  6 1.31 0.021510
-#&gt; 17  5 1.36 0.019590
-#&gt; 18  7 1.41 0.017850
-#&gt; 19  6 1.45 0.016270
-#&gt; 20  7 1.49 0.014820
-#&gt; 21  7 1.52 0.013510
-#&gt; 22  9 1.55 0.012310
-#&gt; 23 10 1.57 0.011210
-#&gt; 24  9 1.59 0.010220
-#&gt; 25 10 1.61 0.009309
-#&gt; 26  9 1.62 0.008482
-#&gt; 27  9 1.63 0.007729
-#&gt; 28 10 1.64 0.007042
-#&gt; 29  9 1.65 0.006416
-#&gt; 30 10 1.66 0.005846
-#&gt; 31  9 1.66 0.005327
-#&gt; 32  9 1.67 0.004854
-#&gt; 33  9 1.67 0.004423
-#&gt; 34  9 1.67 0.004030
-#&gt; 35  9 1.68 0.003672
-#&gt; 36 10 1.68 0.003345
-#&gt; 37  9 1.68 0.003048
-#&gt; 38 11 1.68 0.002777
-#&gt; 39 11 1.68 0.002531
-#&gt; 40 11 1.68 0.002306
-#&gt; 41 11 1.69 0.002101
-#&gt; 42 11 1.69 0.001914
-#&gt; 43 11 1.69 0.001744
-#&gt; 44 11 1.69 0.001589
-#&gt; 45 11 1.69 0.001448
-#&gt; 46 11 1.69 0.001320
-#&gt; 47 10 1.69 0.001202
-#&gt; 48 10 1.69 0.001095</code></pre>
+#&gt; 3   2 0.27 0.072080
+#&gt; 4   2 0.43 0.065670
+#&gt; 5   2 0.57 0.059840
+#&gt; 6   2 0.68 0.054520
+#&gt; 7   2 0.77 0.049680
+#&gt; 8   2 0.84 0.045270
+#&gt; 9   3 0.92 0.041240
+#&gt; 10  3 0.99 0.037580
+#&gt; 11  3 1.05 0.034240
+#&gt; 12  3 1.10 0.031200
+#&gt; 13  3 1.14 0.028430
+#&gt; 14  4 1.19 0.025900
+#&gt; 15  4 1.26 0.023600
+#&gt; 16  4 1.31 0.021510
+#&gt; 17  4 1.36 0.019590
+#&gt; 18  5 1.41 0.017850
+#&gt; 19  5 1.45 0.016270
+#&gt; 20  5 1.49 0.014820
+#&gt; 21  5 1.52 0.013510
+#&gt; 22  6 1.55 0.012310
+#&gt; 23  6 1.57 0.011210
+#&gt; 24  6 1.59 0.010220
+#&gt; 25  6 1.61 0.009309
+#&gt; 26  6 1.62 0.008482
+#&gt; 27  6 1.63 0.007729
+#&gt; 28  6 1.64 0.007042
+#&gt; 29  6 1.65 0.006416
+#&gt; 30  6 1.66 0.005846
+#&gt; 31  6 1.66 0.005327
+#&gt; 32  6 1.67 0.004854
+#&gt; 33  6 1.67 0.004423
+#&gt; 34  6 1.67 0.004030
+#&gt; 35  6 1.68 0.003672
+#&gt; 36  6 1.68 0.003345
+#&gt; 37  6 1.68 0.003048
+#&gt; 38  6 1.68 0.002777
+#&gt; 39  6 1.68 0.002531
+#&gt; 40  6 1.68 0.002306
+#&gt; 41  6 1.69 0.002101
+#&gt; 42  6 1.69 0.001914
+#&gt; 43  6 1.69 0.001744
+#&gt; 44  6 1.69 0.001589
+#&gt; 45  6 1.69 0.001448
+#&gt; 46  6 1.69 0.001320</code></pre>
 <p>In the plot below, each line corresponds to one of the covariates.
 The top x-axis indicates the number of non-zero coefficients for
 different values of <span class="math inline">\(\lambda\)</span> (bottom
 x-axis).</p>
 <pre class="r"><code>plot(lasso.fit, label = TRUE)</code></pre>
-<p><img src="/docs/CS_specification_files/figure-html/unnamed-chunk-19-1.png" width="768" /></p>
+<p><img src="CS_specification_files/figure-html/unnamed-chunk-14-1.png" width="768" /></p>
 <p>The estimated coefficients for specific <span
 class="math inline">\(\lambda\)</span> values can be obtained using
-<code>coef()</code>.</p>
+<code>coef()</code>. For example, for <span
+class="math inline">\(\lambda = 0.06\)</span>:</p>
 <pre class="r"><code>coef(lasso.fit, s = 0.06) # s:=\lambda
-#&gt; 12 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
-#&gt;                         1
-#&gt; age          5.420682e-03
-#&gt; sexF         .           
-#&gt; sexM         .           
-#&gt; trtgivenCMT -8.912025e-02
-#&gt; trtgivenRT   4.549444e-15
-#&gt; medwidsiL    .           
-#&gt; medwidsiN    .           
-#&gt; medwidsiS    .           
-#&gt; extranodN    .           
-#&gt; extranodY    .           
-#&gt; clinstg1     .           
-#&gt; clinstg2     .</code></pre>
-<p>Note that due to the lack of intercept in the design matrix, the
-interpretation of the regression coefficients differs from those
-presented in earlier sections. For example, two separate coefficients
-are reported for sex (one for males; one for females). Instead, previous
-models used females as a reference, reporting a single regression
-coefficient to quantify the difference between males and females (in
-terms of the hazard).</p>
+#&gt; 7 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+#&gt;                      1
+#&gt; age        0.005420682
+#&gt; sexM       .          
+#&gt; trtgivenRT 0.089120251
+#&gt; medwidsiN  .          
+#&gt; medwidsiS  .          
+#&gt; extranodY  .          
+#&gt; clinstg2   .</code></pre>
+<p>Note that the interpretation of the regression coefficients is
+similar to those presented in earlier sections.</p>
 <p>One can also employ k-fold cross-validation to select the optimal
 value of <span class="math inline">\(\lambda\)</span>. Below, we show
-how to do that using 10 folds and Harrel’s concordance index; however,
-one can also employ a deviance loss measure. Note, however, that none of
-these metrics account for competing events.</p>
+how to do that using 10 folds and Harrel’s concordance index (one can
+also employ a deviance loss measure). Note, however, that none of these
+metrics account for competing events.</p>
 <pre class="r"><code>set.seed(1)
 lassoCV.fit &lt;- cv.glmnet(x = x,
                          y = Surv(hd_train$time, hd_train$status == 1),
@@ -1095,36 +996,54 @@ lassoCV.fit &lt;- cv.glmnet(x = x,
                          nfolds = 10,
                          type.measure = &quot;C&quot;)     # uses Harrel&#39;s C-index</code></pre>
 <pre class="r"><code>plot(lassoCV.fit)</code></pre>
-<p><img src="/docs/CS_specification_files/figure-html/unnamed-chunk-22-1.png" width="576" /></p>
+<p><img src="CS_specification_files/figure-html/unnamed-chunk-17-1.png" width="576" /></p>
 <p>The specific <span class="math inline">\(\lambda\)</span> values
 marked with the left and right vertical lines in the plot shown above,
 can be obtained with the following commands.</p>
 <pre class="r"><code>lassoCV.fit$lambda.min; lassoCV.fit$lambda.1se
-#&gt; [1] 0.00174434
+#&gt; [1] 0.002305915
 #&gt; [1] 0.03424211</code></pre>
-<p>The first value corresponds to the <span
-class="math inline">\(\lambda\)</span> value where the error reaches its
-minimum. The second value corresponds to 1 standard deviation of the
-minimum error. In this case, including only 2 covariates is within 1 sd
-of the minimum.</p>
-<p>The estimated coefficients for <span
-class="math inline">\(\lambda=\)</span> 0.0342421 are shown below, where
-we see that lasso selects age and treatment.</p>
+<p>The first value (<code>lambda.min</code>) corresponds to the <span
+class="math inline">\(\lambda\)</span> value for which the
+cross-validation performance is best, i.e. it leads to the highest
+C-index in this example. In principle, <code>lambda.min</code> can be
+used as an optimal choice. In such case, the final model includes all
+covariates (only the coefficient associated to <code>medwidsiN</code> is
+shrunk to be exactly equal to zero):</p>
+<pre class="r"><code>coef(lassoCV.fit, s = lassoCV.fit$lambda.min)
+#&gt; 7 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+#&gt;                      1
+#&gt; age         0.01510958
+#&gt; sexM        0.06933389
+#&gt; trtgivenRT  0.66062447
+#&gt; medwidsiN   .         
+#&gt; medwidsiS  -0.34391701
+#&gt; extranodY   0.28711361
+#&gt; clinstg2    0.34002064</code></pre>
+<p>Note that, for these data, several values of <span
+class="math inline">\(\lambda\)</span> (leading to models with varying
+levels of sparsity) result in similar cross-validated performance.
+Hence, choosing <code>lambda.min</code> may not be appropriate. An
+alternative, more parsimonious, choice can be selected by using
+<code>lambda.1se</code> <span class="citation">(<a
+href="#ref-hastie2009elements">Hastie et al. 2009</a>)</span>. In such
+case, <code>lambda.1se</code> represents the highest value of <span
+class="math inline">\(\lambda\)</span> (i.e. the strongest
+regularisation) such that the chosen performance metric (C-index here)
+is within 1 standard deviation of the one associated to
+<code>lambda.min</code>. In this example, the selected model only
+contains 3 covariates (<code>age</code>, <code>trtgiven</code> and
+<code>medwidsi</code>):</p>
 <pre class="r"><code>coef(lassoCV.fit, s = lassoCV.fit$lambda.1se)
-#&gt; 12 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
-#&gt;                         1
-#&gt; age          9.630111e-03
-#&gt; sexF         .           
-#&gt; sexM         .           
-#&gt; trtgivenCMT -2.598995e-01
-#&gt; trtgivenRT   1.000110e-14
-#&gt; medwidsiL    .           
-#&gt; medwidsiN    .           
-#&gt; medwidsiS   -5.425280e-02
-#&gt; extranodN    .           
-#&gt; extranodY    .           
-#&gt; clinstg1     .           
-#&gt; clinstg2     .</code></pre>
+#&gt; 7 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+#&gt;                       1
+#&gt; age         0.009630111
+#&gt; sexM        .          
+#&gt; trtgivenRT  0.259899476
+#&gt; medwidsiN   .          
+#&gt; medwidsiS  -0.054252802
+#&gt; extranodY   .          
+#&gt; clinstg2    .</code></pre>
 </div>
 <div id="cox-model-based-boosting---the-mboost-package"
 class="section level2">
@@ -1132,18 +1051,17 @@ class="section level2">
 <p>A cause-specific CPH model that employs model-based boosting is
 showcased here by using the <code>glmboost()</code> function. As with
 other approaches, one should first create the response variable using
-<code>Surv()</code>. Because <code>mboost</code> is an R package that
-can fit models beyond survival analysis, one should specify
+<code>Surv()</code>.</p>
+<p>Because <code>mboost</code> is an R package that can fit models
+beyond survival analysis, one should specify
 <code>family = CoxPH()</code>. The parameters of the boosting algorithm
-are set by the <code>control</code> argument. In the example below we
-have used 900 boosting iterations with the step-length (referred as
-<span class="math inline">\(\lambda\)</span> in the manuscript) set at
-0.2. In addition, we indicate that continuous variables have not been
-previously centered.</p>
+are then set by the <code>control</code> argument. In the example below
+we have used 1000 boosting iterations with the step-length (referred as
+<span class="math inline">\(\lambda\)</span> in the manuscript;
+<code>nu</code> in the code below) set at 0.3. In addition, we indicate
+that continuous variables have not been previously centered.</p>
 <p>As before, for illustration purposes, we only fit the model
 associated to the first event type.</p>
-<p>The output of the model indicates the estimated regression
-coefficients from which the estimated HR can be computed</p>
 <pre class="r"><code>require(mboost)
 
 csh_mboost &lt;- glmboost(Surv(time, status == 1) ~ age +
@@ -1152,11 +1070,10 @@ csh_mboost &lt;- glmboost(Surv(time, status == 1) ~ age +
                          medwidsi +
                          extranod +
                          clinstg,
-                       data = hd,
+                       data = hd_train,
                        family = CoxPH(),
-                       control = boost_control(mstop = 900,
-                                               nu = 0.3,
-                                               trace = FALSE),
+                       control = boost_control(mstop = 1000,
+                                               nu = 0.3),
                        center = FALSE)
 
 print(csh_mboost)
@@ -1164,89 +1081,231 @@ print(csh_mboost)
 #&gt;   Generalized Linear Models Fitted via Gradient Boosting
 #&gt; 
 #&gt; Call:
-#&gt; glmboost.formula(formula = Surv(time, status == 1) ~ age + sex +     trtgiven + medwidsi + extranod + clinstg, data = hd, family = CoxPH(),     center = FALSE, control = boost_control(mstop = 900, nu = 0.3,         trace = FALSE))
+#&gt; glmboost.formula(formula = Surv(time, status == 1) ~ age + sex +     trtgiven + medwidsi + extranod + clinstg, data = hd_train,     family = CoxPH(), center = FALSE, control = boost_control(mstop = 1000,         nu = 0.3))
 #&gt; 
 #&gt; 
 #&gt;   Cox Partial Likelihood 
 #&gt; 
 #&gt; Loss function:  
 #&gt; 
-#&gt; Number of boosting iterations: mstop = 900 
+#&gt; Number of boosting iterations: mstop = 1000 
 #&gt; Step size:  0.3 
 #&gt; Offset:  0 
 #&gt; 
 #&gt; Coefficients: 
 #&gt;         age        sexM  trtgivenRT   medwidsiN   medwidsiS   extranodY 
-#&gt;  0.01497159  0.03194228  0.67363265 -0.05801666 -0.36732603  0.29942487 
+#&gt;  0.01499307  0.07464947  0.66652111  0.01916836 -0.34107257  0.30940926 
 #&gt;    clinstg2 
-#&gt;  0.40659267 
+#&gt;  0.35101791 
 #&gt; attr(,&quot;offset&quot;)
-#&gt; [1] 0
-
-knitr::kable(round(exp(coef(csh_mboost, off2int = TRUE)), 4),
-             col.names = c(&quot;HR&quot;))</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="left"></th>
-<th align="right">HR</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">age</td>
-<td align="right">1.0151</td>
-</tr>
-<tr class="even">
-<td align="left">sexM</td>
-<td align="right">1.0325</td>
-</tr>
-<tr class="odd">
-<td align="left">trtgivenRT</td>
-<td align="right">1.9613</td>
-</tr>
-<tr class="even">
-<td align="left">medwidsiN</td>
-<td align="right">0.9436</td>
-</tr>
-<tr class="odd">
-<td align="left">medwidsiS</td>
-<td align="right">0.6926</td>
-</tr>
-<tr class="even">
-<td align="left">extranodY</td>
-<td align="right">1.3491</td>
-</tr>
-<tr class="odd">
-<td align="left">clinstg2</td>
-<td align="right">1.5017</td>
-</tr>
-</tbody>
-</table>
+#&gt; [1] 0</code></pre>
 <p>A plot of the coefficients across boosting iterations is shown:</p>
 <pre class="r"><code>plot(csh_mboost, main = &quot;Coefficient paths&quot;, ylim = range(coef(csh_mboost)))</code></pre>
-<p><img src="/docs/CS_specification_files/figure-html/unnamed-chunk-25-1.png" width="768" /></p>
+<p><img src="CS_specification_files/figure-html/unnamed-chunk-21-1.png" width="768" /></p>
 <p>To do variable selection one can use the <code>varimp()</code>
 function. In the plot below we observe that age, treatment given,
-clinical stage and size of mediastinum involvement appear to be
-relevant.</p>
+clinical stage and size of mediastinum involvement appear to be the most
+relevant covariates.</p>
 <pre class="r"><code>plot(varimp(csh_mboost))</code></pre>
-<p><img src="/docs/CS_specification_files/figure-html/unnamed-chunk-26-1.png" width="576" /></p>
+<p><img src="CS_specification_files/figure-html/unnamed-chunk-22-1.png" width="576" /></p>
 <p><code>mboost</code> permits cross-validation for hyper-parameter
 selection; specifically, the number of boosting iterations. Here, we
-show how to do this using 25 bootstrap samples (default). Estimation is
-done sequentially:</p>
+show how to do this using 25 bootstrap samples (default). Note that the
+value of the second hyper-parameter, <code>nu</code>, is not critical as
+long as it is sufficiently large. As such cross-validation for
+<code>nu</code> is not generally recommended.</p>
 <pre class="r"><code>set.seed(1)
 cv.boost &lt;- cvrisk(csh_mboost, papply = lapply)</code></pre>
+<p>The next plot shows how the (negative) cross-validated likelihood
+(cvl) <span class="citation">(<a href="#ref-verweij1993cross">Verweij
+and Van Houwelingen 1993</a>)</span> changes as the number of boosting
+iterations increases. Light grey lines represent each of the 25 boostrap
+samples. The black line shows average values across all boostrap
+samples.</p>
 <pre class="r"><code>plot(cv.boost)</code></pre>
-<p><img src="/docs/CS_specification_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
+<p><img src="CS_specification_files/figure-html/unnamed-chunk-24-1.png" width="672" /></p>
+<p>The function <code>mstop</code> can be used to identify the optimal
+number of boosting iteration. As a default, this is chosen to minimize
+the negative cvl.</p>
 <pre class="r"><code>stop.B &lt;- mstop(cv.boost)  # can serve to obtain optimal stopping parameter
 stop.B 
-#&gt; [1] 543</code></pre>
-<p>The above output shows that 543 boosting iterations is enough. Once
-the number is obtained one can use <code>glmboost()</code> with the
-resulting number of boosting iterations.</p>
+#&gt; [1] 292</code></pre>
+<p>To better visualise the behavior of cvl, we also plot the black line
+alone (i.e. the mean of cvl across boostrap samples):</p>
+<pre class="r"><code>mean.cvl &lt;- colMeans(cv.boost)
+plot(mean.cvl, ylab = &quot;cvl&quot;, xlab = &quot;Number of boosting iterations&quot;, type = &quot;l&quot;)
+abline(v = stop.B, col = &quot;red&quot;)</code></pre>
+<p><img src="CS_specification_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
+<p>In some cases, cvl may be a relatively flat function of the number of
+boosting iterations (within certain range). In those cases, similar to
+the use of <code>lambda.1se</code> in penalised regression (see previous
+section), it may also be possible to select a more parsimonious model
+with similar cross-validated error. For example, 250 boosting iterations
+lead to similar (to 3 decimal points) as 292 iterations
+(<code>stop.B</code>).</p>
+<pre class="r"><code>mean.cvl[250+1]
+#&gt;      250 
+#&gt; 1.812517
+mean.cvl[stop.B+1]
+#&gt;      292 
+#&gt; 1.812375</code></pre>
+<p>Once the number of boosting iterations has been selected, the
+associated regression coefficients can be directly obtained from the
+model object.</p>
+<pre class="r"><code>coef(csh_mboost[250])
+#&gt;         age  trtgivenRT   medwidsiN   medwidsiS   extranodY    clinstg2 
+#&gt;  0.01140192  0.46958661  0.06876766 -0.22113236  0.17165456  0.18485841 
+#&gt; attr(,&quot;offset&quot;)
+#&gt; [1] 0
+coef(csh_mboost[stop.B])
+#&gt;         age        sexM  trtgivenRT   medwidsiN   medwidsiS   extranodY 
+#&gt;  0.01203613  0.01237707  0.49881484  0.06876766 -0.23288294  0.19339666 
+#&gt;    clinstg2 
+#&gt;  0.21271139 
+#&gt; attr(,&quot;offset&quot;)
+#&gt; [1] 0</code></pre>
+<p>Note, if the plots above suggest that cvl has not yet achieved stable
+values, a larger number of boosting iterations may be required. The
+latter can be obtained through the fitted model, without the need to
+re-run the initial iterations. For example, the following code returns a
+model with 1200 boosting iterations:</p>
+<pre class="r"><code>csh_mboost[1200]
+#&gt; 
+#&gt;   Generalized Linear Models Fitted via Gradient Boosting
+#&gt; 
+#&gt; Call:
+#&gt; glmboost.formula(formula = Surv(time, status == 1) ~ age + sex +     trtgiven + medwidsi + extranod + clinstg, data = hd_train,     family = CoxPH(), center = FALSE, control = boost_control(mstop = 1000,         nu = 0.3))
+#&gt; 
+#&gt; 
+#&gt;   Cox Partial Likelihood 
+#&gt; 
+#&gt; Loss function:  
+#&gt; 
+#&gt; Number of boosting iterations: mstop = 1200 
+#&gt; Step size:  0.3 
+#&gt; Offset:  0 
+#&gt; 
+#&gt; Coefficients: 
+#&gt;           age          sexM    trtgivenRT     medwidsiN     medwidsiS 
+#&gt;  0.0151884305  0.0780820403  0.6790234980  0.0007027078 -0.3585486194 
+#&gt;     extranodY      clinstg2 
+#&gt;  0.3125655456  0.3558666967 
+#&gt; attr(,&quot;offset&quot;)
+#&gt; [1] 0</code></pre>
 </div>
+</div>
+<div id="comparison-estimates-of-regression-coefficients"
+class="section level1">
+<h1>Comparison: estimates of regression coefficients</h1>
+<p>First, we compare estimated regression coefficients obtained above.
+As the estimates obtained for the cause-specific Cox PH were the same
+regardless of the choice of R library (<code>survival</code>,
+<code>rms</code> o <code>riskRegression</code>), we only store one of
+them (the ones for <code>survival</code>)</p>
+<pre class="r"><code># Adds zeros for the results of mboost as only non-zero coefficients are returned
+coef_boost_250 &lt;- coef(csh_mboost[250])
+coef_boost_250 &lt;- c(coef_boost_250[1], 0, coef_boost_250[2:6])
+df &lt;- data.frame(&quot;cox&quot; = summary(csh_survival)$coefficients[,1],
+                 &quot;cox_se&quot; = summary(csh_survival)$coefficients[,3],
+                 &quot;lasso_min&quot; = coef(lassoCV.fit, s = lassoCV.fit$lambda.min)[,1],
+                 &quot;lasso_1se&quot; = coef(lassoCV.fit, s = lassoCV.fit$lambda.1se)[,1],
+                 &quot;mboost_stopb&quot; = coef(csh_mboost[stop.B]),
+                 &quot;mboost_250&quot; = coef_boost_250)
+round(df, 2)
+#&gt;              cox cox_se lasso_min lasso_1se mboost_stopb mboost_250
+#&gt; age         0.02   0.00      0.02      0.01         0.01       0.01
+#&gt; sexM        0.09   0.13      0.07      0.00         0.01       0.00
+#&gt; trtgivenRT  0.71   0.19      0.66      0.26         0.50       0.47
+#&gt; medwidsiN  -0.04   0.26      0.00      0.00         0.07       0.07
+#&gt; medwidsiS  -0.40   0.25     -0.34     -0.05        -0.23      -0.22
+#&gt; extranodY   0.33   0.24      0.29      0.00         0.19       0.17
+#&gt; clinstg2    0.37   0.16      0.34      0.00         0.21       0.18
+df$variable &lt;- rownames(df)</code></pre>
+<p>The following code was used to create Figure 1A:</p>
+<pre class="r"><code># colour version
+library(ggplot2)
+library(patchwork)
+
+p_all &lt;- ggplot(df, aes(x=variable, y=cox, col = &quot;Cox&quot;)) + 
+  geom_errorbar(aes(ymin = cox - cox_se, ymax = cox + cox_se), width=.1) +
+  geom_point(cex = 2.5) + 
+  geom_point(aes(x = variable, y = lasso_min, col = &quot;lasso_min&quot;), cex = 2.5) +
+  geom_point(aes(x = variable, y = lasso_1se, colour = &quot;lasso_1se&quot;), cex = 2.5) +
+  geom_point(aes(x = variable, y = mboost_stopb, colour = &quot;mboost_min&quot;), cex = 2.5) + 
+  geom_point(aes(x = variable, y = mboost_250, colour = &quot;mboost_other&quot;), cex = 2.5) +
+  geom_hline(yintercept = 0, lty = 2, colour = &quot;gray&quot;) +
+  theme_classic() +
+  ylab(&quot;Estimate&quot;) + xlab(&quot;Coefficient&quot;) +
+  labs(color=&quot;Method&quot;) +
+  scale_color_manual(values=c(&quot;#999999&quot;, &quot;#1A5276&quot;, &quot;#2980B9&quot;, &quot;#B9770E&quot;, &quot;#F5B041&quot;))
+
+p_age &lt;- ggplot(df[df$variable == &quot;age&quot;,], aes(x=variable, y=cox, col = &quot;Cox&quot;)) + 
+  geom_errorbar(aes(ymin = cox - cox_se, ymax = cox + cox_se), width=.1) +
+  geom_point(cex = 2.5) + 
+  geom_point(aes(x = variable, y = lasso_min, col = &quot;lasso_min&quot;), cex = 2.5) +
+  geom_point(aes(x = variable, y = lasso_1se, colour = &quot;lasso_1se&quot;), cex = 2.5) +
+  geom_point(aes(x = variable, y = mboost_stopb, colour = &quot;mboost_min&quot;), cex = 2.5) + 
+  geom_point(aes(x = variable, y = mboost_250, colour = &quot;mboost_other&quot;), cex = 2.5) +
+  theme_classic() +
+  ylab(&quot;Estimate&quot;) + xlab(&quot;Coefficient&quot;) +
+  labs(color=&quot;Method&quot;) +
+  scale_color_manual(values=c(&quot;#999999&quot;, &quot;#1A5276&quot;, &quot;#2980B9&quot;, &quot;#B9770E&quot;, &quot;#F5B041&quot;)) +
+  theme(legend.position=&quot;none&quot;, 
+        axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.background = element_rect(colour = &quot;black&quot;, fill=NA, size=0.6))
+
+p_all + inset_element(p_age, left = 0.01, bottom = 0.6, right = 0.2, top = 1)</code></pre>
+<p><img src="CS_specification_files/figure-html/unnamed-chunk-31-1.png" width="672" /></p>
+<pre class="r"><code>
+if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
+  ggsave(&quot;/Outputs/Comparison_estimation_CSH.pdf&quot;, device = &quot;pdf&quot;)
+} else {
+  ggsave(&quot;../Outputs/Comparison_estimation_CSH.pdf&quot;, device = &quot;pdf&quot;)
+}
+#&gt; Saving 7 x 5 in image
+#&gt; Warning: &#39;mode(bg)&#39; differs between new and previous
+#&gt;   ==&gt; NOT changing &#39;bg&#39;</code></pre>
+<pre class="r"><code># black and white
+
+p_all &lt;- ggplot(df, aes(x=variable, y=cox, pch = &quot;Cox&quot;)) + 
+  geom_errorbar(aes(ymin = cox - cox_se, ymax = cox + cox_se), width=.1) +
+  geom_point(cex = 2.5) + 
+  geom_point(aes(x = variable, y = lasso_min, pch = &quot;lasso_min&quot;), cex = 2.5) +
+  geom_point(aes(x = variable, y = lasso_1se, pch =  &quot;lasso_1se&quot;), cex = 2.5) +
+  geom_point(aes(x = variable, y = mboost_stopb, pch =  &quot;mboost_min&quot;), cex = 2.5) + 
+  geom_point(aes(x = variable, y = mboost_250, pch = &quot;mboost_other&quot;), cex = 2.5) +
+  geom_hline(yintercept = 0, lty = 2, colour = &quot;gray&quot;) +
+  theme_classic() +
+  ylab(&quot;Estimate&quot;) + xlab(&quot;Coefficient&quot;) +
+  labs(pch=&quot;Method&quot;) +
+  scale_shape_manual(values = c(16, 15, 17, 1, 2)) 
+
+p_age &lt;- ggplot(df[df$variable == &quot;age&quot;,], aes(x=variable, y=cox, pch = &quot;Cox&quot;)) + 
+  geom_errorbar(aes(ymin = cox - cox_se, ymax = cox + cox_se), width=.1) +
+  geom_point(cex = 2.5) + 
+  geom_point(aes(x = variable, y = lasso_min, pch = &quot;lasso_min&quot;), cex = 2.5) +
+  geom_point(aes(x = variable, y = lasso_1se, pch = &quot;lasso_1se&quot;), cex = 2.5) +
+  geom_point(aes(x = variable, y = mboost_stopb, pch = &quot;mboost_min&quot;), cex = 2.5) + 
+  geom_point(aes(x = variable, y = mboost_250, pch = &quot;mboost_other&quot;), cex = 2.5) +
+  theme_classic() +
+  ylab(&quot;Estimate&quot;) + xlab(&quot;Coefficient&quot;) +
+  labs(pch=&quot;Method&quot;) +
+  theme(legend.position=&quot;none&quot;, 
+        axis.title.x = element_blank(), axis.title.y = element_blank(),
+        plot.background = element_rect(colour = &quot;black&quot;, fill=NA, size=0.6)) +
+  scale_shape_manual(values = c(16, 15, 17, 1, 2)) 
+
+p_all + inset_element(p_age, left = 0.01, bottom = 0.6, right = 0.2, top = 1)</code></pre>
+<p><img src="CS_specification_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
+<pre class="r"><code>
+if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
+  ggsave(&quot;/Outputs/Comparison_estimation_CSH_BW.pdf&quot;, device = &quot;pdf&quot;)
+} else {
+  ggsave(&quot;../Outputs/Comparison_estimation_CSH_BW.pdf&quot;, device = &quot;pdf&quot;)
+}
+#&gt; Saving 7 x 5 in image
+#&gt; Warning: &#39;mode(bg)&#39; differs between new and previous
+#&gt;   ==&gt; NOT changing &#39;bg&#39;</code></pre>
 </div>
 <div id="storing-predictions" class="section level1">
 <h1>Storing predictions</h1>
@@ -1254,11 +1313,11 @@ resulting number of boosting iterations.</p>
 methods, we save the predictions obtained in this vignette.</p>
 <pre class="r"><code>pred_CS &lt;- data.frame(&quot;testID&quot; = seq_len(nrow(hd_test)),
                       &quot;coxph_riskRegression&quot; = risk.coxph,
-                      &quot;coxphPL_riskRegression&quot; = risk.coxphPL)
+                      &quot;coxphPL_riskRegression&quot; = risk.pec)
 if (file.exists(&quot;/.dockerenv&quot;)){ # running in docker
-  write.csv(pred_CS, &quot;/Predictions/pred_CS.csv&quot;, row.names = FALSE)
+  write.csv(pred_CS, &quot;/Outputs/pred_CS.csv&quot;, row.names = FALSE)
 } else {
-  write.csv(pred_CS, &quot;../Predictions/pred_CS.csv&quot;, row.names = FALSE)
+  write.csv(pred_CS, &quot;../Outputs/pred_CS.csv&quot;, row.names = FALSE)
 }</code></pre>
 </div>
 <div id="references" class="section level1">
@@ -1274,18 +1333,28 @@ href="https://doi.org/10.1161/CIRCULATIONAHA.115.017719">https://doi.org/10.1161
 Harrell, Frank E. 2017. <span>“Regression Modeling Strategies.”</span>
 <em>Bios</em> 330 (2018): 14.
 </div>
+<div id="ref-hastie2009elements" class="csl-entry">
+Hastie, Trevor, Robert Tibshirani, Jerome H Friedman, and Jerome H
+Friedman. 2009. <em>The Elements of Statistical Learning: Data Mining,
+Inference, and Prediction</em>. Vol. 2. Springer.
+</div>
+<div id="ref-verweij1993cross" class="csl-entry">
+Verweij, Pierre JM, and Hans C Van Houwelingen. 1993.
+<span>“Cross-Validation in Survival Analysis.”</span> <em>Statistics in
+Medicine</em> 12 (24): 2305–14.
+</div>
 </div>
 </div>
 <div id="session-info" class="section level1">
 <h1>Session Info</h1>
 <pre class="r"><code>sessionInfo()
-#&gt; R version 4.2.2 (2022-10-31)
-#&gt; Platform: x86_64-pc-linux-gnu (64-bit)
-#&gt; Running under: Ubuntu 22.04.1 LTS
+#&gt; R version 4.3.1 (2023-06-16)
+#&gt; Platform: aarch64-unknown-linux-gnu (64-bit)
+#&gt; Running under: Ubuntu 22.04.3 LTS
 #&gt; 
 #&gt; Matrix products: default
-#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
-#&gt; LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so
+#&gt; BLAS:   /usr/lib/aarch64-linux-gnu/openblas-pthread/libblas.so.3 
+#&gt; LAPACK: /usr/lib/aarch64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0
 #&gt; 
 #&gt; locale:
 #&gt;  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
@@ -1295,59 +1364,64 @@ Harrell, Frank E. 2017. <span>“Regression Modeling Strategies.”</span>
 #&gt;  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
 #&gt; [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 #&gt; 
+#&gt; time zone: Etc/UTC
+#&gt; tzcode source: system (glibc)
+#&gt; 
 #&gt; attached base packages:
 #&gt; [1] parallel  stats     graphics  grDevices utils     datasets  methods  
 #&gt; [8] base     
 #&gt; 
 #&gt; other attached packages:
 #&gt;  [1] mboost_2.9-7              stabs_0.6-4              
-#&gt;  [3] glmnet_4.1-4              Matrix_1.5-1             
-#&gt;  [5] pec_2022.05.04            rms_6.3-0                
-#&gt;  [7] SparseM_1.81              Hmisc_4.7-1              
-#&gt;  [9] ggplot2_3.4.0             Formula_1.2-4            
-#&gt; [11] lattice_0.20-45           coda_0.19-4              
-#&gt; [13] DPWeibull_1.8             timereg_2.0.4            
-#&gt; [15] pseudo_1.4.3              geepack_1.3.9            
-#&gt; [17] KMsurv_0.1-5              riskRegression_2022.09.23
-#&gt; [19] prodlim_2019.11.13        cmprsk_2.2-11            
-#&gt; [21] survival_3.4-0            splitstackshape_1.4.8    
-#&gt; [23] pander_0.6.5              readr_2.1.3              
+#&gt;  [3] glmnet_4.1-8              Matrix_1.6-1             
+#&gt;  [5] pec_2023.04.12            rms_6.7-0                
+#&gt;  [7] Hmisc_5.1-0               patchwork_1.1.3          
+#&gt;  [9] lubridate_1.9.2.9000      forcats_1.0.0            
+#&gt; [11] stringr_1.5.0             dplyr_1.1.2              
+#&gt; [13] purrr_1.0.2               tidyr_1.3.0              
+#&gt; [15] tibble_3.2.1              ggplot2_3.4.3            
+#&gt; [17] tidyverse_2.0.0           coda_0.19-4              
+#&gt; [19] DPWeibull_1.8             timereg_2.0.5            
+#&gt; [21] pseudo_1.4.3              geepack_1.3.9            
+#&gt; [23] KMsurv_0.1-5              riskRegression_2023.03.22
+#&gt; [25] prodlim_2023.08.28        cmprsk_2.2-11            
+#&gt; [27] survival_3.5-5            splitstackshape_1.4.8    
+#&gt; [29] readr_2.1.4              
 #&gt; 
 #&gt; loaded via a namespace (and not attached):
-#&gt;   [1] TH.data_1.1-1       colorspace_2.0-3    deldir_1.0-6       
-#&gt;   [4] ellipsis_0.3.2      evd_2.3-6.1         htmlTable_2.4.1    
-#&gt;   [7] base64enc_0.1-3     rstudioapi_0.14     listenv_0.8.0      
-#&gt;  [10] MatrixModels_0.5-1  bit64_4.0.5         fansi_1.0.3        
-#&gt;  [13] mvtnorm_1.1-3       codetools_0.2-18    splines_4.2.2      
-#&gt;  [16] cachem_1.0.6        libcoin_1.0-9       knitr_1.40         
-#&gt;  [19] jsonlite_1.8.3      broom_1.0.1         cluster_2.1.4      
-#&gt;  [22] png_0.1-7           compiler_4.2.2      backports_1.4.1    
-#&gt;  [25] assertthat_0.2.1    fastmap_1.1.0       cli_3.4.1          
-#&gt;  [28] htmltools_0.5.3     quantreg_5.94       tools_4.2.2        
-#&gt;  [31] partykit_1.2-16     gtable_0.3.1        glue_1.6.2         
-#&gt;  [34] dplyr_1.0.10        Rcpp_1.0.9          jquerylib_0.1.4    
-#&gt;  [37] vctrs_0.5.1         nlme_3.1-160        iterators_1.0.14   
-#&gt;  [40] inum_1.0-4          xfun_0.35           stringr_1.4.1      
-#&gt;  [43] globals_0.16.1      lifecycle_1.0.3     future_1.29.0      
-#&gt;  [46] polspline_1.1.20    MASS_7.3-58.1       zoo_1.8-11         
-#&gt;  [49] scales_1.2.1        vroom_1.6.0         hms_1.1.2          
-#&gt;  [52] sandwich_3.0-2      RColorBrewer_1.1-3  yaml_2.3.6         
-#&gt;  [55] gridExtra_2.3       sass_0.4.2          truncdist_1.0-2    
-#&gt;  [58] rpart_4.1.19        latticeExtra_0.6-30 stringi_1.7.8      
-#&gt;  [61] highr_0.9           foreach_1.5.2       checkmate_2.1.0    
-#&gt;  [64] shape_1.4.6         lava_1.7.0          mets_1.3.1         
-#&gt;  [67] rlang_1.0.6         pkgconfig_2.0.3     evaluate_0.18      
-#&gt;  [70] purrr_0.3.5         htmlwidgets_1.5.4   bit_4.0.5          
-#&gt;  [73] tidyselect_1.2.0    parallelly_1.32.1   magrittr_2.0.3     
-#&gt;  [76] R6_2.5.1            nnls_1.4            generics_0.1.3     
-#&gt;  [79] multcomp_1.4-20     DBI_1.1.3           withr_2.5.0        
-#&gt;  [82] pillar_1.8.1        foreign_0.8-83      nnet_7.3-18        
-#&gt;  [85] tibble_3.1.8        future.apply_1.10.0 crayon_1.5.2       
-#&gt;  [88] interp_1.1-3        utf8_1.2.2          tzdb_0.3.0         
-#&gt;  [91] rmarkdown_2.18      jpeg_0.1-9          grid_4.2.2         
-#&gt;  [94] data.table_1.14.6   binaryLogic_0.3.9   digest_0.6.30      
-#&gt;  [97] tidyr_1.2.1         numDeriv_2016.8-1.1 stats4_4.2.2       
-#&gt; [100] munsell_0.5.0       bslib_0.4.1         quadprog_1.5-8</code></pre>
+#&gt;  [1] gridExtra_2.3       sandwich_3.0-2      rlang_1.1.1        
+#&gt;  [4] magrittr_2.0.3      multcomp_1.4-25     polspline_1.1.23   
+#&gt;  [7] compiler_4.3.1      systemfonts_1.0.4   vctrs_0.6.3        
+#&gt; [10] quadprog_1.5-8      quantreg_5.97       shape_1.4.6        
+#&gt; [13] pkgconfig_2.0.3     crayon_1.5.2        fastmap_1.1.1      
+#&gt; [16] backports_1.4.1     inum_1.0-5          labeling_0.4.3     
+#&gt; [19] utf8_1.2.3          rmarkdown_2.24      tzdb_0.4.0         
+#&gt; [22] ragg_1.2.5          MatrixModels_0.5-2  bit_4.0.5          
+#&gt; [25] xfun_0.40           cachem_1.0.8        jsonlite_1.8.7     
+#&gt; [28] highr_0.10          broom_1.0.5         cluster_2.1.4      
+#&gt; [31] R6_2.5.1            bslib_0.5.1         stringi_1.7.12     
+#&gt; [34] parallelly_1.36.0   rpart_4.1.19        jquerylib_0.1.4    
+#&gt; [37] numDeriv_2016.8-1.1 Rcpp_1.0.11         iterators_1.0.14   
+#&gt; [40] knitr_1.43          future.apply_1.11.0 zoo_1.8-12         
+#&gt; [43] base64enc_0.1-3     nnls_1.4            timechange_0.2.0   
+#&gt; [46] splines_4.3.1       nnet_7.3-19         tidyselect_1.2.0   
+#&gt; [49] rstudioapi_0.15.0   yaml_2.3.7          partykit_1.2-20    
+#&gt; [52] codetools_0.2-19    listenv_0.9.0       lattice_0.21-8     
+#&gt; [55] withr_2.5.0         evaluate_0.21       foreign_0.8-84     
+#&gt; [58] future_1.33.0       pillar_1.9.0        checkmate_2.2.0    
+#&gt; [61] foreach_1.5.2       stats4_4.3.1        generics_0.1.3     
+#&gt; [64] vroom_1.6.3         hms_1.1.3           munsell_0.5.0      
+#&gt; [67] scales_1.2.1        globals_0.16.2      glue_1.6.2         
+#&gt; [70] binaryLogic_0.3.9   tools_4.3.1         data.table_1.14.8  
+#&gt; [73] SparseM_1.81        mvtnorm_1.2-3       grid_4.3.1         
+#&gt; [76] libcoin_1.0-9       truncdist_1.0-2     colorspace_2.1-0   
+#&gt; [79] nlme_3.1-162        htmlTable_2.4.1     Formula_1.2-5      
+#&gt; [82] cli_3.6.1           evd_2.3-6.1         textshaping_0.3.6  
+#&gt; [85] fansi_1.0.4         lava_1.7.2.1        mets_1.3.2         
+#&gt; [88] gtable_0.3.4        sass_0.4.7          digest_0.6.33      
+#&gt; [91] TH.data_1.1-2       farver_2.1.1        htmlwidgets_1.6.2  
+#&gt; [94] htmltools_0.5.6     lifecycle_1.0.3     bit64_4.0.5        
+#&gt; [97] MASS_7.3-60</code></pre>
 </div>
 
 

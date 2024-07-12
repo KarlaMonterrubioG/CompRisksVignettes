@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Karla Monterrubio-Gómez, Nathan Constantine-Cooke, and Catalina Vallejos" />
+
+<meta name="date" content="2024-01-11" />
+
+<title>Data exploration</title>
+
+<script src="DataPreparation_files/header-attrs-2.24/header-attrs.js"></script>
+<script src="DataPreparation_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="DataPreparation_files/bootstrap-3.3.5/css/simplex.min.css" rel="stylesheet" />
+<script src="DataPreparation_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="DataPreparation_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="DataPreparation_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="DataPreparation_files/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="DataPreparation_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="DataPreparation_files/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="DataPreparation_files/navigation-1.1/tabsets.js"></script>
+<script src="DataPreparation_files/navigation-1.1/codefolding.js"></script>
+<link href="DataPreparation_files/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="DataPreparation_files/highlightjs-9.12.0/highlight.js"></script>
+<link href="DataPreparation_files/table1-1.0/table1_defaults.css" rel="stylesheet" />
+<script src="https://kit.fontawesome.com/1339b11c04.js" crossorigin="anonymous"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div id = "nav">
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="DataPreparation.html">Data Preparation</a></li>
+    <li><a href="CIF_specification.html">Cumulative Incidence</a></li>
+    <li><a href="CS_specification.html">Cause Specific</a></li>
+    <li><a href="Discrete_specification.html">Discrete</a></li>
+    <li><a href="Others.html">Other</a></li>
+    <li><a href="Predictions.html">Predictions</a></li>
+    <li style="float:right"><a href="https://github.com/VallejosGroup/CompRisksVignettes"><i style="font-size: 20px; padding-top: 0px; padding-bottom: 0px;" class="fa-brands fa-github"></i></a></li>
+  </ul>
+</div>
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Data exploration</h1>
+<h4 class="author">Karla Monterrubio-Gómez, Nathan Constantine-Cooke,
+and Catalina Vallejos</h4>
+<h4 class="date">2024-01-11</h4>
+
+</div>
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>To demonstrate the usage of difference competing risks survival
+methods, we use publicly available data.</p>
+<p>The code below is used to load and pre-process the data.
+Additionally, we randomly split the data into <em>training</em> and
+<em>testing</em> sets as that will allow us to evaluate out-of-sample
+predictive performance when comparing different approaches.</p>
+<p>To avoid code duplication, a basic version of the code below is
+stored as an R file which will be sourced at the start of each
+vignette.</p>
+</div>
+<div id="data-preparation" class="section level1">
+<h1>Data preparation</h1>
+<p>The dataset used here corresponds to the Hodgkin’s disease (HD) study
+described in Pintilie, 2006. The dataset comprises 865 patients
+diagnosed with early stage (I or II) HD, and which were treated either
+with radiation (RT) or with radiation and chemotherapy (CMT).</p>
+<p>The recorded data includes:</p>
+<ul>
+<li>age: Age (years)</li>
+<li>sex: Sex, F=female and M=Male.</li>
+<li>trtgiven: Treatment given, RT=Radiation, CMT=Chemotherapy and
+radiation</li>
+<li>medwidsi: Size of mediastinum involvement, N=No, S=Small,
+L=Large</li>
+<li>extranod: Extranodal disease, Y=Extranodal disease, N= Nodal
+disease</li>
+<li>clinstg: Clinical stage, 1=Stage I, 2=Stage II</li>
+<li>time: time to failure (years) calculated from the date of
+diagnosis</li>
+<li>status: 0=censoring, 1=relapse and 2=death.</li>
+</ul>
+<p>We now load and display the structure of the HD dataset:</p>
+<pre class="r"><code>require(readr)
+hd &lt;- data.frame(read_csv(&quot;../Data/HD/hd.csv&quot;,
+                          col_types = cols(X1 = col_skip())))
+str(hd)
+#&gt; &#39;data.frame&#39;:    865 obs. of  8 variables:
+#&gt;  $ age     : num  64 63 17 63 21 37 41 35 27 32 ...
+#&gt;  $ sex     : chr  &quot;F&quot; &quot;M&quot; &quot;M&quot; &quot;M&quot; ...
+#&gt;  $ trtgiven: chr  &quot;RT&quot; &quot;RT&quot; &quot;RT&quot; &quot;RT&quot; ...
+#&gt;  $ medwidsi: chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+#&gt;  $ extranod: chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+#&gt;  $ clinstg : num  1 1 2 2 2 1 2 2 2 2 ...
+#&gt;  $ time    : num  3.1 15.9 0.9 13.1 35.9 1.1 2.5 0.003 4.1 28.1 ...
+#&gt;  $ status  : num  2 2 1 2 0 1 1 1 1 0 ...</code></pre>
+<p>To procede with the analysis, it is important to change the data type
+of sex, trtgiven, medwidsi, and extranod from <code>character</code> to
+<code>factor</code>. Similarly, we convert clinstg from
+<code>numeric</code> to <code>factor</code>.</p>
+<pre class="r"><code>hd$sex      &lt;- as.factor(hd$sex)
+hd$trtgiven &lt;- as.factor(hd$trtgiven)
+hd$medwidsi &lt;- as.factor(hd$medwidsi)
+hd$extranod &lt;- as.factor(hd$extranod)
+hd$clinstg  &lt;- as.factor(hd$clinstg)</code></pre>
+</div>
+<div id="data-exploration" class="section level1">
+<h1>Data exploration</h1>
+<p>Now, we explore the number of events for each event type:</p>
+<pre class="r"><code>require(pander)
+pander::pander(table(hd$status))</code></pre>
+<table style="width:25%;">
+<colgroup>
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">0</th>
+<th align="center">1</th>
+<th align="center">2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">439</td>
+<td align="center">291</td>
+<td align="center">135</td>
+</tr>
+</tbody>
+</table>
+<p>Thus, we have 439 censored patients, 291 with relapse and 135 who
+died. From now on, we assume that the event of interest is relapse,
+i.e. <code>status=1</code>.</p>
+<p>In order to create a test set, we use stratified sampling to
+partition our data in 80% for train and 20% for test.</p>
+<pre class="r"><code>require(splitstackshape)
+set.seed(2022)
+split_data &lt;- stratified(hd, c(&quot;status&quot;), 0.8, bothSets = TRUE)
+hd_train   &lt;- split_data$SAMP1
+hd_test    &lt;- split_data$SAMP2</code></pre>
+<p>Now, we explore the number of observations per status in both train
+and test set:</p>
+<pre class="r"><code>pander::pander(table(hd_train$status))</code></pre>
+<table style="width:25%;">
+<colgroup>
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">0</th>
+<th align="center">1</th>
+<th align="center">2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">351</td>
+<td align="center">233</td>
+<td align="center">108</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>pander::pander(table(hd_test$status))</code></pre>
+<table style="width:21%;">
+<colgroup>
+<col width="6%" />
+<col width="6%" />
+<col width="6%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">0</th>
+<th align="center">1</th>
+<th align="center">2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">88</td>
+<td align="center">58</td>
+<td align="center">27</td>
+</tr>
+</tbody>
+</table>
+<p>The following code is used to create the summary presented in Table
+3:</p>
+<pre class="r"><code>library(table1)
+#&gt; 
+#&gt; Attaching package: &#39;table1&#39;
+#&gt; The following objects are masked from &#39;package:Hmisc&#39;:
+#&gt; 
+#&gt;     label, label&lt;-, units
+#&gt; The following objects are masked from &#39;package:base&#39;:
+#&gt; 
+#&gt;     units, units&lt;-
+table1(~ age + sex + trtgiven + medwidsi + extranod + clinstg | 
+         factor(status), data = hd)</code></pre>
+<div class="Rtable1"><table class="Rtable1">
+<thead>
+<tr>
+<th class='rowlabel firstrow lastrow'></th>
+<th class='firstrow lastrow'><span class='stratlabel'>0<br><span class='stratn'>(N=439)</span></span></th>
+<th class='firstrow lastrow'><span class='stratlabel'>1<br><span class='stratn'>(N=291)</span></span></th>
+<th class='firstrow lastrow'><span class='stratlabel'>2<br><span class='stratn'>(N=135)</span></span></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Overall<br><span class='stratn'>(N=865)</span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class='rowlabel firstrow'>age</td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Mean (SD)</td>
+<td>30.0 (10.4)</td>
+<td>37.6 (17.2)</td>
+<td>47.5 (17.3)</td>
+<td>35.3 (15.5)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Median [Min, Max]</td>
+<td class='lastrow'>28.0 [15.7, 74.0]</td>
+<td class='lastrow'>32.0 [15.6, 90.0]</td>
+<td class='lastrow'>47.3 [17.0, 82.0]</td>
+<td class='lastrow'>30.6 [15.6, 90.0]</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'>sex</td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>F</td>
+<td>223 (50.8%)</td>
+<td>132 (45.4%)</td>
+<td>47 (34.8%)</td>
+<td>402 (46.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>M</td>
+<td class='lastrow'>216 (49.2%)</td>
+<td class='lastrow'>159 (54.6%)</td>
+<td class='lastrow'>88 (65.2%)</td>
+<td class='lastrow'>463 (53.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'>trtgiven</td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>CMT</td>
+<td>146 (33.3%)</td>
+<td>61 (21.0%)</td>
+<td>42 (31.1%)</td>
+<td>249 (28.8%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>RT</td>
+<td class='lastrow'>293 (66.7%)</td>
+<td class='lastrow'>230 (79.0%)</td>
+<td class='lastrow'>93 (68.9%)</td>
+<td class='lastrow'>616 (71.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'>medwidsi</td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>L</td>
+<td>67 (15.3%)</td>
+<td>36 (12.4%)</td>
+<td>10 (7.4%)</td>
+<td>113 (13.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>N</td>
+<td>201 (45.8%)</td>
+<td>171 (58.8%)</td>
+<td>92 (68.1%)</td>
+<td>464 (53.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>S</td>
+<td class='lastrow'>171 (39.0%)</td>
+<td class='lastrow'>84 (28.9%)</td>
+<td class='lastrow'>33 (24.4%)</td>
+<td class='lastrow'>288 (33.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'>extranod</td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>N</td>
+<td>398 (90.7%)</td>
+<td>263 (90.4%)</td>
+<td>125 (92.6%)</td>
+<td>786 (90.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Y</td>
+<td class='lastrow'>41 (9.3%)</td>
+<td class='lastrow'>28 (9.6%)</td>
+<td class='lastrow'>10 (7.4%)</td>
+<td class='lastrow'>79 (9.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'>clinstg</td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>1</td>
+<td>141 (32.1%)</td>
+<td>97 (33.3%)</td>
+<td>58 (43.0%)</td>
+<td>296 (34.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>2</td>
+<td class='lastrow'>298 (67.9%)</td>
+<td class='lastrow'>194 (66.7%)</td>
+<td class='lastrow'>77 (57.0%)</td>
+<td class='lastrow'>569 (65.8%)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<div id="refs">
+
+</div>
+</div>
+<div id="session-info" class="section level1">
+<h1>Session Info</h1>
+<pre class="r"><code>sessionInfo()
+#&gt; R version 4.3.1 (2023-06-16)
+#&gt; Platform: aarch64-unknown-linux-gnu (64-bit)
+#&gt; Running under: Ubuntu 22.04.3 LTS
+#&gt; 
+#&gt; Matrix products: default
+#&gt; BLAS:   /usr/lib/aarch64-linux-gnu/openblas-pthread/libblas.so.3 
+#&gt; LAPACK: /usr/lib/aarch64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0
+#&gt; 
+#&gt; locale:
+#&gt;  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+#&gt;  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+#&gt;  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+#&gt;  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+#&gt;  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+#&gt; [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+#&gt; 
+#&gt; time zone: Etc/UTC
+#&gt; tzcode source: system (glibc)
+#&gt; 
+#&gt; attached base packages:
+#&gt; [1] parallel  stats     graphics  grDevices utils     datasets  methods  
+#&gt; [8] base     
+#&gt; 
+#&gt; other attached packages:
+#&gt;  [1] table1_1.4.3              pander_0.6.5             
+#&gt;  [3] mboost_2.9-7              stabs_0.6-4              
+#&gt;  [5] glmnet_4.1-8              Matrix_1.6-1             
+#&gt;  [7] pec_2023.04.12            rms_6.7-0                
+#&gt;  [9] Hmisc_5.1-0               patchwork_1.1.3          
+#&gt; [11] lubridate_1.9.2.9000      forcats_1.0.0            
+#&gt; [13] stringr_1.5.0             dplyr_1.1.2              
+#&gt; [15] purrr_1.0.2               tidyr_1.3.0              
+#&gt; [17] tibble_3.2.1              ggplot2_3.4.3            
+#&gt; [19] tidyverse_2.0.0           coda_0.19-4              
+#&gt; [21] DPWeibull_1.8             timereg_2.0.5            
+#&gt; [23] pseudo_1.4.3              geepack_1.3.9            
+#&gt; [25] KMsurv_0.1-5              riskRegression_2023.03.22
+#&gt; [27] prodlim_2023.08.28        cmprsk_2.2-11            
+#&gt; [29] survival_3.5-5            splitstackshape_1.4.8    
+#&gt; [31] readr_2.1.4              
+#&gt; 
+#&gt; loaded via a namespace (and not attached):
+#&gt;  [1] gridExtra_2.3       sandwich_3.0-2      rlang_1.1.1        
+#&gt;  [4] magrittr_2.0.3      multcomp_1.4-25     polspline_1.1.23   
+#&gt;  [7] compiler_4.3.1      systemfonts_1.0.4   vctrs_0.6.3        
+#&gt; [10] quadprog_1.5-8      quantreg_5.97       shape_1.4.6        
+#&gt; [13] pkgconfig_2.0.3     crayon_1.5.2        fastmap_1.1.1      
+#&gt; [16] backports_1.4.1     inum_1.0-5          labeling_0.4.3     
+#&gt; [19] utf8_1.2.3          rmarkdown_2.24      tzdb_0.4.0         
+#&gt; [22] ragg_1.2.5          MatrixModels_0.5-2  bit_4.0.5          
+#&gt; [25] xfun_0.40           cachem_1.0.8        jsonlite_1.8.7     
+#&gt; [28] highr_0.10          broom_1.0.5         cluster_2.1.4      
+#&gt; [31] R6_2.5.1            bslib_0.5.1         stringi_1.7.12     
+#&gt; [34] parallelly_1.36.0   rpart_4.1.19        jquerylib_0.1.4    
+#&gt; [37] numDeriv_2016.8-1.1 Rcpp_1.0.11         iterators_1.0.14   
+#&gt; [40] knitr_1.43          future.apply_1.11.0 zoo_1.8-12         
+#&gt; [43] base64enc_0.1-3     nnls_1.4            timechange_0.2.0   
+#&gt; [46] splines_4.3.1       nnet_7.3-19         tidyselect_1.2.0   
+#&gt; [49] rstudioapi_0.15.0   yaml_2.3.7          partykit_1.2-20    
+#&gt; [52] codetools_0.2-19    listenv_0.9.0       lattice_0.21-8     
+#&gt; [55] withr_2.5.0         evaluate_0.21       foreign_0.8-84     
+#&gt; [58] future_1.33.0       pillar_1.9.0        checkmate_2.2.0    
+#&gt; [61] foreach_1.5.2       stats4_4.3.1        generics_0.1.3     
+#&gt; [64] vroom_1.6.3         hms_1.1.3           munsell_0.5.0      
+#&gt; [67] scales_1.2.1        globals_0.16.2      glue_1.6.2         
+#&gt; [70] binaryLogic_0.3.9   tools_4.3.1         data.table_1.14.8  
+#&gt; [73] SparseM_1.81        mvtnorm_1.2-3       grid_4.3.1         
+#&gt; [76] libcoin_1.0-9       truncdist_1.0-2     colorspace_2.1-0   
+#&gt; [79] nlme_3.1-162        htmlTable_2.4.1     Formula_1.2-5      
+#&gt; [82] cli_3.6.1           evd_2.3-6.1         textshaping_0.3.6  
+#&gt; [85] fansi_1.0.4         lava_1.7.2.1        mets_1.3.2         
+#&gt; [88] gtable_0.3.4        sass_0.4.7          digest_0.6.33      
+#&gt; [91] TH.data_1.1-2       farver_2.1.1        htmlwidgets_1.6.2  
+#&gt; [94] htmltools_0.5.6     lifecycle_1.0.3     bit64_4.0.5        
+#&gt; [97] MASS_7.3-60</code></pre>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
